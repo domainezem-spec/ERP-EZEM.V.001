@@ -1,0 +1,359 @@
+
+<!doctype html>
+<html lang="ar">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ERP EZEM Ultimate | القمة في إدارة الموارد</title>
+
+    <!-- PWA -->
+    <link rel="manifest" href="manifest.json" />
+    <meta name="theme-color" content="#4f46e5" />
+
+    <!-- Dependencies -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Cairo:wght@300;400;600;700;900&display=swap"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <link
+      href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+
+    <!-- Local Styles -->
+    <link rel="stylesheet" href="styles/main.css" />
+
+    <style>
+      .login-bg {
+        background: radial-gradient(
+          circle at top right,
+          #eef2ff 0%,
+          #f8fafc 50%,
+          #f1f5f9 100%
+        );
+      }
+      .login-card {
+        background: rgba(255, 255, 255, 0.8);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.5);
+        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.05);
+      }
+      .floating-icon {
+        animation: float 6s ease-in-out infinite;
+      }
+      @keyframes float {
+        0%,
+        100% {
+          transform: translateY(0px) rotate(0deg);
+        }
+        50% {
+          transform: translateY(-20px) rotate(5deg);
+        }
+      }
+    </style>
+  </head>
+  <body
+    class="bg-[#f8fafc] text-slate-900 selection:bg-indigo-500/30 overflow-hidden"
+  >
+    <!-- LOADER -->
+    <div
+      id="loader"
+      class="fixed inset-0 bg-white z-[9999] flex flex-col items-center justify-center"
+    >
+      <div class="relative">
+        <div class="text-5xl font-black mb-4 tracking-tighter text-slate-900">
+          EZEM <span class="text-indigo-600">PRO</span>
+        </div>
+        <div
+          class="absolute -right-4 -top-4 w-4 h-4 bg-indigo-500 rounded-full animate-ping"
+        ></div>
+      </div>
+      <div
+        class="animate-spin rounded-full h-10 w-10 border-4 border-indigo-600 border-t-transparent mt-4"
+      ></div>
+      <div
+        class="mt-6 text-slate-400 font-bold text-[10px] tracking-[0.2em] uppercase mb-4"
+      >
+        Enterprise Engine Booting...
+      </div>
+
+      <!-- Premium Loading Bar -->
+      <div
+        class="w-64 h-1.5 bg-slate-100 rounded-full overflow-hidden relative border border-slate-50"
+      >
+        <div
+          id="boot-progress"
+          class="absolute top-0 right-0 h-full bg-indigo-600 transition-all duration-500 ease-out"
+          style="width: 0%"
+        ></div>
+      </div>
+      <div
+        id="boot-status"
+        class="mt-2 text-[9px] font-black text-indigo-500/50 uppercase tracking-widest"
+      >
+        0% Synchronized
+      </div>
+    </div>
+
+    <!-- LOGIN PAGE -->
+    <div
+      id="login-container"
+      class="hidden fixed inset-0 z-[1000] flex items-center justify-center login-bg p-6"
+    >
+      <div
+        class="w-full max-w-[1000px] grid grid-cols-1 lg:grid-cols-2 login-card rounded-[2.5rem] overflow-hidden"
+      >
+        <!-- Left Side: Branding/Visual -->
+        <div
+          class="hidden lg:flex flex-col justify-center p-12 bg-indigo-600 text-white relative overflow-hidden"
+        >
+          <div
+            class="absolute inset-0 bg-gradient-to-br from-indigo-500 to-indigo-800 opacity-90"
+          ></div>
+          <!-- Abstract Shapes -->
+          <div
+            class="absolute -top-10 -left-10 w-40 h-40 bg-white/10 rounded-full blur-3xl"
+          ></div>
+          <div
+            class="absolute -bottom-20 -right-20 w-80 h-80 bg-indigo-400/20 rounded-full blur-3xl"
+          ></div>
+
+          <div class="relative z-10">
+            <div class="mb-10 floating-icon">
+              <div
+                class="w-16 h-16 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center text-3xl mb-6 shadow-2xl"
+              >
+                <i class="fa-solid fa-cube text-white"></i>
+              </div>
+              <h1 class="text-4xl font-black tracking-tight leading-tight">
+                قوة البيانات <br /><span class="text-indigo-200"
+                  >بين يديك.</span
+                >
+              </h1>
+            </div>
+
+            <div class="space-y-6">
+              <div class="flex items-center gap-4 group">
+                <div
+                  class="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center group-hover:bg-white/20 transition-all"
+                >
+                  <i class="fa-solid fa-bolt-lightning"></i>
+                </div>
+                <div>
+                  <h3 class="font-bold text-sm">سرعة استجابة فائقة</h3>
+                  <p
+                    class="text-[10px] text-indigo-100/70 uppercase font-bold tracking-widest"
+                  >
+                    Real-time processing
+                  </p>
+                </div>
+              </div>
+              <div class="flex items-center gap-4 group">
+                <div
+                  class="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center group-hover:bg-white/20 transition-all"
+                >
+                  <i class="fa-solid fa-shield-halved"></i>
+                </div>
+                <div>
+                  <h3 class="font-bold text-sm">أمان معزز بالصلاحيات</h3>
+                  <p
+                    class="text-[10px] text-indigo-100/70 uppercase font-bold tracking-widest"
+                  >
+                    Role-based security
+                  </p>
+                </div>
+              </div>
+              <div class="flex items-center gap-4 group">
+                <div
+                  class="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center group-hover:bg-white/20 transition-all"
+                >
+                  <i class="fa-solid fa-chart-pie"></i>
+                </div>
+                <div>
+                  <h3 class="font-bold text-sm">تحليلات ذكية شاملة</h3>
+                  <p
+                    class="text-[10px] text-indigo-100/70 uppercase font-bold tracking-widest"
+                  >
+                    Advanced analytics
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <div class="mt-16 pt-8 border-t border-white/10">
+              <div
+                class="text-[10px] font-bold text-indigo-200/50 uppercase tracking-[0.3em]"
+              >
+                EZEM ERP ULTIMATE v3.1
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right Side: Login Form -->
+        <div class="p-8 lg:p-16 flex flex-col justify-center">
+          <div class="mb-10 text-center lg:text-right">
+            <h2 class="text-3xl font-black text-slate-800 tracking-tight mb-2">
+              تسجيل الدخول
+            </h2>
+            <p class="text-slate-400 font-medium text-sm">
+              يرجى إدخال بيانات الاعتماد للوصول إلى النظام
+            </p>
+          </div>
+
+          <div class="space-y-6">
+            <div class="relative group">
+              <label
+                class="absolute right-4 -top-2.5 bg-white px-2 text-[9px] font-black text-slate-400 uppercase tracking-widest group-focus-within:text-indigo-600 transition-colors z-10"
+                >اسم المستخدم</label
+              >
+              <div class="relative">
+                <input
+                  type="text"
+                  id="login-user"
+                  class="w-full h-14 bg-slate-50 border-1.5 border-slate-100 rounded-2xl px-6 outline-none focus:border-indigo-500 focus:bg-white transition-all font-bold text-slate-700"
+                  placeholder="admin"
+                />
+                <i
+                  class="fa-solid fa-at absolute left-6 top-1/2 -translate-y-1/2 text-slate-300"
+                ></i>
+              </div>
+            </div>
+
+            <div class="relative group">
+              <label
+                class="absolute right-4 -top-2.5 bg-white px-2 text-[9px] font-black text-slate-400 uppercase tracking-widest group-focus-within:text-indigo-600 transition-colors z-10"
+                >كلمة المرور</label
+              >
+              <div class="relative">
+                <input
+                  type="password"
+                  id="login-pass"
+                  class="w-full h-14 bg-slate-50 border-1.5 border-slate-100 rounded-2xl px-6 outline-none focus:border-indigo-500 focus:bg-white transition-all font-bold text-slate-700"
+                  placeholder="••••••••"
+                />
+                <i
+                  class="fa-solid fa-lock absolute left-6 top-1/2 -translate-y-1/2 text-slate-300"
+                ></i>
+              </div>
+            </div>
+
+            <div class="flex items-center justify-between px-2">
+              <label class="flex items-center gap-2 cursor-pointer group">
+                <input
+                  type="checkbox"
+                  class="w-4 h-4 rounded border-slate-200 text-indigo-600 focus:ring-indigo-500"
+                />
+                <span
+                  class="text-xs font-bold text-slate-500 group-hover:text-slate-700 transition-colors"
+                  >تذكرني</span
+                >
+              </label>
+              <a
+                href="#"
+                class="text-xs font-bold text-indigo-600 hover:text-indigo-800"
+                >نسيت كلمة المرور؟</a
+              >
+            </div>
+
+            <button
+              id="login-submit-btn"
+              onclick="Auth.login($('#login-user').val(), $('#login-pass').val())"
+              class="w-full h-14 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl font-black text-lg shadow-xl shadow-indigo-200 transition-all flex items-center justify-center gap-3 active:scale-[0.98]"
+            >
+              دخول إلى النظام
+              <i class="fa-solid fa-arrow-left-long text-sm opacity-50"></i>
+            </button>
+          </div>
+
+          <div class="mt-12 text-center">
+            <p
+              class="text-xs font-bold text-slate-400 flex items-center justify-center gap-2"
+            >
+              <i class="fa-solid fa-circle-info"></i>
+              بواسطة
+              <span class="text-slate-800">Branch's Digital Solutions</span>
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- APP WRAPPER -->
+    <div id="app" class="hidden flex h-screen overflow-hidden">
+      <!-- SIDEBAR -->
+      <aside id="sidebar-container" class="z-50"></aside>
+
+      <!-- MAIN LAYOUT -->
+      <main class="flex-1 flex flex-col overflow-hidden relative">
+        <!-- HEADER -->
+        <div id="header-container"></div>
+
+        <!-- CONTENT AREA -->
+        <section
+          id="main-content"
+          class="flex-1 overflow-y-auto p-4 lg:p-6 relative custom-scrollbar"
+        >
+          <!-- Modules will be injected here -->
+        </section>
+      </main>
+    </div>
+
+    <!-- MODAL SYSTEM -->
+    <div
+      id="modal-overlay"
+      class="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-[100] hidden items-center justify-center p-4"
+    >
+      <div
+        id="modal-content"
+        class="glass-card w-full max-w-4xl overflow-hidden shadow-2xl relative bg-white border-transparent"
+      >
+        <button onclick="Utils.closeModal()" class="absolute right-8 top-8 text-slate-400 hover:text-rose-500 transition-all text-3xl z-[150] bg-white/80 backdrop-blur-md w-14 h-14 rounded-full flex items-center justify-center shadow-2xl border border-slate-100">
+            <i class="fa-solid fa-times"></i>
+        </button>
+        <div id="modal-body" class="p-0"></div>
+      </div>
+    </div>
+
+    <!-- CORE SCRIPTS -->
+    <script src="core/state.js"></script>
+    <script src="core/i18n.js"></script>
+    <script src="core/auth.js"></script>
+    <script src="core/api.js"></script>
+    <script src="core/router.js"></script>
+    <script src="utils/utils.js"></script>
+
+    <!-- UI COMPONENTS -->
+    <script src="components/header.js"></script>
+    <script src="components/sidebar.js"></script>
+
+    <!-- BUSINESS MODULES -->
+    <script src="modules/pos.js"></script>
+    <script src="modules/inventory.js"></script>
+    <script src="modules/recipes.js"></script>
+    <script src="modules/kds.js"></script>
+    <script src="modules/hr.js"></script>
+    <script src="modules/finance.js"></script>
+    <script src="modules/settings.js"></script>
+
+    <!-- BOOTSTRAP -->
+    <script src="modules/reports.js"></script>
+    <script src="modules/reports_hub.js"></script>
+    <script src="modules/recon.js"></script>
+    <script src="modules/movements.js"></script>
+    <script src="modules/purchasing.js"></script>
+    <script src="modules/audit.js"></script>
+    <script src="modules/suppliers.js"></script>
+    <script src="modules/users.js"></script>
+    <script src="app.js"></script>
+  </body>
+</html>
