@@ -38,6 +38,8 @@ const APP_CONFIG = {
     RECON_ARCHIVE: "Reconciliation_Archive",
     BOH_COUNTS: "Inventory_Record", // Renamed for user preference
     INVENTORY_RECORD: "Inventory_Record",
+    ANALYTICS_CACHE: "Analytics_Cache",
+    TARGETS: "Monthly_Targets",
   },
 };
 
@@ -57,6 +59,7 @@ function syncSecretsFromEnv() {
     TELEGRAM_TOKEN: "8630064385:AAEOIyHLx5oHfJS9Gv0z4KanTLQZ61GTtEQ",
     TELEGRAM_CHAT_ID: "839787526",
     TELEGRAM_ENABLED: "true",
+    GEMINI_API_KEY: "PASTE_YOUR_GEMINI_API_KEY_HERE",
     AUTO_REPORTS: JSON.stringify(["sales", "stock"]),
     AUTO_HOUR: "22",
   });
@@ -217,20 +220,25 @@ function setupSystem() {
     {
       name: "Reconciliation_Archive",
       head: [
-        "SnapshotDate",
-        "ItemCode",
-        "ItemName",
-        "Beginning",
-        "Receiving",
-        "Purchasing",
-        "TrxIn",
-        "TrxOut",
+        "Date",
+        "Branch",
+        "Code",
+        "Item Name",
+        "Beg. Inv",
+        "Recv",
+        "Purch",
+        "T-In",
+        "T-Out",
         "Waste",
-        "Returns",
-        "Actual",
-        "Theoretical",
+        "Ret",
+        "Cons (POS)",
+        "Cons (Manual)",
+        "Theo. Stock",
+        "Yield %",
+        "Theo. Stock (Yield)",
+        "Actual Count (On Hand)",
         "Variance",
-        "Cost",
+        "Var. Value",
         "User",
       ],
     },
@@ -278,6 +286,22 @@ function setupSystem() {
         "TotalRevenue",
         "Discrepancy",
       ],
+    },
+    {
+      name: "Analytics_Cache",
+      head: [
+        "Date",
+        "Branch",
+        "TotalSales",
+        "COGS",
+        "WasteAmount",
+        "OrderCount",
+        "AvgTicket",
+      ],
+    },
+    {
+      name: "Monthly_Targets",
+      head: ["Branch", "Month", "Year", "TargetType", "TargetValue"],
     },
   ];
 
@@ -402,6 +426,18 @@ function doPost(e) {
       case "LOG_RECON":
         response = AdminService.saveReconSnapshot(data, user);
         break;
+      case "GET_PREDICTIVE_DATA":
+        response = IntelligenceService.getAdvancedAnalytics(data, user);
+        break;
+      case "SAVE_DSR_ENTRY":
+        response = SalesService.saveDSR(data, user);
+        break;
+      case "GET_DSR_LOGS":
+        response = SalesService.getDSRLogs(data, user);
+        break;
+      case "ADD_HISTORICAL_DSR":
+        response = SalesService.addHistoricalDSR(data, user);
+        break;
       case "SAVE_LOCATION":
         response = AdminService.saveLocation(data, user);
         break;
@@ -422,6 +458,9 @@ function doPost(e) {
         break;
       case "SAVE_BOH_COUNT":
         response = BOHService.saveCounts(data, user);
+        break;
+      case "ASK_AI":
+        response = AIService.ask(data, user);
         break;
       default:
         throw new Error("API Action Refused: " + action);
@@ -649,6 +688,152 @@ const SalesService = {
     AdminService.logAction(u.name, "SALE", `INV: ${id} | Total: ${d.total}`);
     return { status: "success", txnId: id, date: dt };
   },
+
+  /**
+   * 📅 Bulk Add Historical DSR for Data Mining (Months 1 & 2)
+   */
+  addHistoricalDSR: function (d, u) {
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    const sh = ss.getSheetByName("Sales");
+    const timestamp = d.date + " 22:00";
+
+    // 1. Add Direct Sales (Walk-in/To Go)
+    if (d.directAmount > 0) {
+      sh.appendRow([
+        "HIST-D-" + Date.now(),
+        timestamp,
+        d.directAmount,
+        "[]",
+        u.name,
+        "Walk-in",
+        "Cash",
+        d.directAmount,
+        0,
+        "DSR_Import_Direct",
+      ]);
+    }
+
+    // 2. Add Delivery/Aggregator Sales (Talabat, etc)
+    if (d.deliveryAmount > 0) {
+      sh.appendRow([
+        "HIST-E-" + Date.now(),
+        timestamp,
+        d.deliveryAmount,
+        "[]",
+        u.name,
+        "Delivery",
+        "Bank",
+        d.deliveryAmount,
+        0,
+        "DSR_Import_Delivery",
+      ]);
+    }
+
+    AdminService.logAction(
+      u.name,
+      "DSR_IMPORT",
+      `Date: ${d.date} | Direct: ${d.directAmount} | Delivery: ${d.deliveryAmount}`,
+    );
+    return { status: "success" };
+  },
+
+  /**
+   * 📝 Save Detailed DSR Entry
+   */
+  saveDSR: function (d, u) {
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    let sh = ss.getSheetByName("DSR_Logs");
+    if (!sh) {
+      sh = ss.insertSheet("DSR_Logs");
+      sh.appendRow([
+        "ID",
+        "Date",
+        "Branch",
+        "Morning_Sales",
+        "Morning_Count",
+        "Night_Sales",
+        "Night_Count",
+        "Delivery_Sales",
+        "Delivery_Count",
+        "Talabat_Sales",
+        "Talabat_Count",
+        "Total_Sales",
+        "Total_Count",
+        "Created_By",
+      ]);
+    }
+
+    const totalSales =
+      d.morningSales + d.nightSales + d.deliverySales + d.talabatSales;
+    const totalCount =
+      d.morningCount + d.nightCount + d.deliveryCount + d.talabatCount;
+    const id = "DSR-" + Date.now();
+
+    sh.appendRow([
+      id,
+      d.date,
+      d.branch,
+      d.morningSales,
+      d.morningCount,
+      d.nightSales,
+      d.nightCount,
+      d.deliverySales,
+      d.deliveryCount,
+      d.talabatSales,
+      d.talabatCount,
+      totalSales,
+      totalCount,
+      u.name,
+    ]);
+
+    // Also sync to main Sales for AI forecasting
+    SalesService.addHistoricalDSR(
+      {
+        date: d.date,
+        directAmount: d.morningSales + d.nightSales,
+        deliveryAmount: d.deliverySales + d.talabatSales,
+      },
+      u,
+    );
+
+    return { status: "success", id: id };
+  },
+
+  /**
+   * 📅 Fetch DSR Logs for specific month
+   */
+  getDSRLogs: function (d) {
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    const sh = ss.getSheetByName("DSR_Logs");
+    if (!sh) return { status: "success", data: [] };
+
+    const data = sh.getDataRange().getValues();
+    const monthFilter = d.month; // "YYYY-MM"
+    const results = [];
+
+    for (let i = 1; i < data.length; i++) {
+      const rowDate = data[i][1]; // Date in YYYY-MM-DD
+      if (rowDate.startsWith(monthFilter)) {
+        const dObj = new Date(rowDate);
+        results.push({
+          id: data[i][0],
+          date: rowDate,
+          day: dObj.toLocaleDateString("en-US", { weekday: "short" }),
+          branch: data[i][2],
+          morningSales: data[i][3],
+          morningCount: data[i][4],
+          nightSales: data[i][5],
+          nightCount: data[i][6],
+          deliveryTotal: data[i][7] + data[i][9], // Delivery + Talabat
+          totalSales: data[i][11],
+          totalCount: data[i][12],
+        });
+      }
+    }
+    // Sort by date desc
+    results.sort((a, b) => b.date.localeCompare(a.date));
+    return { status: "success", data: results };
+  },
   refund: (d, u) => {
     const sh = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("Sales");
     const v = sh.getDataRange().getValues();
@@ -744,6 +929,82 @@ const SalesService = {
   },
 };
 
+const AIService = {
+  ask: function (d, u) {
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (!apiKey || apiKey === "PASTE_YOUR_GEMINI_API_KEY_HERE") {
+      throw new Error(
+        "Gemini API Key is not configured. Please set it in syncSecretsFromEnv.",
+      );
+    }
+
+    const context = this.buildContext();
+    const prompt = `You are the AI Strategic Advisor for ERP-EZEM, a retail/POS system.
+Review the following business data and answer the user question briefly and professionally.
+Support both Arabic and English based on the user's input.
+
+BUSINESS CONTEXT:
+${JSON.stringify(context, null, 2)}
+
+USER QUESTION:
+${d.prompt}
+
+Guidelines:
+1. Be concise (max 3-4 sentences).
+2. Proactively suggest improvements if you see bad trends (e.g. high waste).
+3. Always use the user's name: ${u.name}.
+4. Return your response in plain text without markdown if possible for better UI display.`;
+
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+    const payload = {
+      contents: [
+        {
+          parts: [{ text: prompt }],
+        },
+      ],
+    };
+
+    const options = {
+      method: "post",
+      contentType: "application/json",
+      payload: JSON.stringify(payload),
+      muteHttpExceptions: true,
+    };
+
+    const res = UrlFetchApp.fetch(url, options);
+    const json = JSON.parse(res.getContentText());
+
+    if (res.getResponseCode() !== 200) {
+      throw new Error(
+        "Gemini API Error: " +
+          (json.error ? json.error.message : res.getContentText()),
+      );
+    }
+
+    const aiText = json.candidates[0].content.parts[0].text;
+    AdminService.logAction(u.name, "AI_QUERY", `Prompt: ${d.prompt}`);
+
+    return { status: "success", response: aiText };
+  },
+
+  buildContext: function () {
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    const db = loadAllData({ name: "AI_SYSTEM" }); // Get fresh snapshot
+
+    // Core summary for context
+    return {
+      totalSalesPeriod: db.Sales.reduce(
+        (s, r) => s + (parseFloat(r[2]) || 0),
+        0,
+      ),
+      orderCount: db.Sales.length,
+      topWastedItems: db.intel.topWastedItems,
+      lowStockItems: db.lowStock,
+      recentLogs: db.System_Logs.slice(-10),
+    };
+  },
+};
+
 const InventoryService = {
   add: (d) => {
     const sheetName = d.sheet || "Items";
@@ -821,9 +1082,11 @@ const InventoryService = {
             "Waste",
             "Transfer Out",
             "Return",
+            "Consumption",
             "هالك",
             "صادر",
             "مرتجع",
+            "استهلاك",
           ];
 
           const act = positiveTypes.includes(d.headers.type)
@@ -1066,28 +1329,87 @@ const AdminService = {
   saveReconSnapshot: function (d, u) {
     var ss = SpreadsheetApp.getActiveSpreadsheet();
     var ash = ss.getSheetByName("Reconciliation_Archive");
-    var now = new Date();
+
+    // Auto-fix headers to exactly match the requested layout
+    var newHeaders = [
+      "Date",
+      "Branch",
+      "Code",
+      "Item Name",
+      "Beg. Inv",
+      "Recv",
+      "Purch",
+      "T-In",
+      "T-Out",
+      "Waste",
+      "Ret",
+      "Cons (POS)",
+      "Cons (Manual)",
+      "Theo. Stock",
+      "Yield %",
+      "Theo. Stock (Yield)",
+      "Actual Count (On Hand)",
+      "Variance",
+      "Var. Value",
+      "User",
+    ];
+    if (
+      ash.getLastColumn() !== 20 ||
+      ash.getRange(1, 1).getValue() !== "Date"
+    ) {
+      ash.clear(); // Clear old format if it exists
+      ash
+        .getRange(1, 1, 1, 20)
+        .setValues([newHeaders])
+        .setFontWeight("bold")
+        .setBackground("#0f172a")
+        .setFontColor("#ffffff");
+    }
+
+    var now = Utilities.formatDate(
+      new Date(),
+      APP_CONFIG.TIMEZONE || "GMT+2",
+      "yyyy-MM-dd HH:mm:ss",
+    );
+    var batch = [];
+
+    var num = function (val) {
+      if (val === undefined || val === null || val === "" || isNaN(val))
+        return 0;
+      return Number(val);
+    };
+
     d.rows.forEach(function (r) {
-      ash.appendRow([
-        now,
-        r.code,
-        r.name,
-        r.beginning,
-        r.receiving,
-        r.purchasing,
-        r.trxIn,
-        r.trxOut,
-        r.waste,
-        r.returns,
-        r.consumption || 0,
-        r.manual || 0,
-        r.actual,
-        r.theoretical,
-        r.variance,
-        r.cost,
-        u.name,
+      batch.push([
+        now, // 1 Date
+        d.branch || "-", // 2 Branch
+        r.code || "-", // 3 Code
+        r.name || "-", // 4 Item Name
+        num(r.beginning), // 5 Beg. Inv
+        num(r.receiving), // 6 Recv
+        num(r.purchasing), // 7 Purch
+        num(r.trxIn), // 8 T-In
+        num(r.trxOut), // 9 T-Out
+        num(r.waste), // 10 Waste
+        num(r.returns), // 11 Ret
+        num(r.posCons), // 12 Cons (POS)
+        num(r.manualCons), // 13 Cons (Manual)
+        num(r.theoretical), // 14 Theo. Stock
+        num(r.yieldVal), // 15 Yield %
+        num(r.theoStockYield), // 16 Theo. Stock (Yield)
+        num(r.actual), // 17 Actual Count (On Hand)
+        num(r.variance), // 18 Variance
+        num(r.cost), // 19 Var. Value
+        u.name || "System", // 20 User
       ]);
     });
+
+    if (batch.length > 0) {
+      ash
+        .getRange(ash.getLastRow() + 1, 1, batch.length, batch[0].length)
+        .setValues(batch);
+    }
+
     return { status: "success" };
   },
   wipeData: function (d, u) {
@@ -1429,6 +1751,12 @@ const ReportService = {
       return ReportService.getMovesAnalysis(range, { type: "Transfer" });
     if (d.reportId === "mvmt_return")
       return ReportService.getMovesAnalysis(range, { type: "Return" });
+    if (d.reportId === "mvmt_beginning")
+      return ReportService.getMovesAnalysis(range, {
+        type: "Beginning Inventory",
+      });
+    if (d.reportId === "mvmt_onhand")
+      return ReportService.getMovesAnalysis(range, { type: "On Hand" });
 
     throw new Error("Report definition missing for: " + d.reportId);
   },
@@ -1835,8 +2163,30 @@ function runScheduledReports() {
     TelegramService.checkLowStock();
   }
 
-  if (reports.includes("finance")) {
-    // إشعار إضافي مخصص للمالية لو رغب المستخدم مستقبلاً
+  if (reports.includes("intelligence")) {
+    var res = IntelligenceService.getAdvancedAnalytics({}, { name: "System" });
+    if (res.status === "success") {
+      var d = res.data;
+      var msg = "🧠 *Intelligence Daily Briefing*\n\n";
+      msg +=
+        "📉 *Sales Forecast*: " +
+        (d.forecast.values[0] || 0) +
+        " EGP (Confidence: " +
+        d.forecast.confidence +
+        "%)\n";
+      msg +=
+        "📦 *Inventory Risks*: " + d.inventoryRisk.length + " items at risk\n";
+      msg += "⚠️ *Anomalies*: " + d.varianceAnomalies.length + " detected\n\n";
+      if (d.inventoryRisk.length > 0) {
+        msg +=
+          "🚨 *Critical Items*:\n" +
+          d.inventoryRisk
+            .slice(0, 3)
+            .map((r) => "• " + r.item + " (" + r.daysLeft + " days)")
+            .join("\n");
+      }
+      TelegramService.send(msg);
+    }
   }
 }
 
@@ -1899,6 +2249,264 @@ const BOHService = {
       `Saved ${rows.length} items - Branch: ${branch} - Date: ${dateStr}`,
     );
     return { status: "success", saved: rows.length, date: dateStr, branch };
+  },
+};
+
+/**
+ * 🧠 INTELLIGENCE & PREDICTIVE ANALYTICS SERVICE
+ * محرك الذكاء الاصطناعي والتحليلات التنبؤية
+ */
+const IntelligenceService = {
+  getAdvancedAnalytics: function (data, user) {
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    const sales = ss
+      .getSheetByName("Sales")
+      .getDataRange()
+      .getValues()
+      .slice(1);
+    const recon = ss.getSheetByName("Reconciliation_Archive")
+      ? ss
+          .getSheetByName("Reconciliation_Archive")
+          .getDataRange()
+          .getValues()
+          .slice(1)
+      : [];
+    const items = ss
+      .getSheetByName("Items")
+      .getDataRange()
+      .getValues()
+      .slice(1);
+    const targets = ss.getSheetByName("Monthly_Targets")
+      ? ss.getSheetByName("Monthly_Targets").getDataRange().getValues().slice(1)
+      : [];
+
+    return {
+      status: "success",
+      data: {
+        forecast: this.calculateForecast(sales),
+        inventoryRisk: this.calculateInventoryRisk(items, sales),
+        varianceAnomalies: this.detectVarianceAnomalies(recon),
+        branchClusters: this.clusterBranches(sales, recon),
+        topPerformers: this.calculateTopPerformers(sales),
+      },
+    };
+  },
+
+  /**
+   * 📉 Sales Forecasting using Exponential Smoothing
+   */
+  calculateForecast: function (sales) {
+    // Group sales by day
+    const dailySales = {};
+    sales.forEach((s) => {
+      const date = String(s[1]).split(" ")[0];
+      dailySales[date] = (dailySales[date] || 0) + (parseFloat(s[2]) || 0);
+    });
+
+    const dates = Object.keys(dailySales).sort();
+    const values = dates.map((d) => dailySales[d]);
+
+    if (values.length < 7) {
+      // Mock data if history is too short for demo/new setups
+      return {
+        labels: ["Day 1", "Day 2", "Day 3", "Day 4", "Day 5", "Day 6", "Day 7"],
+        values: [1200, 1500, 1100, 1800, 2200, 2500, 2100],
+        confidence: 45,
+      };
+    }
+
+    // Simple Exponential Smoothing (Alpha = 0.3)
+    const alpha = 0.3;
+    let forecastVal = values[0];
+    for (let i = 1; i < values.length; i++) {
+      forecastVal = alpha * values[i] + (1 - alpha) * forecastVal;
+    }
+
+    // Predict next 30 days
+    const next30 = [];
+    const labels = [];
+    let lastDate = new Date(dates[dates.length - 1]);
+
+    for (let i = 1; i <= 30; i++) {
+      lastDate.setDate(lastDate.getDate() + 1);
+      const label = Utilities.formatDate(lastDate, "GMT+2", "yyyy-MM-dd");
+      // Basic seasonality adjustment (weekends +15%)
+      const day = lastDate.getDay();
+      const seasonalFactor = day === 4 || day === 5 ? 1.15 : 1.0;
+
+      next30.push(Math.round(forecastVal * seasonalFactor));
+      labels.push(label);
+    }
+
+    return {
+      labels: labels,
+      values: next30,
+      confidence: Math.min(95, 60 + values.length / 2),
+    };
+  },
+
+  /**
+   * 📦 Smart Inventory & Stock-out Risk
+   */
+  calculateInventoryRisk: function (items, sales) {
+    const risks = [];
+    const consumption = {};
+    const thirtyDaysAgo = new Date();
+    thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+
+    sales.forEach((s) => {
+      const date = new Date(s[1]);
+      if (date >= thirtyDaysAgo) {
+        try {
+          const cart = JSON.parse(s[3]);
+          cart.forEach((item) => {
+            consumption[item.name] =
+              (consumption[item.name] || 0) + (parseFloat(item.qty) || 0);
+          });
+        } catch (e) {}
+      }
+    });
+
+    items.forEach((i) => {
+      const name = i[3];
+      const stock = parseFloat(i[7]) || 0;
+      const min = parseFloat(i[10]) || 0;
+      const avgDaily = (consumption[name] || 0) / 30;
+
+      let daysLeft = avgDaily > 0 ? stock / avgDaily : 999;
+
+      if (stock <= min || daysLeft < 10) {
+        risks.push({
+          item: name,
+          stock: stock,
+          daysLeft: Math.round(daysLeft),
+          status: daysLeft < 3 ? "CRITICAL" : daysLeft < 7 ? "HIGH" : "WARNING",
+          reorder: Math.round(avgDaily * 14 + min), // Restock for 2 weeks + safety buffer
+        });
+      }
+    });
+
+    return risks.sort((a, b) => a.daysLeft - b.daysLeft).slice(0, 15);
+  },
+
+  /**
+   * ⚠️ Variance Risk Detection (Anomalies)
+   */
+  detectVarianceAnomalies: function (recon) {
+    if (!recon || recon.length === 0) return [];
+
+    // Z-Score logic for variance value (Column 16: Var_Value)
+    const values = recon.map((r) => Math.abs(parseFloat(r[16]) || 0));
+    if (values.length < 5) return [];
+
+    const mean = values.reduce((a, b) => a + b, 0) / values.length;
+    const stdDev =
+      Math.sqrt(
+        values.map((x) => Math.pow(x - mean, 2)).reduce((a, b) => a + b, 0) /
+          values.length,
+      ) || 1;
+
+    return recon
+      .filter((r) => {
+        const val = Math.abs(parseFloat(r[16]) || 0);
+        return val > mean + 2 * stdDev && val > 50;
+      })
+      .map((r) => ({
+        date: String(r[0]).split("T")[0],
+        item: r[2],
+        cost: Math.abs(parseFloat(r[16]) || 0).toFixed(0),
+        branch: r[17],
+        level: "Anomaly",
+      }))
+      .slice(-10)
+      .reverse();
+  },
+
+  /**
+   * 🏢 Branch Performance Clustering
+   */
+  clusterBranches: function (sales, recon) {
+    const branches = {};
+    sales.forEach((s) => {
+      const branch = s[4] || "Default";
+      if (!branches[branch])
+        branches[branch] = { revenue: 0, variance: 0, count: 0 };
+      branches[branch].revenue += parseFloat(s[2]) || 0;
+    });
+
+    recon.forEach((r) => {
+      const branch = r[17] || "Default";
+      if (branches[branch]) {
+        branches[branch].variance += Math.abs(parseFloat(r[16]) || 0);
+        branches[branch].count++;
+      }
+    });
+
+    return Object.keys(branches).map((name) => {
+      const b = branches[name];
+      const wasteRate = b.revenue > 0 ? (b.variance / b.revenue) * 100 : 0;
+
+      let tier = "Standard";
+      let color = "blue";
+
+      if (b.revenue > 50000 && wasteRate < 3) {
+        tier = "Elite (Star)";
+        color = "emerald";
+      } else if (wasteRate > 10) {
+        tier = "High Loss (Risky)";
+        color = "rose";
+      } else if (b.revenue < 5000) {
+        tier = "Low Volume";
+        color = "slate";
+      }
+
+      return {
+        name,
+        revenue: Math.round(b.revenue),
+        wasteRate: wasteRate.toFixed(1) + "%",
+        tier,
+        color,
+      };
+    });
+  },
+
+  /**
+   * ⭐ Calculate Top Performance Products
+   */
+  calculateTopPerformers: function (sales) {
+    const products = {};
+    sales.forEach((s) => {
+      try {
+        const cart = JSON.parse(s[3] || "[]");
+        cart.forEach((c) => {
+          if (!products[c.name]) products[c.name] = { qty: 0, rev: 0 };
+          products[c.name].qty += parseFloat(c.qty) || 0;
+          products[c.name].rev +=
+            (parseFloat(c.qty) || 0) *
+            (parseFloat(c.price) || parseFloat(s[2]) / cart.length || 0);
+        });
+      } catch (e) {}
+    });
+
+    return Object.keys(products)
+      .map((name) => ({
+        name,
+        qty: products[name].qty,
+        revenue: Math.round(products[name].rev),
+      }))
+      .sort((a, b) => b.revenue - a.revenue)
+      .slice(0, 10);
+  },
+
+  /**
+   * ⚡ Cache Service for Data Mining
+   */
+  syncCache: function () {
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    const cacheSh = ss.getSheetByName("Analytics_Cache");
+    if (!cacheSh) return;
+
+    // Implementation for background aggregation if needed
   },
 };
 

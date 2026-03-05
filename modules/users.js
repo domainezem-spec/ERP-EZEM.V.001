@@ -86,29 +86,65 @@ const Users = {
     },
 
     renderPermsHub(selected = []) {
-        const sections = [
-            { id: 'dash', label: __('dashboard') },
-            { id: 'pos', label: __('pos') },
-            { id: 'kds', label: __('kds') },
-            { id: 'inv', label: __('inventory') },
-            { id: 'recipes', label: __('recipes') },
-            { id: 'trx', label: __('movements') },
-            { id: 'audit', label: __('audit') },
-            { id: 'reports_hub', label: __('reports_hub') },
-            { id: 'finance', label: __('finance') },
-            { id: 'hr', label: __('hr') },
-            { id: 'suppliers', label: __('suppliers') },
-            { id: 'users', label: __('users') },
-            { id: 'settings', label: __('settings') }
+        const isAr = STATE.lang === 'ar';
+        const groups = [
+            {
+                label: isAr ? 'الإعدادات الأساسية' : 'Setup',
+                items: [
+                    { id: 'users', label: __('users') },
+                    { id: 'settings', label: __('settings') },
+                    { id: 'suppliers', label: __('suppliers') }
+                ]
+            },
+            {
+                label: isAr ? 'المخزن والإنتاج' : 'Inventory & Production',
+                items: [
+                    { id: 'inv', label: __('inv') },
+                    { id: 'recipes', label: __('recipes') },
+                    { id: 'trx', label: isAr ? 'حركات المخزن (مراجعة - استخراج)' : 'Stock Movements (Review/Export)' },
+                    { id: 'audit', label: isAr ? 'جرد المخزون (مراجعة - تعديل)' : 'Inventory Audit (Review/Edit)' },
+                    { id: 'recon', label: __('recon') }
+                ]
+            },
+            {
+                label: isAr ? 'المبيعات والتشغيل' : 'Sales & Operations',
+                items: [
+                    { id: 'pos', label: __('pos') },
+                    { id: 'kds', label: __('kds') },
+                    { id: 'reports_hub', label: isAr ? 'مركز التقارير (تحديد التقارير المتاحة)' : 'Reports Hub (Control visibility)' },
+                    { id: 'sales_log', label: __('sales_log') },
+                    { id: 'admin_stats', label: isAr ? 'إحصائيات الإدارة' : 'Admin Stats' },
+                    { id: 'finance', label: isAr ? 'الأرباح والخسائر (P&L)' : 'Profit & Loss (P&L)' }
+                ]
+            },
+            {
+                label: isAr ? 'الموارد البشرية' : 'HR & Payroll',
+                items: [
+                    { id: 'hr', label: __('hr') }
+                ]
+            },
+            {
+                label: isAr ? 'لوحة التحكم' : 'Dashboard',
+                items: [
+                    { id: 'dash', label: __('dash') }
+                ]
+            }
         ];
 
         return `
-            <div class="grid grid-cols-2 lg:grid-cols-3 gap-2 mt-2 bg-slate-50 p-4 rounded-2xl border border-slate-100 max-h-[200px] overflow-y-auto custom-scrollbar">
-                ${sections.map(s => `
-                    <label class="flex items-center gap-2 p-2 hover:bg-white rounded-lg cursor-pointer transition-all border border-transparent hover:border-slate-100">
-                        <input type="checkbox" name="usr-perm" value="${s.id}" ${selected.includes(s.id) ? 'checked' : ''} class="w-4 h-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500">
-                        <span class="text-[10px] font-bold text-slate-600">${s.label}</span>
-                    </label>
+            <div class="space-y-4 mt-2 bg-slate-50 p-4 rounded-2xl border border-slate-100 max-h-[400px] overflow-y-auto custom-scrollbar">
+                ${groups.map(group => `
+                    <div class="space-y-2">
+                        <div class="text-[9px] font-black text-slate-400 uppercase tracking-widest border-b border-slate-200 pb-1 mb-2">${group.label}</div>
+                        <div class="grid grid-cols-2 lg:grid-cols-3 gap-2">
+                            ${group.items.map(s => `
+                                <label class="flex items-center gap-2 p-2 hover:bg-white rounded-lg cursor-pointer transition-all border border-transparent hover:border-slate-100">
+                                    <input type="checkbox" name="usr-perm" value="${s.id}" ${selected.includes(s.id) ? 'checked' : ''} class="w-4 h-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500">
+                                    <span class="text-[10px] font-bold text-slate-600">${s.label}</span>
+                                </label>
+                            `).join('')}
+                        </div>
+                    </div>
                 `).join('')}
             </div>
         `;

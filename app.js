@@ -24,6 +24,7 @@ const App = {
             // 2. Setup Initial UI
             this.applyLanguage();
             Sidebar.render();
+            AIAdvisor.init();
             Router.navigate(STATE.activeView);
             Utils.setupEnterNavigation();
             this.updateBootProgress(100, 'System Ready');

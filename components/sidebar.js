@@ -20,11 +20,17 @@ const Sidebar = {
                 { id: 'pos', icon: 'fa-cash-register', label: __('pos') },
                 { id: 'kds', icon: 'fa-fire-burner', label: __('kds') },
                 { id: 'reports_hub', icon: 'fa-chart-pie', label: __('reports_hub') },
-                { id: 'sales_log', icon: 'fa-clock-rotate-left', label: __('sales_log') }
+                { id: 'sales_log', icon: 'fa-clock-rotate-left', label: __('sales_log') },
+                { id: 'finance', icon: 'fa-file-invoice-dollar', label: __('finance') }
             ]},
-            { label: __('admin_stats'), items: [
-                { id: 'finance', icon: 'fa-file-invoice-dollar', label: __('finance') },
-                { id: 'hr', icon: 'fa-users-gear', label: __('hr') },
+            { label: __('hr_payroll'), items: [
+                { id: 'hr', icon: 'fa-users-gear', label: __('hr') }
+            ]},
+            { label: STATE.lang === 'ar' ? 'الذكاء والبيانات' : 'AI & Data Mining', items: [
+                { id: 'dsr', label: 'DSR Reports', icon: 'fa-file-invoice-dollar', perm: 'sales_log' },
+                { id: 'intelligence', icon: 'fa-brain', label: STATE.lang === 'ar' ? 'استخبارات الأعمال' : 'Business Intelligence', perm: 'reports' }
+            ]},
+            { label: __('dashboard'), items: [
                 { id: 'dash', icon: 'fa-chart-line', label: __('dash') }
             ]}
         ];

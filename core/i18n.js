@@ -6,6 +6,7 @@ const I18N = {
         sales_ops: "المبيعات والتشغيل",
         analytics_finance: "التحليلات والمالية",
         security_access: "الأمان والصلاحيات",
+        hr_payroll: "شؤون الموظفين والرواتب",
 
         // Sidebar items
         dash: "لوحة التحكم",
@@ -27,6 +28,8 @@ const I18N = {
         settings: "الإعدادات",
         logout: "تسجيل الخروج",
         sales_log: "سجل العمليات",
+        intel: "الذكاء الاصطناعي",
+        predictive: "التحليلات التنبؤية",
         online: "متصل",
 
         // Common actions
@@ -224,6 +227,8 @@ const I18N = {
         "Transfer Out": "تحويل صادر",
         Return: "مرتجع",
         "Beginning Inventory": "رصيد أول المدة",
+        Consumption: "استهلاك (يدوي)",
+        "On Hand": "جرد رصيد فعلي",
         beg_inventory_report: "رصيد تأسيسي",
         "Walk-in": "بيع مباشر",
         "Drive-thru": "تيك أوي / سيارة",
@@ -266,6 +271,7 @@ const I18N = {
         sales_ops: "Sales & Operations",
         analytics_finance: "Finance & Analytics",
         security_access: "Security & Access",
+        hr_payroll: "HR & Payroll",
 
         // Sidebar items
         dash: "Dashboard",
@@ -287,6 +293,8 @@ const I18N = {
         settings: "Settings",
         logout: "Logout",
         sales_log: "Operations Log",
+        intel: "AI Intelligence",
+        predictive: "Predictive Analytics",
         online: "Online",
 
         // Common actions
@@ -484,6 +492,8 @@ const I18N = {
         "Transfer Out": "Transfer Out",
         Return: "Return",
         "Beginning Inventory": "Beginning Inventory",
+        Consumption: "Consumption (Manual)",
+        "On Hand": "Physical Count (On Hand)",
         beg_inventory_report: "Beginning Inventory",
         "Walk-in": "Walk-in",
         "Drive-thru": "Drive-thru",

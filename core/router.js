@@ -34,7 +34,8 @@ const Router = {
             'users': isAr ? 'الصلاحيات والمستخدمين' : 'Users & Access',
             'sales_log': isAr ? 'سجل العمليات' : 'Operations Log',
             'reports_hub': isAr ? 'مركز التقارير المتقدمة' : 'Advanced Reports',
-            'recon': isAr ? 'مطابقة وتحليل المخزون' : 'Stock Reconciliation'
+            'recon': isAr ? 'مطابقة وتحليل المخزون' : 'Stock Reconciliation',
+            'intelligence': isAr ? 'استخبارات البيانات' : 'Data Intelligence'
         };
         
         const headerContainer = document.getElementById('header-container');
@@ -59,6 +60,8 @@ const Router = {
                 case 'recon': Reconciliation.render(); break;
                 case 'sales_log': Reports.render('ops'); break;
                 case 'reports_hub': ReportsHub.render(); break;
+                case 'dsr': DSR.render(); break;
+            case 'intelligence': Intelligence.render(); break;
             }
         } catch (e) {
             console.error(`❌ Module [${viewId}] Render Crash:`, e);
@@ -109,14 +112,25 @@ const Router = {
                 </div>
 
                 <!-- KPI GRID -->
+                ${Auth.canView('admin_stats') ? `
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                     ${this.kpiCard(isAr ? 'إجمالي الإيرادات' : 'Total Revenue', Utils.formatCurrency(totalSales), 'fa-chart-line', 'indigo')}
                     ${this.kpiCard(isAr ? 'صافي الربح التقديري' : 'Estimated Net Profit', Utils.formatCurrency(totalSales - totalExp - wasteCost), 'fa-sack-dollar', 'emerald')}
                     ${this.kpiCard(isAr ? 'تكلفة الهالك (Waste)' : 'Waste Cost', `${Utils.formatCurrency(wasteCost)} (${wastePct}%)`, 'fa-trash-can', 'rose')}
                     ${this.kpiCard(isAr ? 'تكلفة المشتريات' : 'Purchasing Cost', Utils.formatCurrency(totalInvCost), 'fa-truck-ramp-box', 'blue')}
                 </div>
+                ` : `
+                <div class="bg-indigo-50 border border-indigo-100 p-8 rounded-3xl text-center">
+                    <div class="w-16 h-16 bg-white rounded-2xl flex items-center justify-center text-indigo-600 shadow-sm mx-auto mb-4">
+                        <i class="fa-solid fa-lock text-2xl"></i>
+                    </div>
+                    <h3 class="text-lg font-black text-slate-800 mb-2">${isAr ? 'الإحصائيات التحليلية غير متاحة' : 'Analytical Stats Locked'}</h3>
+                    <p class="text-xs text-slate-500 font-bold">${isAr ? 'تحتاج إلى صلاحية "إحصائيات الإدارة" لرؤية البيانات المالية.' : 'You need "Admin Stats" permission to view financial data.'}</p>
+                </div>
+                `}
 
                 <!-- ANALYTICS GRID -->
+                ${Auth.canView('admin_stats') ? `
                 <div class="grid grid-cols-1 xl:grid-cols-3 gap-6">
                     <div class="xl:col-span-2 space-y-6">
                         <div class="glass-card !p-0 overflow-hidden">
@@ -171,6 +185,23 @@ const Router = {
                         </div>
                     </div>
                 </div>
+                ` : `
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="glass-container bg-white p-6 rounded-2xl border border-slate-100 min-h-[300px]">
+                        <h3 class="text-[10px] font-black text-slate-700 uppercase tracking-widest mb-4 ${isAr ? 'text-right' : 'text-left'} w-full">${isAr ? 'نظام تنبيهات EZEM' : 'EZEM Alert System'}</h3>
+                        <div class="space-y-2">
+                            ${this.renderAlerts()}
+                        </div>
+                    </div>
+                    <div class="bg-slate-900 text-white p-8 rounded-3xl flex flex-col justify-center items-center text-center">
+                        <div class="w-20 h-20 bg-white/10 rounded-full flex items-center justify-center mb-6">
+                            <i class="fa-solid fa-user-shield text-3xl"></i>
+                        </div>
+                        <h3 class="text-xl font-black mb-2">${isAr ? 'تراخيص الوصول' : 'Access Permissions'}</h3>
+                        <p class="text-xs text-slate-400 leading-relaxed">${isAr ? 'هذه اللوحة مخصصة للإدارة فقط. يمكنك الانتقال إلى الأقسام المصرح لك بها من خلال القائمة الجانبية.' : 'This dashboard is for administration. Use the sidebar to navigate to authorized sections.'}</p>
+                    </div>
+                </div>
+                `}
             </div>
         `;
 

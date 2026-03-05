@@ -61,7 +61,9 @@ const ReportsHub = {
                     { id: 'mvmt_receiving', label: isAr ? 'تقرير الاستلامات' : 'Receiving Report', desc: 'Filter: Trx Type = Receiving' },
                     { id: 'mvmt_waste', label: isAr ? 'تقرير الهالك' : 'Waste Report', desc: 'Filter: Trx Type = Waste' },
                     { id: 'mvmt_transfer', label: isAr ? 'تقرير التحويلات' : 'Transfer Report', desc: 'Filter: Trx Type = Transfer' },
-                    { id: 'mvmt_return', label: isAr ? 'تقرير المرتجعات' : 'Return Report', desc: 'Filter: Trx Type = Return' }
+                    { id: 'mvmt_return', label: isAr ? 'تقرير المرتجعات' : 'Return Report', desc: 'Filter: Trx Type = Return' },
+                    { id: 'mvmt_beginning', label: isAr ? 'تقرير أرصدة بداية المدة' : 'Beginning Inventory Report', desc: 'Filter: Trx Type = Beginning Inventory' },
+                    { id: 'mvmt_onhand', label: isAr ? 'تقرير الجرد الفعلي' : 'Actual Count (On Hand) Report', desc: 'Filter: Trx Type = On Hand' }
                 ]
             },
             {
@@ -104,6 +106,9 @@ const ReportsHub = {
                     </div>
                     
                     <div class="flex items-center gap-2">
+                        <button onclick="AIAdvisor.toggleChat()" class="h-11 px-6 bg-indigo-50 text-indigo-600 text-[11px] font-black rounded-2xl hover:bg-indigo-100 transition-all uppercase tracking-widest flex items-center gap-2 shadow-sm shadow-indigo-100">
+                            <i class="fa-solid fa-brain"></i> AI Insight
+                        </button>
                         <button class="h-11 px-6 bg-slate-900 text-white text-[11px] font-black rounded-2xl hover:bg-slate-800 transition-all uppercase tracking-widest flex items-center gap-2">
                             <i class="fa-solid fa-file-pdf"></i> Bulk Export
                         </button>
@@ -119,7 +124,10 @@ const ReportsHub = {
                                 <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-[0.15em]">${sec.title}</h3>
                             </div>
                             <div class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-3">
-                                ${sec.items.map(item => `
+                                ${sec.items.filter(item => {
+                                    if (Auth.canView('admin_stats')) return true;
+                                    return Auth.canView(item.id);
+                                }).map(item => `
                                     <div onclick="ReportsHub.openReport('${item.id}')" 
                                         class="report-card group bg-white border border-slate-100 rounded-2xl p-4 transition-all duration-300 hover:border-indigo-500 hover:shadow-xl hover:shadow-indigo-500/5 cursor-pointer relative overflow-hidden">
                                         <div class="absolute -right-2 -top-2 w-16 h-16 bg-slate-50 group-hover:bg-indigo-50 rounded-full blur-2xl transition-all"></div>
@@ -141,7 +149,7 @@ const ReportsHub = {
                                 `).join('')}
                             </div>
                         </div>
-                    `).join('')}
+                    `).filter(html => html.includes('report-card')).join('')}
                 </div>
             </div>
         `;
@@ -220,7 +228,9 @@ const ReportsHub = {
             'mvmt_receiving': isAr ? 'تقرير الاستلامات التفصيلي' : 'Detailed Receiving Report',
             'mvmt_waste': isAr ? 'تقرير الهالك التفصيلي' : 'Detailed Waste Report',
             'mvmt_transfer': isAr ? 'تقرير التحويلات التفصيلي' : 'Detailed Transfer Report',
-            'mvmt_return': isAr ? 'تقرير المرتجعات التفصيلي' : 'Detailed Return Report'
+            'mvmt_return': isAr ? 'تقرير المرتجعات التفصيلي' : 'Detailed Return Report',
+            'mvmt_beginning': isAr ? 'تقرير أرصدة بداية المدة التفصيلي' : 'Detailed Beginning Inventory Report',
+            'mvmt_onhand': isAr ? 'تقرير الجرد الفعلي التفصيلي' : 'Detailed Actual Count (On Hand) Report'
         };
 
         Utils.loading(true, isAr ? 'جاري تجميع البيانات...' : 'Compiling Analytics...');

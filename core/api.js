@@ -46,16 +46,32 @@ const API = {
         return res;
     },
 
-    fallbackAjax(payload) {
-        return new Promise((resolve, reject) => {
-            $.ajax({
-                url: API_CONFIG.URL,
-                type: 'POST',
-                data: JSON.stringify(payload),
-                dataType: 'json',
-                success: (res) => (res.status === 'success' ? resolve(res) : reject(res.message)),
-                error: (err) => reject("فشل الاتصال بالسيرفر، تأكد من نشر الرابط كـ Web App.")
+    async fallbackAjax(payload) {
+        try {
+            const response = await fetch(API_CONFIG.URL, {
+                method: 'POST',
+                mode: 'cors', // Ensure CORS mode
+                headers: {
+                    'Content-Type': 'text/plain;charset=utf-8', // Use text/plain to avoid preflight
+                },
+                body: JSON.stringify(payload)
             });
-        });
+
+            if (!response.ok) {
+                throw new Error(`HTTP Error: ${response.status}`);
+            }
+
+            const res = await response.json();
+            if (res.status === 'success') {
+                return res;
+            } else {
+                throw new Error(res.message || 'Server returned error status');
+            }
+        } catch (error) {
+            console.error("🌐 API Connection Error:", error);
+            throw new Error(STATE.lang === 'ar' 
+                ? "فشل الاتصال بالسيرفر. تأكد من نشر المشروع كـ Web App وتعيين الوصول لـ 'Anyone'." 
+                : "Server connection failed. Ensure Web App is deployed to 'Anyone'.");
+        }
     }
 };

@@ -280,14 +280,10 @@ const Reports = {
                     const manualTotalVal = Object.values(Reconciliation.manualQty || {}).reduce((s, v) => s + (parseFloat(v) || 0), 0);
                     
                     return `
-                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
                             <div class="bg-indigo-600 p-5 rounded-2xl text-white shadow-lg shadow-indigo-100">
                                 <div class="text-[9px] font-black opacity-60 uppercase tracking-widest mb-1">${isAr ? 'إجمالي حركات الاستهلاك' : 'Total Consumption Moves'}</div>
                                 <div class="text-2xl font-black">${consumptionTotal} <span class="text-[10px] opacity-50 uppercase">${isAr ? 'طلب' : 'Orders'}</span></div>
-                            </div>
-                            <div class="bg-emerald-600 p-5 rounded-2xl text-white shadow-lg shadow-emerald-100">
-                                <div class="text-[9px] font-black opacity-60 uppercase tracking-widest mb-1">${isAr ? 'إجمالي التعديلات اليدوية' : 'Total Manual Adjusts'}</div>
-                                <div class="text-2xl font-black">${manualTotalVal.toFixed(2)}</div>
                             </div>
                             <div class="bg-amber-500 p-5 rounded-2xl text-white shadow-lg shadow-amber-100">
                                 <div class="text-[9px] font-black opacity-60 uppercase tracking-widest mb-1">${isAr ? 'سجلات النظام' : 'System Log Entries'}</div>
@@ -1196,11 +1192,12 @@ const Reports = {
                                 <th class="text-center font-black cursor-pointer hover:bg-slate-100 transition-colors" onclick="Utils.sortTable('recon-table', 6, true)">${__('Waste') || 'Waste'} <i class="fa-solid fa-sort ml-1 text-slate-300"></i></th>
                                 <th class="text-center font-black cursor-pointer hover:bg-slate-100 transition-colors" onclick="Utils.sortTable('recon-table', 7, true)">${__('Return') || 'Ret'} <i class="fa-solid fa-sort ml-1 text-slate-300"></i></th>
                                 <th class="text-center font-black text-orange-600 bg-orange-50 leading-tight">${isAr ? 'استهلاك مبيعات' : 'Cons. POS'}</th>
-                                <th class="text-center font-black text-indigo-600 bg-indigo-50 leading-tight">${isAr ? 'تعديل يدوي' : 'Manual Adj'}</th>
-                                <th class="text-center font-black text-slate-900 bg-slate-100 leading-tight cursor-pointer hover:bg-slate-200 transition-colors" onclick="Utils.sortTable('recon-table', 10, true)">${__('theoretical_stock')} <i class="fa-solid fa-sort ml-1 text-slate-300"></i></th>
-                                <th class="text-center font-black w-32 bg-amber-50 leading-tight border-r border-amber-100 cursor-pointer hover:bg-amber-100 transition-colors" onclick="Utils.sortTable('recon-table', 11, true)">${__('actual_count')} <i class="fa-solid fa-sort ml-1 text-amber-300"></i></th>
-                                <th class="text-center font-black text-rose-500 leading-tight cursor-pointer hover:bg-rose-100 transition-colors" onclick="Utils.sortTable('recon-table', 12, true)">${__('variance')} <i class="fa-solid fa-sort ml-1 text-rose-300"></i></th>
-                                <th class="text-center font-black text-rose-500 leading-tight cursor-pointer hover:bg-rose-100 transition-colors" onclick="Utils.sortTable('recon-table', 13, true)">${__('variance_value')} <i class="fa-solid fa-sort ml-1 text-rose-300"></i></th>
+                                <th class="text-center font-black text-slate-900 bg-slate-100 leading-tight cursor-pointer hover:bg-slate-200 transition-colors" onclick="Utils.sortTable('recon-table', 9, true)">${__('theoretical_stock')} <i class="fa-solid fa-sort ml-1 text-slate-300"></i></th>
+                                <th class="text-center font-black text-indigo-900 bg-indigo-50 leading-tight cursor-pointer hover:bg-indigo-100 transition-colors" onclick="Utils.sortTable('recon-table', 10, true)">${isAr ? 'نسبة الهالك (Yield)' : 'Yield %'} <i class="fa-solid fa-sort ml-1 text-indigo-300"></i></th>
+                                <th class="text-center font-black text-blue-900 bg-blue-50 leading-tight cursor-pointer hover:bg-blue-100 transition-colors" onclick="Utils.sortTable('recon-table', 11, true)">${isAr ? 'الرصيد الدفتري (بالنسبة)' : 'Theo. Stock (Yield)'} <i class="fa-solid fa-sort ml-1 text-blue-300"></i></th>
+                                <th class="text-center font-black w-32 bg-amber-50 leading-tight border-r border-amber-100 cursor-pointer hover:bg-amber-100 transition-colors" onclick="Utils.sortTable('recon-table', 12, true)">${__('actual_count')} <i class="fa-solid fa-sort ml-1 text-amber-300"></i></th>
+                                <th class="text-center font-black text-rose-500 leading-tight cursor-pointer hover:bg-rose-100 transition-colors" onclick="Utils.sortTable('recon-table', 13, true)">${__('variance')} <i class="fa-solid fa-sort ml-1 text-rose-300"></i></th>
+                                <th class="text-center font-black text-rose-500 leading-tight cursor-pointer hover:bg-rose-100 transition-colors" onclick="Utils.sortTable('recon-table', 14, true)">${__('variance_value')} <i class="fa-solid fa-sort ml-1 text-rose-300"></i></th>
                             </tr>
                         </thead>
                         <tbody class="divide-y divide-slate-100 text-[11px]">
@@ -1258,12 +1255,15 @@ const Reports = {
                                     const ret = getQty('Return');
 
                                     const consumption = (code && consMap[code]) ? consMap[code] : (consMap[itemName] || 0);
-                                    const manual = parseFloat(Reconciliation.manualQty[code || itemName]) || 0;
 
-                                    const theoretical = (beg + rec + pur + tIn) - (tOut + wst + ret + consumption + manual);
+                                    const theoretical = (beg + rec + pur + tIn) - (tOut + wst + ret + consumption);
+                                    
+                                    const yieldVal = parseFloat(item[8]) || 100;
+                                    const theoStockYield = theoretical * (yieldVal / 100);
+                                    
                                     const physical = parseFloat(item[7]) || 0;
 
-                                    const initialDiff = physical - theoretical;
+                                    const initialDiff = physical - theoStockYield;
                                     const initialVal = initialDiff * cost;
                                     const diffClass = initialDiff === 0 ? 'text-slate-300' : (initialDiff > 0 ? 'text-emerald-500' : 'text-rose-500');
                                     const valClass = initialVal === 0 ? 'text-slate-300' : (initialVal > 0 ? 'text-emerald-500' : 'text-rose-500');
@@ -1284,15 +1284,16 @@ const Reports = {
                                             <td class="text-center font-bold text-rose-500">${fz(wst)}</td>
                                             <td class="text-center font-bold text-purple-500">${fz(ret)}</td>
                                             <td class="text-center font-black bg-orange-50/30 text-orange-600">${fz(consumption)}</td>
-                                            <td class="text-center font-black bg-indigo-50/30 text-indigo-600">${fz(manual)}</td>
                                             <td class="text-center font-black bg-slate-50 text-slate-900 text-[12px]">${fz(theoretical)}</td>
+                                            <td class="text-center font-bold text-slate-500">${yieldVal}%</td>
+                                            <td class="text-center font-black bg-blue-50/50 text-blue-900 text-[12px]">${fz(theoStockYield)}</td>
                                             <td class="text-center px-2 bg-amber-50/30 border-r border-amber-100">
                                                 <input type="number" min="0" step="0.01"
                                                     class="recon-actual-input w-24 h-8 border border-amber-200 bg-white rounded-lg text-center font-black text-slate-900 focus:border-amber-500 outline-none shadow-inner mx-auto block"
                                                     value="${physical}"
                                                     data-code="${code}"
                                                     data-name="${itemName}"
-                                                    data-theo="${theoretical}"
+                                                    data-theo="${theoStockYield}"
                                                     data-cost="${cost}"
                                                     oninput="Reports.calculateBatchRecon()">
                                             </td>

@@ -64,13 +64,16 @@ const Auth = {
                 STATE.user = res.profile;
                 localStorage.setItem('ezem_user', JSON.stringify(res.profile));
                 
-                Utils.loading(false);
-                Utils.toast(`أهلاً بك، ${res.profile.name}`);
-                
                 STATE.cart = [];
                 STATE.db = {};
                 
-                await App.syncData();
+                // Maintain loader while syncing data
+                await App.syncData(true, false); 
+                
+                Utils.loadingProgress('close');
+                Swal.close();
+                
+                Utils.toast(`أهلاً بك، ${res.profile.name}`);
                 
                 $('#login-container').fadeOut(500, () => {
                    $('#app').removeClass('hidden').addClass('animate-fade-in');
@@ -78,12 +81,12 @@ const Auth = {
                    Router.navigate('dash');
                 });
             } else {
+                Utils.loadingProgress('close');
                 Swal.fire('فشل الدخول', res.message, 'error');
             }
         } catch (e) {
+            Utils.loadingProgress('close');
             Swal.fire('خطأ', 'فشل الاتصال بالسيرفر، يرجى المحاولة لاحقاً', 'error');
-        } finally {
-            Utils.loading(false);
         }
     },
 

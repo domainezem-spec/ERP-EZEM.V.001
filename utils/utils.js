@@ -146,7 +146,27 @@ const Utils = {
 
     exportToCSV(tableId, filename = 'report') {
         const rows = Array.from(document.querySelectorAll(`#${tableId} tr`));
-        const content = rows.map(r => Array.from(r.cells).map(c => c.innerText).join(',')).join('\n');
+        const content = rows.map(r => Array.from(r.cells).map(c => {
+            let val = '';
+            const input = c.querySelector('input');
+            const select = c.querySelector('select');
+            
+            if (input) {
+                val = input.value;
+            } else if (select) {
+                val = select.options[select.selectedIndex]?.text || '';
+            } else {
+                val = c.innerText.trim();
+            }
+            
+            // Escape for CSV if it contains commas, quotes or newlines
+            if (val.includes(',') || val.includes('"') || val.includes('\n')) {
+                val = '"' + val.replace(/"/g, '""') + '"';
+            }
+            
+            return val;
+        }).join(',')).join('\n');
+        
         const blob = new Blob(["\uFEFF" + content], { type: 'text/csv;charset=utf-8;' });
         const link = document.createElement("a");
         link.setAttribute("href", URL.createObjectURL(blob));
@@ -196,6 +216,22 @@ const Utils = {
             }
         });
 
+        // ✨ Numeric Polish: Ensure leading zero for decimals starting with '.' or '-.'
+        $(document).on('input', 'input[type="number"], .input-premium, .bulk-qty-input', function() {
+            let val = $(this).val();
+            if (val === '.') {
+                $(this).val('0.');
+            } else if (val === '-.') {
+                $(this).val('-0.');
+            } else if (val && typeof val === 'string') {
+                if (val.startsWith('.')) {
+                    $(this).val('0' + val);
+                } else if (val.startsWith('-.')) {
+                    $(this).val('-0' + val.substring(1));
+                }
+            }
+        });
+
         // Glow effect for numerical inputs with values
         $(document).on('input', 'input[type="number"], .input-blue-soft', function() {
             const val = parseFloat($(this).val());
@@ -229,5 +265,44 @@ const Utils = {
         
         // Remove empty placeholders if any, re-append rows
         rows.forEach(r => tbody.appendChild(r));
+    },
+
+    /**
+     * Standardized Inventory Calculation Logic
+     * @param {Object} data - Input fields for calculation
+     */
+    calculateInventory(data) {
+        const {
+            beginning_inventory = 0,
+            received = 0,
+            purchased = 0,
+            transfer_in = 0,
+            transfer_out = 0,
+            waste = 0,
+            returns = 0,
+            pos_consumption = 0,
+            manual_consumption = 0,
+            yield_percentage = 100,
+            actual_count = 0,
+            item_cost = 0
+        } = data;
+
+        const total_consumption = pos_consumption + manual_consumption;
+
+        const theoretical_stock = (beginning_inventory + received + purchased + transfer_in) 
+                                - (transfer_out + waste + returns + total_consumption);
+
+        const theoretical_stock_after_yield = theoretical_stock * (yield_percentage / 100);
+
+        const variance = actual_count - theoretical_stock_after_yield;
+
+        const variance_value = variance * item_cost;
+
+        return {
+            theoretical_stock,
+            theoretical_stock_after_yield,
+            variance,
+            variance_value
+        };
     }
 };
