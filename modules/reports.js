@@ -4,7 +4,9 @@
  */
 const Reports = {
     render(initialTab = 'sales') {
-        const today = new Date().toISOString().split('T')[0];
+        const now = new Date();
+        const today = now.toISOString().split('T')[0];
+        const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0];
         const isAr = STATE.lang === 'ar';
         const align = isAr ? 'text-right' : 'text-left';
         const dir = isAr ? 'rtl' : 'ltr';
@@ -51,7 +53,7 @@ const Reports = {
                             <div class="w-px h-6 bg-slate-200"></div>
                              <div class="flex flex-col">
                                 <span class="text-[8px] font-black text-slate-400 uppercase mb-0.5">${__('from_date')}</span>
-                                <input type="date" id="rep-global-from" class="bg-transparent border-none text-[11px] font-black text-slate-700 outline-none w-28 h-5" onchange="Reports.refreshActiveTab()">
+                                <input type="date" id="rep-global-from" class="bg-transparent border-none text-[11px] font-black text-slate-700 outline-none w-28 h-5" value="${firstDayOfMonth}" onchange="Reports.refreshActiveTab()">
                             </div>
                             <div class="w-px h-6 bg-slate-200"></div>
                             <div class="flex flex-col">
@@ -131,6 +133,10 @@ const Reports = {
         if (from) sales = sales.filter(s => s[1].slice(0, 10) >= from);
         if (to)   sales = sales.filter(s => s[1].slice(0, 10) <= to);
 
+        const totalFiltered = sales.length;
+        // Limit rendering for performance
+        sales = sales.slice(-500); 
+
         const isAr = STATE.lang === 'ar';
         return `
             <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
@@ -142,6 +148,7 @@ const Reports = {
                     <i class="fa-solid fa-plus-circle group-hover:rotate-90 transition-transform"></i>
                     <span class="text-xs font-black uppercase tracking-wider">${isAr ? 'إضافة مبيعات يدوية' : 'Add Manual Sale'}</span>
                 </button>
+                ${totalFiltered > 500 ? `<div class="text-[10px] font-black text-rose-500 bg-rose-50 px-3 py-1 rounded-lg">${isAr ? 'تم عرض آخر 500 عملية فقط لسرعة التصفح' : 'Showing last 500 entries only for performance'}</div>` : ''}
             </div>
             <div class="table-container table-scroll shadow-sm bg-white overflow-x-auto">
                 <table class="report-table w-full ${STATE.lang === 'ar' ? 'text-right' : 'text-left'} min-w-[1000px]" id="sales_report-table">
@@ -465,8 +472,12 @@ const Reports = {
             }
 
             // KPIs
+            const totalFilteredCount = filtered.length;
             const totalCost  = filtered.reduce((s, m) => s + (parseFloat(m[6]) || 0), 0);
             const itemCount  = new Set(filtered.map(m => String(m[3]))).size;
+
+            // Limit for performance
+            filtered = filtered.slice(-500);
 
             const typeLabels = {
                 'Receiving':           __('Receiving') || 'Receiving',
@@ -475,7 +486,9 @@ const Reports = {
                 'Transfer In':         __('Transfer In') || 'Transfer In',
                 'Return':              __('Return') || 'Return',
                 'Purchasing':          __('Purchasing') || 'Purchasing',
-                'Beginning Inventory': __('Beginning Inventory') || 'Beg Inventory'
+                'Beginning Inventory': __('Beginning Inventory') || 'Beg Inventory',
+                'Consumption':         isAr ? 'استهلاك' : 'Consumption',
+                'On Hand':             isAr ? 'رصيد فعلي' : 'On Hand'
             };
 
             const typeColors = {
@@ -486,6 +499,8 @@ const Reports = {
                 'Return':              'bg-purple-50 text-purple-600 border-purple-200',
                 'Purchasing':          'bg-indigo-50 text-indigo-600 border-indigo-200',
                 'Beginning Inventory': 'bg-slate-100 text-slate-800 border-slate-300',
+                'Consumption':         'bg-orange-50 text-orange-600 border-orange-200',
+                'On Hand':             'bg-teal-50 text-teal-600 border-teal-200'
             };
 
             const canEdit = (typeof Auth !== 'undefined' && Auth.canEdit && Auth.canEdit());
@@ -494,14 +509,17 @@ const Reports = {
                 <div class="space-y-6">
                     <!-- FILTERS -->
                     <div class="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm space-y-4">
+                        <!-- Type Filter Buttons -->
+                        <div class="flex flex-wrap gap-2 pb-2 border-b border-slate-50">
+                            <input type="hidden" id="trx-filter-type" value="${typeFilter}">
+                            <button onclick="$('#trx-filter-type').val('All'); Reports.updateTrxView()" class="category-pill ${typeFilter==='All' ? 'active' : ''}">${__('all')}</button>
+                            ${Object.keys(typeLabels).map(k => `
+                                <button onclick="$('#trx-filter-type').val('${k}'); Reports.updateTrxView()" class="category-pill ${typeFilter===k ? 'active' : ''}">
+                                    ${typeLabels[k]}
+                                </button>
+                            `).join('')}
+                        </div>
                         <div class="flex flex-wrap gap-4 items-end">
-                            <div>
-                                <label class="nav-label p-0 mb-1 text-[10px]">${__('trx_type')}</label>
-                                <select id="trx-filter-type" class="input-premium h-11 w-44" onchange="Reports.updateTrxView()">
-                                    <option value="All" ${typeFilter==='All'?'selected':''}>-- ${__('all')} --</option>
-                                    ${Object.keys(typeLabels).map(k => `<option value="${k}" ${typeFilter===k?'selected':''}>${typeLabels[k]}</option>`).join('')}
-                                </select>
-                            </div>
                             <div>
                                 <label class="nav-label p-0 mb-1 text-[10px]">${__('from_loc')}</label>
                                 <select id="trx-filter-from-loc" class="input-premium h-11 w-40" onchange="Reports.updateTrxView()">
@@ -525,6 +543,7 @@ const Reports = {
                             <i class="fa-solid fa-magnifying-glass absolute ${isAr ? 'right-4' : 'left-4'} top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
                             <input type="text" id="trx-search" class="input-premium h-11 ${isAr ? 'pr-11' : 'pl-11'}" placeholder="${__('trx_search_placeholder')}" value="${search}" oninput="Reports.updateTrxView()">
                         </div>
+                        ${totalFilteredCount > 500 ? `<div class="text-[10px] font-black text-rose-500 bg-rose-50 px-3 py-1 rounded-lg text-center">${isAr ? 'تم عرض آخر 500 حركة فقط لسرعة التصفح. استخدم البحث أو الفلاتر للوصول لبيانات محددة' : 'Showing last 500 entries only for performance. Use search or filters to find specific data'}</div>` : ''}
                     </div>
 
                     <!-- KPIs -->
@@ -711,143 +730,180 @@ const Reports = {
         }, 200);
     },
 
-    printMovementReport() {
-        const type   = $('#trx-filter-type').val() || 'All';
-        const from   = $('#trx-filter-from').val() || 'البداية';
-        const to     = $('#trx-filter-to').val()   || 'اليوم';
-        const search = $('#trx-search').val()       || '';
+    printMovementReport(isDirect = false) {
         const isAr = STATE.lang === 'ar';
+        const typeFilter = $('#trx-filter-type').val() || 'All';
+        const fromLoc = $('#trx-filter-from-loc').val() || 'All';
+        const toLoc = $('#trx-filter-to-loc').val() || 'All';
+        const fromDate = $('#rep-global-from').val() || (isAr ? 'البداية' : 'Start');
+        const toDate = $('#rep-global-to').val() || (isAr ? 'اليوم' : 'Today');
+        const search = $('#trx-search').val() || '';
+
         const typeLabels = {
-            'All': __('all'), 
-            'Receiving': __('Receiving') || 'Receiving',
-            'Purchasing': __('Purchasing') || 'Purchasing', 
-            'Waste': __('Waste') || 'Waste',
-            'Transfer Out': __('Transfer Out') || 'Transfer Out', 
-            'Transfer In': __('Transfer In') || 'Transfer In',
-            'Return': __('Return') || 'Return',
-            'Beginning Inventory': __('beg_inventory_report')
+            'All': isAr ? 'الكل' : 'All',
+            'Receiving': isAr ? 'استلام خامات' : 'Receiving',
+            'Waste': isAr ? 'هالك' : 'Waste',
+            'Transfer Out': isAr ? 'تحويل صادر' : 'Transfer Out',
+            'Transfer In': isAr ? 'تحويل وارد' : 'Transfer In',
+            'Return': isAr ? 'مرتجع' : 'Return',
+            'Purchasing': isAr ? 'مشتريات' : 'Purchasing',
+            'Beginning Inventory': isAr ? 'رصيد أول المدة' : 'Beginning Inventory',
+            'Consumption': isAr ? 'استهلاك' : 'Consumption',
+            'On Hand': isAr ? 'جرد رصيد فعلي' : 'On Hand'
         };
 
         const tableEl = document.getElementById('trx-report-table');
         if(!tableEl) return;
 
-        // Build clean clone without badge HTML – plain text for print
-        const rows = Array.from(tableEl.querySelectorAll('tbody tr, tfoot tr')).map(r =>
-            `<tr>${Array.from(r.cells).map(c => `<td>${c.innerText}</td>`).join('')}</tr>`
-        ).join('');
+        // 1. Gather Data (Only visible rows)
+        const rows = Array.from(tableEl.querySelectorAll('tbody tr')).filter(r => r.style.display !== 'none');
+        
+        let totalCost = 0;
+        let totalQty = 0;
+        const itemsSet = new Set();
+        
+        const tableRowsHtml = rows.map((r, idx) => {
+            const cells = r.cells;
+            if (cells.length < 12) return ''; 
+            
+            const costText = cells[7]?.innerText.replace(/[^0-9.\\-]/g,'') || '0';
+            const qtyText = cells[5]?.innerText || '0';
+            const cost = parseFloat(costText) || 0;
+            const qty = parseFloat(qtyText) || 0;
+            
+            totalCost += cost;
+            totalQty += qty;
+            itemsSet.add(cells[4]?.innerText.trim() || '-');
 
-        const headerRow = Array.from(tableEl.querySelectorAll('thead th'))
-            .map(th => `<th>${th.innerText}</th>`).join('');
+            return `
+                <tr>
+                    <td style="text-align:center">${idx + 1}</td>
+                    <td>${cells[1]?.innerText || ''}</td>
+                    <td><span class="type-tag">${cells[2]?.innerText || ''}</span></td>
+                    <td>${cells[3]?.innerText || ''}</td>
+                    <td style="font-weight:900">${cells[4]?.innerText || ''}</td>
+                    <td style="text-align:center">${cells[5]?.innerText || ''}</td>
+                    <td style="text-align:center">${cells[6]?.innerText || ''}</td>
+                    <td style="text-align:center; font-weight:900">${cells[7]?.innerText || ''}</td>
+                    <td>${cells[8]?.innerText || ''}</td>
+                    <td>${cells[9]?.innerText || ''}</td>
+                    <td>${cells[10]?.innerText || ''}</td>
+                    <td><small>${cells[11]?.innerText || ''}</small></td>
+                </tr>
+            `;
+        }).join('');
 
-        const win = window.open('', '_blank', 'height=900,width=1100');
-        win.document.write(`
-<!DOCTYPE html>
-<html lang="${STATE.lang}" dir="${isAr ? 'rtl' : 'ltr'}">
-<head>
-<meta charset="UTF-8">
-<title>${isAr ? 'تقرير حركات المخزن' : 'Stock Movements Report'}</title>
-<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
-<style>
-  *, *::before, *::after { box-sizing: border-box; margin: 0; }
-  body  { font-family: 'Cairo', sans-serif; background: #fff; color: #1e293b; padding: 32px 40px; }
+        const finalHtml = `
+            <div id="movement-report-print-area" class="${isAr ? 'text-right' : 'text-left'}" dir="${isAr ? 'rtl' : 'ltr'}" style="font-family: 'Cairo', sans-serif; color: #1e293b; padding: 20px;">
+                <style>
+                    #movement-report-print-area .report-header { display: flex; align-items: center; justify-content: space-between; border-bottom: 4px solid #4f46e5; padding-bottom: 20px; margin-bottom: 24px; }
+                    #movement-report-print-area .report-title h1 { font-size: 22px; font-weight: 900; color: #4f46e5; margin: 0; }
+                    #movement-report-print-area .report-meta { font-size: 11px; color: #64748b; line-height: 1.6; }
+                    #movement-report-print-area .kpi-row { display: flex; gap: 15px; margin-bottom: 20px; }
+                    #movement-report-print-area .kpi-card { flex: 1; border: 1px solid #e2e8f0; border-radius: 12px; padding: 12px; background: #fff; }
+                    #movement-report-print-area .kpi-label { font-size: 9px; font-weight: 800; color: #94a3b8; text-transform: uppercase; margin-bottom: 4px; }
+                    #movement-report-print-area .kpi-value { font-size: 18px; font-weight: 900; color: #1e293b; }
+                    #movement-report-print-area table { width: 100%; border-collapse: collapse; font-size: 10px; }
+                    #movement-report-print-area th { background: #0f172a; color: #fff; padding: 10px; text-align: inherit; }
+                    #movement-report-print-area td { padding: 8px 10px; border-bottom: 1px solid #f1f5f9; }
+                    #movement-report-print-area .type-tag { font-weight: 800; font-size: 9px; padding: 2px 6px; border-radius: 4px; background: #f1f5f9; border: 1px solid #e2e8f0; }
+                    @media print {
+                        body { padding: 0 !important; }
+                        #movement-report-print-area { padding: 0 !important; }
+                    }
+                </style>
+                
+                <div class="report-header">
+                    <div class="report-title">
+                        <h1>EZEM PRO ERP &ndash; ${isAr ? 'تقرير حركات المخزن' : 'Stock Movements Report'}</h1>
+                        <p style="font-size:11px; color:#64748b; font-weight:700; margin-top:5px;">
+                            ${isAr ? 'نوع الحركة' : 'Type'}: <span style="color:#4f46e5">${typeLabels[typeFilter] || typeFilter}</span> | 
+                            ${isAr ? 'من موقع' : 'From Loc'}: <span style="color:#4f46e5">${fromLoc}</span> | 
+                            ${isAr ? 'إلى موقع' : 'To Loc'}: <span style="color:#4f46e5">${toLoc}</span>
+                        </p>
+                    </div>
+                    <div class="report-meta" style="text-align:${isAr ? 'left' : 'right'}">
+                        <div style="font-weight:900; color:#1e293b">${isAr ? 'الفترة:' : 'Period:'} ${fromDate} ${isAr ? 'إلى' : 'to'} ${toDate}</div>
+                        <div>${isAr ? 'بواسطة:' : 'By:'} ${STATE.user?.name || 'Admin'}</div>
+                        <div>${isAr ? 'التاريخ:' : 'Date:'} ${new Date().toLocaleString(isAr ? 'ar-EG' : 'en-US')}</div>
+                    </div>
+                </div>
 
-  /* === HEADER === */
-  .report-header { display: flex; align-items: center; justify-content: space-between; border-bottom: 4px solid #4f46e5; padding-bottom: 20px; margin-bottom: 24px; }
-  .report-header .brand-logo { width: 64px; height: 64px; background: linear-gradient(135deg, #4f46e5, #6366f1); border-radius: 16px; display: flex; align-items: center; justify-content: center; }
-  .report-header .brand-logo img { width: 52px; height: 52px; object-fit: contain; }
-  .report-header .brand-logo .logo-fallback { color: #fff; font-weight: 900; font-size: 18px; letter-spacing: -1px; }
-  .report-header .brand-info { flex: 1; padding-right: 16px; }
-  .report-header .brand-info h1 { font-size: 22px; font-weight: 900; color: #4f46e5; margin-bottom: 2px; }
-  .report-header .brand-info p  { font-size: 13px; color: #64748b; }
-  .report-header .report-meta   { text-align: left; font-size: 11px; color: #64748b; line-height: 1.8; }
+                <div class="kpi-row">
+                    <div class="kpi-card"><div class="kpi-label">${__('total_trxs')}</div><div class="kpi-value">${rows.length}</div></div>
+                    <div class="kpi-card"><div class="kpi-label">${__('items_count_label')}</div><div class="kpi-value">${itemsSet.size}</div></div>
+                    <div class="kpi-card"><div class="kpi-label">${isAr ? 'إجمالي الكميات' : 'Total Qty'}</div><div class="kpi-value">${totalQty.toFixed(2)}</div></div>
+                    <div class="kpi-card" style="border-left: 4px solid #10b981;"><div class="kpi-label">${__('total_cost_label')}</div><div class="kpi-value" style="color:#10b981">${Utils.formatCurrency(totalCost)}</div></div>
+                </div>
 
-  /* === KPI SUMMARY === */
-  .kpi-row { display: flex; gap: 16px; margin-bottom: 24px; }
-  .kpi-card { flex: 1; border: 1px solid #e2e8f0; border-radius: 12px; padding: 14px 18px; }
-  .kpi-card .label { font-size: 9px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.12em; color: #94a3b8; margin-bottom: 4px; }
-  .kpi-card .value { font-size: 20px; font-weight: 900; color: #1e293b; }
-  .kpi-card.green  .value { color: #059669; }
+                <table>
+                    <thead>
+                        <tr>
+                            <th style="width:30px">#</th>
+                            <th>${__('date')}</th>
+                            <th>${__('trx_type')}</th>
+                            <th>${isAr ? 'الكود' : 'Code'}</th>
+                            <th>${__('item_name')}</th>
+                            <th>${__('qty')}</th>
+                            <th>${__('cost_unit')}</th>
+                            <th>${__('total_label')}</th>
+                            <th>${isAr ? 'التشغيلة' : 'Batch'}</th>
+                            <th>${__('from')}</th>
+                            <th>${__('to')}</th>
+                            <th>${__('user')}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${tableRowsHtml}
+                    </tbody>
+                </table>
 
-  /* === TABLE === */
-  table  { width: 100%; border-collapse: collapse; font-size: 11px; }
-  thead  { background: #0f172a; color: #f8fafc; }
-  th     { padding: 11px 12px; font-weight: 800; text-align: right; font-size: 10px; letter-spacing: 0.05em; }
-  td     { padding: 9px 12px; border-bottom: 1px solid #f1f5f9; }
-  tr:nth-child(even) td { background: #fafafa; }
-  tfoot  { background: #f1f5f9; }
-  tfoot td { font-weight: 900; border-top: 2px solid #e2e8f0; color: #059669; font-size: 12px; }
+                <div style="margin-top:30px; border-top:1px solid #e2e8f0; padding-top:15px; display:flex; justify-content:space-between; font-size:10px; color:#94a3b8; font-weight:700;">
+                    <div>EZEM ERP SYSTEM - Report Engine v4.1</div>
+                    <div>Page 1 of 1</div>
+                </div>
+            </div>
+        `;
 
-  /* === FOOTER === */
-  .report-footer { margin-top: 40px; border-top: 1px solid #e2e8f0; padding-top: 14px; display: flex; justify-content: space-between; align-items: center; font-size: 10px; color: #94a3b8; font-weight: 700; }
-  .report-footer .stamp { background: #f1f5f9; border-radius: 10px; padding: 6px 14px; }
-
-  @media print {
-    body { padding: 16px; }
-    .no-print { display: none !important; }
-  }
-</style>
-</head>
-<body>
-
-<!-- ========== REPORT HEADER ========== -->
-<div class="report-header">
-  <div class="brand-logo">
-    <img src="assets/icon-192x192.png.ico" alt="EZEM" onerror="this.style.display='none';this.nextElementSibling.style.display='block'">
-    <div class="logo-fallback" style="display:none">EZ</div>
-  </div>
-  <div class="brand-info">
-    <h1>EZEM PRO ERP &ndash; ${isAr ? 'تقرير حركات المخزن' : 'Stock Movements Report'}</h1>
-    <p>${isAr ? 'نوع التقرير' : 'Report Type'}: <strong>${typeLabels[type] || type}</strong> ${search ? `&ndash; ${isAr ? 'بحث' : 'Search'}: "${search}"` : ''}</p>
-  </div>
-  <div class="report-meta">
-    <div>${isAr ? 'الفترة' : 'Period'}: <strong>${from}</strong> ${isAr ? 'إلى' : 'to'} <strong>${to}</strong></div>
-    <div>${isAr ? 'تاريخ الاستخراج' : 'Exported on'}: <strong>${new Date().toLocaleDateString(isAr ? 'ar-EG' : 'en-US')}</strong></div>
-    <div>${isAr ? 'الوقت' : 'Time'}: <strong>${new Date().toLocaleTimeString(isAr ? 'ar-EG' : 'en-US')}</strong></div>
-  </div>
-</div>
-
-<!-- ========== KPI SUMMARY ========== -->
-<div class="kpi-row">
-  <div class="kpi-card"><div class="label">${__('total_trxs')}</div><div class="value" id="p-total-trx">-</div></div>
-  <div class="kpi-card"><div class="label">${__('items_count_label')}</div><div class="value" id="p-item-count">-</div></div>
-  <div class="kpi-card green"><div class="label">${__('total_cost_label')}</div><div class="value" id="p-total-cost">-</div></div>
-</div>
-
-<!-- ========== TABLE ========== -->
-<table>
-  <thead><tr>${headerRow}</tr></thead>
-  <tbody>${rows}</tbody>
-</table>
-
-<!-- ========== FOOTER ========== -->
-<div class="report-footer">
-  <div class="stamp">${isAr ? 'بواسطة' : 'By'}: ${STATE.user?.name || 'Admin'}</div>
-  <div>EZEM PRO ERP &copy; ${new Date().getFullYear()}</div>
-  <div class="stamp">${isAr ? 'تاريخ الطباعة' : 'Printed on'}: ${new Date().toLocaleString(isAr ? 'ar-EG' : 'en-US')}</div>
-</div>
-
-<script>
-  // Fill KPIs from parent window
-  try {
-    const rows = document.querySelectorAll('tbody tr');
-    let totalCost = 0, items = new Set();
-    rows.forEach(r => {
-      const cells = r.cells;
-      if(!cells[6]) return;
-      const costText = cells[6].innerText.replace(/[^0-9.\\-]/g,'');
-      totalCost += parseFloat(costText) || 0;
-      if(cells[3]) items.add(cells[3].innerText.trim());
-    });
-    document.getElementById('p-total-trx').innerText  = rows.length;
-    document.getElementById('p-item-count').innerText = items.size;
-    document.getElementById('p-total-cost').innerText = new Intl.NumberFormat('${isAr ? 'ar-EG' : 'en-US'}',{style:'currency',currency:'EGP'}).format(totalCost);
-  } catch(e) {}
-  window.onload = () => window.print();
-</script>
-</body>
-</html>
-        `);
-        win.document.close();
+        if (isDirect) {
+            const win = window.open('', '_blank');
+            win.document.write(`
+                <html>
+                    <head>
+                        <title>Report</title>
+                        <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
+                    </head>
+                    <body onload="window.print();window.close();">
+                        ${finalHtml}
+                    </body>
+                </html>
+            `);
+            win.document.close();
+        } else {
+            // Show Preview Modal
+            const modalBody = `
+                <div class="flex flex-col h-[90vh] bg-white">
+                    <div class="p-4 bg-slate-900 text-white flex justify-between items-center shrink-0">
+                        <div class="flex items-center gap-3">
+                            <i class="fa-solid fa-file-invoice text-indigo-400"></i>
+                            <span class="font-black uppercase tracking-widest text-xs">${isAr ? 'معاينة تقرير الحركات' : 'Movements Report Preview'}</span>
+                        </div>
+                        <div class="flex gap-2">
+                            <button onclick="Reports.printMovementReport(true)" class="h-10 px-8 bg-indigo-600 text-white rounded-xl font-black text-xs uppercase hover:bg-slate-800 transition-all flex items-center gap-2">
+                                <i class="fa-solid fa-print"></i> ${isAr ? 'تأكيد الطباعة' : 'Confirm Print'}
+                            </button>
+                            <button onclick="Utils.closeModal()" class="w-10 h-10 flex items-center justify-center rounded-xl bg-white/10 hover:bg-white/20 transition-all"><i class="fa-solid fa-times"></i></button>
+                        </div>
+                    </div>
+                    <div class="flex-1 overflow-y-auto p-10 bg-slate-200 custom-scrollbar">
+                        <div class="max-w-6xl mx-auto bg-white shadow-2xl p-12 rounded-lg">
+                            ${finalHtml}
+                        </div>
+                    </div>
+                </div>
+            `;
+            Utils.openModal(modalBody, 'max-w-7xl');
+        }
     },
 
     renderHRReport() {
@@ -1029,6 +1085,26 @@ const Reports = {
             } catch(e){}
         });
 
+        // 🔥 HIGH-SPEED AGGREGATION ENGINE (O(M) instead of O(I*M))
+        const mvMap = {};
+        movements.forEach(m => {
+             const d = String(m[0] || '').slice(0, 10);
+             const type = m[1] || '';
+             const isBeg = (type === 'Beginning Inventory' || type === 'رصيد أول المدة');
+             
+             if (to && d > to) return;
+             if (from && d < from) return;
+             
+             const code = m[2];
+             const name = m[3];
+             const qty = parseFloat(m[4]) || 0;
+             const key = (code && code !== '-') ? code : name;
+             
+             if (!mvMap[key]) mvMap[key] = {};
+             if (!mvMap[key][type]) mvMap[key][type] = 0;
+             mvMap[key][type] += qty;
+        });
+
         return `
             <div class="flex flex-wrap items-center justify-between gap-4 mb-6 ${align}">
                 <div>
@@ -1070,27 +1146,23 @@ const Reports = {
                             const itemName = item[3];
                             const code = item[2];
                             const cost = parseFloat(item[5]) || 0;
+                            const key = (code && code !== '-') ? code : itemName;
+                            const itemStats = mvMap[key] || {};
 
-                            const itemMvmts = movements.filter(m => (m[2] && m[2] !== '-' ? m[2] === code : m[3] === itemName));
-                            const getQty = (type) => itemMvmts.filter(m => {
-                                if (m[1] !== type) return false;
-                                const d = (m[0] instanceof Date) ? m[0].toISOString().slice(0,10) : String(m[0] || '').slice(0,10);
-                                return (!from || d >= from) && (!to || d <= to);
-                            }).reduce((s, m) => s + (parseFloat(m[4]) || 0), 0);
-
-                            const beg = getQty('Beginning Inventory');
-                            const rec = getQty('Receiving');
-                            const pur = getQty('Purchasing');
-                            const tIn = getQty('Transfer In');
-                            const tOut = getQty('Transfer Out');
-                            const wst = getQty('Waste');
-                            const ret = getQty('Return');
+                            const beg = itemStats['Beginning Inventory'] || 0;
+                            const rec = itemStats['Receiving'] || 0;
+                            const pur = itemStats['Purchasing'] || 0;
+                            const tIn = itemStats['Transfer In'] || 0;
+                            const tOut = itemStats['Transfer Out'] || 0;
+                            const wst = itemStats['Waste'] || 0;
+                            const ret = itemStats['Return'] || 0;
 
                             const consumption = (code && consMap[code]) ? consMap[code] : (consMap[itemName] || 0);
                             const manual = parseFloat(Reconciliation.manualQty[code || itemName]) || 0;
-
                             const theoretical = (beg + rec + pur + tIn) - (tOut + wst + ret + consumption + manual);
-                            const actual = parseFloat(item[7]) || 0;
+                            
+                            const onHandMv = (itemStats['On Hand'] || 0) + (itemStats['جرد رصيد فعلي'] || 0) + (itemStats['رصيد فعلي (On Hand)'] || 0);
+                            const actual = onHandMv > 0 ? onHandMv : (parseFloat(item[7]) || 0);
 
                             const diff = actual - theoretical;
                             const val = diff * cost;
@@ -1240,13 +1312,14 @@ const Reports = {
                                     const cost = parseFloat(item[5]) || 0;
 
                                     const itemMvmts = movements.filter(m => (m[2] && m[2] !== '-' ? m[2] === code : m[3] === itemName));
-                                    const getQty = (type) => itemMvmts.filter(m => {
+                                    const getQty = (type, ignoreFrom = false) => itemMvmts.filter(m => {
                                         if (m[1] !== type) return false;
                                         const d = (m[0] instanceof Date) ? m[0].toISOString().slice(0,10) : String(m[0] || '').slice(0,10);
-                                        return (!from || d >= from) && (!to || d <= to);
+                                        const matchDateStart = ignoreFrom ? true : (!from || d >= from);
+                                        return matchDateStart && (!to || d <= to);
                                     }).reduce((s, m) => s + (parseFloat(m[4]) || 0), 0);
 
-                                    const beg = getQty('Beginning Inventory');
+                                    const beg = getQty('Beginning Inventory', false);
                                     const rec = getQty('Receiving');
                                     const pur = getQty('Purchasing');
                                     const tIn = getQty('Transfer In');
@@ -1261,7 +1334,8 @@ const Reports = {
                                     const yieldVal = parseFloat(item[8]) || 100;
                                     const theoStockYield = theoretical * (yieldVal / 100);
                                     
-                                    const physical = parseFloat(item[7]) || 0;
+                                    const onHandMv = getQty('On Hand') + getQty('جرد رصيد فعلي') + getQty('رصيد فعلي (On Hand)');
+                                    const physical = onHandMv > 0 ? onHandMv : (parseFloat(item[7]) || 0);
 
                                     const initialDiff = physical - theoStockYield;
                                     const initialVal = initialDiff * cost;

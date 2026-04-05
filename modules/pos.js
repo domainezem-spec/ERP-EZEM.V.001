@@ -21,7 +21,10 @@ const POS = {
         { id: 'Cash', label: STATE.lang === 'ar' ? 'Cash (نقدي)' : 'Cash', icon: 'fa-money-bill-1', color: '#10b981' },
         { id: 'Bank', label: STATE.lang === 'ar' ? 'Bank (تحويل)' : 'Bank/Card', icon: 'fa-building-columns', color: '#3b82f6' },
         { id: 'Talabat', label: STATE.lang === 'ar' ? 'Talabat (طلبات)' : 'Talabat', icon: 'fa-motorcycle', color: '#ff5a00' },
-        { id: 'Etisalat', label: STATE.lang === 'ar' ? 'Etisalat (اتصالات)' : 'Etisalat', icon: 'fa-mobile-screen', color: '#00a300' }
+        { id: 'Etisalat', label: STATE.lang === 'ar' ? 'Etisalat (اتصالات)' : 'Etisalat', icon: 'fa-mobile-screen', color: '#00a300' },
+        { id: 'Menus', label: STATE.lang === 'ar' ? 'Menus (منيو)' : 'Menus', icon: 'fa-utensils', color: '#eab308' },
+        { id: 'Insta', label: STATE.lang === 'ar' ? 'Insta (إنستا)' : 'Insta', icon: 'fa-camera-retro', color: '#ec4899' },
+        { id: 'Breadfast', label: STATE.lang === 'ar' ? 'Breadfast (بريد فاست)' : 'Breadfast', icon: 'fa-bread-slice', color: '#8b5cf6' }
     ],
 
     cardColors: [
@@ -264,10 +267,11 @@ const POS = {
         const isAr = STATE.lang === 'ar';
         return products.map(i => {
             const price = parseFloat(i[4]) || 0; // Price at index 4
+            const cost = parseFloat(i[5]) || 0; // Cost at index 5
             const name = i[3]; // Name at index 3
             const imgUrl = this.getProductImage(name);
             const isBYO = name.toUpperCase().includes('BYO');
-            const action = isBYO ? `POS.openBYOModal({id: '${i[2]}', name: '${name.replace(/'/g, "\\'")}', price: ${price}})` : `POS.addToCart({id: '${i[2]}', name: '${name.replace(/'/g, "\\'")}', price: ${price}})`;
+            const action = isBYO ? `POS.openBYOModal({id: '${i[2]}', name: '${name.replace(/'/g, "\\'")}', price: ${price}, cost: ${cost}})` : `POS.addToCart({id: '${i[2]}', name: '${name.replace(/'/g, "\\'")}', price: ${price}, cost: ${cost}})`;
             
             return `
                 <div onclick="${action}" 

@@ -29,13 +29,22 @@ const Auth = {
 
         // 4. Role Defaults (Only if perms field is empty)
         const defaults = {
-            'Manager': ['dash','pos','inv','trx','recipes','audit','recon','sales_log','finance','hr','suppliers','users','settings','reports_hub','kds','purchasing','reports'],
+            'Manager': [
+                'dash','pos','inv','trx','recipes','audit','recon','sales_log','finance','hr','suppliers','users','settings','reports_hub','kds','purchasing','reports',
+                'item_profitability', 'waste_intel', 'supplier_aging', 'inv_levels', 'moves_analysis', 'consumption_date', 'item_sales_cons', 'item_sales', 'onspot_cons', 
+                'session_summary', 'session_receipt', 'order_tracking', 'daily_sales', 'detailed_delivery', 'ar_pm', 'sales_by_item', 'delivery_charge',
+                'mvmt_purchasing', 'mvmt_receiving', 'mvmt_waste', 'mvmt_transfer', 'mvmt_return', 'mvmt_beginning', 'mvmt_onhand', 'talabat_report'
+            ],
             'Cashier': ['pos','sales_log','dash','kds'],
             'Branches': ['pos','inv','trx','audit','recon','dash','sales_log'],
             'Call Center': ['pos','dash','sales_log','reports_hub'],
-            'Storekeeper': ['inv','trx','audit','recon','purchasing','suppliers','dash'],
+            'Storekeeper': ['inv','trx','audit','recon','purchasing','suppliers','dash', 'mvmt_purchasing', 'mvmt_receiving', 'mvmt_waste', 'mvmt_transfer', 'mvmt_onhand'],
             'Chef': ['kds','recipes','dash','inv'],
-            'Accountant': ['finance','reports','purchasing','suppliers','dash','reports_hub','recon','sales_log','hr']
+            'Accountant': [
+                'finance','reports','purchasing','suppliers','dash','reports_hub','recon','sales_log','hr',
+                'item_profitability', 'supplier_aging', 'inv_levels', 'moves_analysis', 'daily_sales', 'ar_pm', 'sales_by_item',
+                'mvmt_purchasing', 'mvmt_receiving', 'mvmt_transfer', 'mvmt_return'
+            ]
         };
 
         return !!(defaults[role] && defaults[role].includes(viewId));

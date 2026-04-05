@@ -44,6 +44,14 @@ const APP_CONFIG = {
 };
 
 /**
+ * Common Date Formatter for Excel/Sheets
+ */
+function getExcelDate(d) {
+  const tz = APP_CONFIG.TIMEZONE || "GMT+2";
+  return Utilities.formatDate(new Date(d || new Date()), tz, "dd-MMM-yyyy");
+}
+
+/**
  * 🔐 PRODUCTION SETUP UTILITY
  * Run this function ONCE from the Apps Script Editor to securely store your
  * bot secrets in Script Properties. After running, they are auto-loaded via process.env.
@@ -97,6 +105,7 @@ function setupSystem() {
         "Max",
         "Min",
         "Status",
+        "Serving",
       ],
     },
     {
@@ -499,10 +508,44 @@ function loadAllData(user) {
   const sheetMap = {};
   sheets.forEach((s) => (sheetMap[s.getName()] = s));
 
+  // Category Mapping for performance
+  const logSheets = [
+    APP_CONFIG.SHEETS.MOVEMENTS,
+    APP_CONFIG.SHEETS.SALES,
+    APP_CONFIG.SHEETS.ATTENDANCE,
+    APP_CONFIG.SHEETS.EXPENSES,
+    APP_CONFIG.SHEETS.LOGS,
+    APP_CONFIG.SHEETS.SHIFTS,
+    APP_CONFIG.SHEETS.RECON_ARCHIVE,
+    APP_CONFIG.SHEETS.INVENTORY_RECORD,
+  ];
+
   Object.values(APP_CONFIG.SHEETS).forEach((n) => {
     const s = sheetMap[n];
-    // Efficiently fetch all data in one go per sheet
-    db[n.replace(/ /g, "_")] = s ? s.getDataRange().getValues().slice(1) : [];
+    if (!s) {
+      db[n.replace(/ /g, "_")] = [];
+      return;
+    }
+
+    const lastRow = s.getLastRow();
+    if (lastRow <= 1) {
+      db[n.replace(/ /g, "_")] = [];
+      return;
+    }
+
+    // Smart Slicing: Fetch more for critical journals, less for system logs
+    const isCriticalJournal =
+      n === APP_CONFIG.SHEETS.MOVEMENTS || n === APP_CONFIG.SHEETS.SALES;
+    const isLog = logSheets.includes(n);
+    const limit = isCriticalJournal ? 5000 : 1000;
+
+    if (isLog && lastRow > limit) {
+      db[n.replace(/ /g, "_")] = s
+        .getRange(lastRow - limit + 1, 1, limit, s.getLastColumn())
+        .getValues();
+    } else {
+      db[n.replace(/ /g, "_")] = s.getDataRange().getValues().slice(1);
+    }
   });
 
   // Group BOH_Counts by session key (date + branch + user) for frontend use
@@ -644,13 +687,7 @@ const SalesService = {
   process: (d, u) => {
     const ss = SpreadsheetApp.getActiveSpreadsheet();
     const id = "INV-" + Date.now();
-    const dt = d.manualDate
-      ? d.manualDate
-      : Utilities.formatDate(
-          new Date(),
-          APP_CONFIG.TIMEZONE,
-          "yyyy-MM-dd HH:mm",
-        );
+    const dt = getExcelDate(d.manualDate);
 
     // Save to Sales Sheet
     ss.getSheetByName("Sales").appendRow([
@@ -757,6 +794,14 @@ const SalesService = {
         "Delivery_Count",
         "Talabat_Sales",
         "Talabat_Count",
+        "Menus_Sales",
+        "Menus_Count",
+        "Etisalat_Sales",
+        "Etisalat_Count",
+        "Insta_Sales",
+        "Insta_Count",
+        "Breadfast_Sales",
+        "Breadfast_Count",
         "Total_Sales",
         "Total_Count",
         "Created_By",
@@ -764,23 +809,47 @@ const SalesService = {
     }
 
     const totalSales =
-      d.morningSales + d.nightSales + d.deliverySales + d.talabatSales;
+      (d.morningSales || 0) +
+      (d.nightSales || 0) +
+      (d.deliverySales || 0) +
+      (d.talabatSales || 0) +
+      (d.menusSales || 0) +
+      (d.etisalatSales || 0) +
+      (d.instaSales || 0) +
+      (d.breadfastSales || 0);
+
     const totalCount =
-      d.morningCount + d.nightCount + d.deliveryCount + d.talabatCount;
+      (d.morningCount || 0) +
+      (d.nightCount || 0) +
+      (d.deliveryCount || 0) +
+      (d.talabatCount || 0) +
+      (d.menusCount || 0) +
+      (d.etisalatCount || 0) +
+      (d.instaCount || 0) +
+      (d.breadfastCount || 0);
+
     const id = "DSR-" + Date.now();
 
     sh.appendRow([
       id,
       d.date,
       d.branch,
-      d.morningSales,
-      d.morningCount,
-      d.nightSales,
-      d.nightCount,
-      d.deliverySales,
-      d.deliveryCount,
-      d.talabatSales,
-      d.talabatCount,
+      d.morningSales || 0,
+      d.morningCount || 0,
+      d.nightSales || 0,
+      d.nightCount || 0,
+      d.deliverySales || 0,
+      d.deliveryCount || 0,
+      d.talabatSales || 0,
+      d.talabatCount || 0,
+      d.menusSales || 0,
+      d.menusCount || 0,
+      d.etisalatSales || 0,
+      d.etisalatCount || 0,
+      d.instaSales || 0,
+      d.instaCount || 0,
+      d.breadfastSales || 0,
+      d.breadfastCount || 0,
       totalSales,
       totalCount,
       u.name,
@@ -790,8 +859,9 @@ const SalesService = {
     SalesService.addHistoricalDSR(
       {
         date: d.date,
-        directAmount: d.morningSales + d.nightSales,
-        deliveryAmount: d.deliverySales + d.talabatSales,
+        directAmount: (d.morningSales || 0) + (d.nightSales || 0),
+        deliveryAmount:
+          totalSales - ((d.morningSales || 0) + (d.nightSales || 0)),
       },
       u,
     );
@@ -824,9 +894,15 @@ const SalesService = {
           morningCount: data[i][4],
           nightSales: data[i][5],
           nightCount: data[i][6],
-          deliveryTotal: data[i][7] + data[i][9], // Delivery + Talabat
-          totalSales: data[i][11],
-          totalCount: data[i][12],
+          deliveryTotal:
+            (parseFloat(data[i][7]) || 0) +
+            (parseFloat(data[i][9]) || 0) +
+            (parseFloat(data[i][11]) || 0) +
+            (parseFloat(data[i][13]) || 0) +
+            (parseFloat(data[i][15]) || 0) +
+            (parseFloat(data[i][17]) || 0),
+          totalSales: data[i][19],
+          totalCount: data[i][20],
         });
       }
     }
@@ -940,20 +1016,20 @@ const AIService = {
 
     const context = this.buildContext();
     const prompt = `You are the AI Strategic Advisor for ERP-EZEM, a retail/POS system.
-Review the following business data and answer the user question briefly and professionally.
-Support both Arabic and English based on the user's input.
+  Review the following business data and answer the user question briefly and professionally.
+  Support both Arabic and English based on the user's input.
 
-BUSINESS CONTEXT:
-${JSON.stringify(context, null, 2)}
+  BUSINESS CONTEXT:
+  ${JSON.stringify(context, null, 2)}
 
-USER QUESTION:
-${d.prompt}
+  USER QUESTION:
+  ${d.prompt}
 
-Guidelines:
-1. Be concise (max 3-4 sentences).
-2. Proactively suggest improvements if you see bad trends (e.g. high waste).
-3. Always use the user's name: ${u.name}.
-4. Return your response in plain text without markdown if possible for better UI display.`;
+  Guidelines:
+  1. Be concise (max 3-4 sentences).
+  2. Proactively suggest improvements if you see bad trends (e.g. high waste).
+  3. Always use the user's name: ${u.name}.
+  4. Return your response in plain text without markdown if possible for better UI display.`;
 
     const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
     const payload = {
@@ -1034,10 +1110,11 @@ const InventoryService = {
           d.cost || 0,
           d.supplier || "-",
           0, // In Stock
-          d.yield || 1,
+          d.yield || 100,
           d.max || 100,
           d.min || 5,
           "Active",
+          d.serving || 0,
         ]);
     }
     return { status: "success" };
@@ -1050,8 +1127,9 @@ const InventoryService = {
     d.items.forEach((l) => {
       // Audit: Log when the entry was actually made vs transaction date
       const systemDate = new Date();
+      const trxDate = getExcelDate(d.headers.date);
       msh.appendRow([
-        d.headers.date || systemDate.toISOString().split("T")[0], // Column 1: Date
+        trxDate, // Column 1: Date (dd-MMM-yyyy)
         d.headers.type, // Column 2: Type
         l.code || "-", // Column 3: Item Code
         l.name, // Column 4: Item Name
@@ -1083,10 +1161,12 @@ const InventoryService = {
             "Transfer Out",
             "Return",
             "Consumption",
+            "Corporate Order",
             "هالك",
             "صادر",
             "مرتجع",
             "استهلاك",
+            "طلب شركات",
           ];
 
           const act = positiveTypes.includes(d.headers.type)
@@ -1153,7 +1233,14 @@ const HRService = {
   logAttendance: (d, u) => {
     SpreadsheetApp.getActiveSpreadsheet()
       .getSheetByName("Attendance")
-      .appendRow([new Date(), d.staffName, d.type, "00:00", "Main", u.name]);
+      .appendRow([
+        getExcelDate(),
+        d.staffName,
+        d.type,
+        "00:00",
+        "Main",
+        u.name,
+      ]);
     return { status: "success" };
   },
   saveStaff: (d) => {
@@ -1324,7 +1411,7 @@ const AdminService = {
   },
   logAction: function (u, a, d) {
     var s = SpreadsheetApp.getActiveSpreadsheet().getSheetByName("System_Logs");
-    if (s) s.appendRow([new Date(), u, a, d]);
+    if (s) s.appendRow([getExcelDate(), u, a, d]);
   },
   saveReconSnapshot: function (d, u) {
     var ss = SpreadsheetApp.getActiveSpreadsheet();
@@ -1366,11 +1453,7 @@ const AdminService = {
         .setFontColor("#ffffff");
     }
 
-    var now = Utilities.formatDate(
-      new Date(),
-      APP_CONFIG.TIMEZONE || "GMT+2",
-      "yyyy-MM-dd HH:mm:ss",
-    );
+    var now = getExcelDate();
     var batch = [];
 
     var num = function (val) {
@@ -1515,19 +1598,21 @@ const AdminService = {
     const itemRows = ish.getLastRow();
     if (itemRows > 1) {
       const stockFormula = `
-        =IF(ISBLANK($C2), "", 
-          SUMIFS(Movements!$E:$E, Movements!$C:$C, $C2, Movements!$B:$B, "Receiving") + 
-          SUMIFS(Movements!$E:$E, Movements!$C:$C, $C2, Movements!$B:$B, "Purchasing") + 
-          SUMIFS(Movements!$E:$E, Movements!$C:$C, $C2, Movements!$B:$B, "Transfer In") + 
-          SUMIFS(Movements!$E:$E, Movements!$C:$C, $C2, Movements!$B:$B, "وارد") + 
-          SUMIFS(Movements!$E:$E, Movements!$C:$C, $C2, Movements!$B:$B, "استلام") - 
-          SUMIFS(Movements!$E:$E, Movements!$C:$C, $C2, Movements!$B:$B, "Waste") - 
-          SUMIFS(Movements!$E:$E, Movements!$C:$C, $C2, Movements!$B:$B, "Transfer Out") - 
-          SUMIFS(Movements!$E:$E, Movements!$C:$C, $C2, Movements!$B:$B, "Return") - 
-          SUMIFS(Movements!$E:$E, Movements!$C:$C, $C2, Movements!$B:$B, "هالك") - 
-          SUMIFS(Movements!$E:$E, Movements!$C:$C, $C2, Movements!$B:$B, "صادر") - 
-          SUMIFS(Movements!$E:$E, Movements!$C:$C, $C2, Movements!$B:$B, "مرتجع")
-        )`.replace(/\n/g, "");
+          =IF(ISBLANK($C2), "", 
+            SUMIFS(Movements!$E:$E, Movements!$C:$C, $C2, Movements!$B:$B, "Receiving") + 
+            SUMIFS(Movements!$E:$E, Movements!$C:$C, $C2, Movements!$B:$B, "Purchasing") + 
+            SUMIFS(Movements!$E:$E, Movements!$C:$C, $C2, Movements!$B:$B, "Transfer In") + 
+            SUMIFS(Movements!$E:$E, Movements!$C:$C, $C2, Movements!$B:$B, "وارد") + 
+            SUMIFS(Movements!$E:$E, Movements!$C:$C, $C2, Movements!$B:$B, "استلام") - 
+            SUMIFS(Movements!$E:$E, Movements!$C:$C, $C2, Movements!$B:$B, "Waste") - 
+            SUMIFS(Movements!$E:$E, Movements!$C:$C, $C2, Movements!$B:$B, "Transfer Out") - 
+            SUMIFS(Movements!$E:$E, Movements!$C:$C, $C2, Movements!$B:$B, "Return") - 
+            SUMIFS(Movements!$E:$E, Movements!$C:$C, $C2, Movements!$B:$B, "هالك") - 
+            SUMIFS(Movements!$E:$E, Movements!$C:$C, $C2, Movements!$B:$B, "صادر") - 
+            SUMIFS(Movements!$E:$E, Movements!$C:$C, $C2, Movements!$B:$B, "مرتجع") - 
+            SUMIFS(Movements!$E:$E, Movements!$C:$C, $C2, Movements!$B:$B, "Corporate Order") - 
+            SUMIFS(Movements!$E:$E, Movements!$C:$C, $C2, Movements!$B:$B, "طلب شركات")
+          )`.replace(/\n/g, "");
       ish.getRange(2, 8, itemRows - 1, 1).setFormula(stockFormula);
     }
 
@@ -1539,7 +1624,14 @@ const FinanceService = {
   save: function (d, u) {
     SpreadsheetApp.getActiveSpreadsheet()
       .getSheetByName("Expenses")
-      .appendRow([new Date(), d.item, d.amount, d.reason, "Market", u.name]);
+      .appendRow([
+        getExcelDate(),
+        d.item,
+        d.amount,
+        d.reason,
+        "Market",
+        u.name,
+      ]);
     return { status: "success" };
   },
 };
@@ -1721,7 +1813,10 @@ const ReportService = {
       return ReportService.itemSales(ss, range);
     if (d.reportId === "session_summary")
       return ReportService.sessionSummary(ss, d.shiftId, range);
-    if (d.reportId === "consumption_date")
+    if (d.reportId === "dsr_report") return ReportService.getDSR(ss, range);
+    if (d.reportId === "platform_sales")
+      return ReportService.getPlatformAnalysis(ss, range);
+    if (d.reportId === "consumption_log")
       return ReportService.consumptionLog(ss, range);
     if (d.reportId === "item_sales_cons")
       return ReportService.salesCons(ss, range);
@@ -1737,107 +1832,301 @@ const ReportService = {
     if (d.reportId === "item_profitability")
       return ReportService.getItemProfitability(range);
     if (d.reportId === "waste_intel") return ReportService.getWasteIntel(range);
-    if (d.reportId === "moves_analysis")
-      return ReportService.getMovesAnalysis(range, d.filters);
-
     // Advanced Movement Reports
+    const baseFilters = { fromLoc: d.fromLoc, toLoc: d.toLoc, item: d.item };
+
+    if (d.reportId === "moves_analysis")
+      return ReportService.getMovesAnalysis(range, {
+        ...baseFilters,
+        ...d.filters,
+      });
+
     if (d.reportId === "mvmt_purchasing")
-      return ReportService.getMovesAnalysis(range, { type: "Purchasing" });
+      return ReportService.getMovesAnalysis(range, {
+        ...baseFilters,
+        type: "Purchasing",
+      });
     if (d.reportId === "mvmt_receiving")
-      return ReportService.getMovesAnalysis(range, { type: "Receiving" });
+      return ReportService.getMovesAnalysis(range, {
+        ...baseFilters,
+        type: "Receiving",
+      });
     if (d.reportId === "mvmt_waste")
-      return ReportService.getMovesAnalysis(range, { type: "Waste" });
-    if (d.reportId === "mvmt_transfer")
-      return ReportService.getMovesAnalysis(range, { type: "Transfer" });
+      return ReportService.getMovesAnalysis(range, {
+        ...baseFilters,
+        type: "Waste",
+      });
+    if (d.reportId === "mvmt_transfer") {
+      let passedType = "Transfer";
+      if (d.subType === "Transfer In") passedType = "Transfer In";
+      if (d.subType === "Transfer Out") passedType = "Transfer Out";
+      return ReportService.getMovesAnalysis(range, {
+        ...baseFilters,
+        type: passedType,
+      });
+    }
     if (d.reportId === "mvmt_return")
-      return ReportService.getMovesAnalysis(range, { type: "Return" });
+      return ReportService.getMovesAnalysis(range, {
+        ...baseFilters,
+        type: "Return",
+      });
     if (d.reportId === "mvmt_beginning")
       return ReportService.getMovesAnalysis(range, {
+        ...baseFilters,
         type: "Beginning Inventory",
       });
     if (d.reportId === "mvmt_onhand")
-      return ReportService.getMovesAnalysis(range, { type: "On Hand" });
+      return ReportService.getMovesAnalysis(range, {
+        ...baseFilters,
+        type: "On Hand",
+      });
+    if (d.reportId === "mvmt_corporate")
+      return ReportService.getMovesAnalysis(range, {
+        ...baseFilters,
+        type: "Corporate Order",
+      });
 
     throw new Error("Report definition missing for: " + d.reportId);
   },
 
   getMovesAnalysis: function (range, filters = {}) {
     const ss = SpreadsheetApp.getActiveSpreadsheet();
+    const tz = ss.getSpreadsheetTimeZone();
     const mvmts = ss
       .getSheetByName("Movements")
       .getDataRange()
       .getValues()
       .slice(1);
+    const items = ss
+      .getSheetByName("Items")
+      .getDataRange()
+      .getValues()
+      .slice(1);
+
+    const weightMap = {};
+    items.forEach((i) => (weightMap[i[3]] = parseFloat(i[12]) || 0)); // Index 12: Serving/Weight
 
     const filtered = mvmts.filter((m) => {
       // Date is in column 0 (index 0)
+      if (!m[0]) return false;
       const isDate = ReportService.isBetween(m[0], range);
       if (!isDate) return false;
 
-      // Type is in index 1
-      const typeMatch = filters.type
-        ? String(m[1]).toLowerCase() === filters.type.toLowerCase()
-        : true;
+      // Type matches if filters.type is set
+      let typeMatch = true;
+      if (filters.type) {
+        const typeStr = String(m[1] || "")
+          .toLowerCase()
+          .trim();
+        const fType = String(filters.type).toLowerCase().trim();
 
-      // Item Name is in index 3
+        if (fType === "transfer") {
+          typeMatch =
+            typeStr.includes("transfer") ||
+            typeStr.includes("تحويل") ||
+            typeStr.includes("صادر") ||
+            typeStr.includes("وارد");
+        } else if (fType === "transfer in") {
+          typeMatch =
+            typeStr.includes("transfer in") || typeStr.includes("وارد");
+        } else if (fType === "transfer out") {
+          typeMatch =
+            typeStr.includes("transfer out") || typeStr.includes("صادر");
+        } else if (fType === "purchasing") {
+          typeMatch =
+            typeStr.includes("purchasing") ||
+            typeStr.includes("مشتريات") ||
+            typeStr.includes("شراء");
+        } else if (fType === "receiving") {
+          typeMatch =
+            typeStr.includes("receiving") || typeStr.includes("استلام");
+        } else if (fType === "waste") {
+          typeMatch =
+            typeStr.includes("waste") ||
+            typeStr.includes("wastage") ||
+            typeStr.includes("هالك") ||
+            typeStr.includes("تالف");
+        } else if (fType === "return") {
+          typeMatch = typeStr.includes("return") || typeStr.includes("مرتجع");
+        } else if (fType === "beginning inventory") {
+          typeMatch =
+            typeStr.includes("beginning") ||
+            typeStr.includes("افتتاحي") ||
+            typeStr.includes("بدايه") ||
+            typeStr.includes("بداية");
+        } else if (fType === "on hand") {
+          typeMatch =
+            typeStr.includes("on hand") ||
+            typeStr.includes("فعلي") ||
+            typeStr.includes("جرد");
+        } else if (fType === "corporate order") {
+          typeMatch =
+            typeStr.includes("corporate order") ||
+            typeStr.includes("طلب شركات");
+        } else {
+          typeMatch = typeStr.includes(fType);
+        }
+      }
+
+      // Filter by item name if provided
       const itemMatch = filters.item
-        ? String(m[3]).toLowerCase().includes(filters.item.toLowerCase())
+        ? String(m[3] || "")
+            .toLowerCase()
+            .includes(filters.item.toLowerCase())
         : true;
 
-      // Reason is in index 15
+      // Filter by reason if provided
       const reasonMatch = filters.reason
-        ? String(m[15]).toLowerCase().includes(filters.reason.toLowerCase())
+        ? String(m[15] || "")
+            .toLowerCase()
+            .includes(filters.reason.toLowerCase())
         : true;
 
-      return typeMatch && itemMatch && reasonMatch;
+      // Filter by locations (From/To)
+      const fromLocFilter = String(filters.fromLoc || "All")
+        .trim()
+        .toLowerCase();
+      const toLocFilter = String(filters.toLoc || "All")
+        .trim()
+        .toLowerCase();
+
+      const fromLocMatch =
+        fromLocFilter === "all" || fromLocFilter === ""
+          ? true
+          : String(m[9] || "")
+              .trim()
+              .toLowerCase() === fromLocFilter;
+
+      const toLocMatch =
+        toLocFilter === "all" || toLocFilter === ""
+          ? true
+          : String(m[10] || "")
+              .trim()
+              .toLowerCase() === toLocFilter;
+
+      return (
+        typeMatch && itemMatch && reasonMatch && fromLocMatch && toLocMatch
+      );
     });
 
     return {
       status: "success",
-      data: filtered.map((m) => ({
-        id: m[13], // Ref
-        type: m[1],
-        date: m[0],
-        item: m[3],
-        code: m[2],
-        qty: m[4],
-        unit: "",
-        user: m[11],
-        reason: m[15],
-        from: m[9],
-        to: m[10],
-        cost: m[5],
-        total: m[6],
-        batch: `${m[7]} / ${m[8]}`, // Batch / Expiry
-      })),
+      data: filtered.map((m) => {
+        let dateVal = m[0];
+        let dateStr = "";
+        if (dateVal instanceof Date) {
+          dateStr = Utilities.formatDate(dateVal, tz, "dd-MM-yyyy");
+        } else if (dateVal) {
+          // Attempt to parse string to date and then format
+          try {
+            const tempD = new Date(dateVal);
+            if (!isNaN(tempD.getTime())) {
+              dateStr = Utilities.formatDate(tempD, tz, "dd-MM-yyyy");
+            } else {
+              dateStr = String(dateVal).split("T")[0];
+            }
+          } catch (e) {
+            dateStr = String(dateVal);
+          }
+        }
+
+        const qty = parseFloat(m[4]) || 0;
+        const weight = weightMap[m[3]] || 0;
+
+        return {
+          id: m[13] || "-", // Ref # (idx 13)
+          ref: m[13] || "-",
+          invoice: m[12] || "-", // Supp (idx 12)
+          notes: m[14] || "-", // Notes (idx 14)
+          type: m[1] || "Move",
+          date: dateStr,
+          item: m[3] || "-",
+          code: m[2] || "-",
+          qty: qty,
+          unit: "",
+          user: m[11] || "-",
+          reason: m[15] || "-",
+          from: m[9] || "-",
+          to: m[10] || "-",
+          cost: parseFloat(m[5]) || 0,
+          total: parseFloat(m[6]) || 0,
+          batch: m[7] || m[8] ? `${m[7] || ""} / ${m[8] || ""}` : "-",
+          unitWeight: weight,
+          totalWeight: qty * weight,
+        };
+      }),
     };
   },
 
   isBetween: function (val, range) {
     if (!range.from || !range.to) return true;
+    const ss = SpreadsheetApp.getActiveSpreadsheet();
+    const tz = ss.getSpreadsheetTimeZone();
 
-    function toISO(v) {
-      if (!v) return "";
-      if (v instanceof Date)
-        return Utilities.formatDate(v, "GMT+2", "yyyy-MM-dd");
+    function getSafeDate(v) {
+      if (!v) return null;
+      if (v instanceof Date) return v;
+
       if (typeof v === "string") {
-        const parts = v.split(" ")[0].split(/[-/]/);
+        const d = new Date(v);
+        if (!isNaN(d.getTime())) return d;
+
+        const parts = v.trim().split(/[-/\s]/);
         if (parts.length === 3) {
-          // Check if it's DD/MM/YYYY or YYYY-MM-DD
-          if (parts[0].length === 4) return parts.join("-");
-          if (parts[2].length === 4)
-            return `${parts[2]}-${parts[1].padStart(2, "0")}-${parts[0].padStart(2, "0")}`;
+          let day, month, year;
+
+          // Determine which part is the year (usually 4 digits)
+          if (parts[2].length === 4) {
+            day = parts[0];
+            month = parts[1];
+            year = parts[2];
+          } else if (parts[0].length === 4) {
+            year = parts[0];
+            month = parts[1];
+            day = parts[2];
+          } else return null;
+
+          // Handle Month Names
+          const months = {
+            jan: 0,
+            feb: 1,
+            mar: 2,
+            apr: 3,
+            may: 4,
+            jun: 5,
+            jul: 6,
+            aug: 7,
+            sep: 8,
+            oct: 9,
+            nov: 10,
+            dec: 11,
+          };
+
+          let m = parseInt(month);
+          if (isNaN(m)) {
+            const mLow = month.toLowerCase().substring(0, 3);
+            if (months[mLow] !== undefined) m = months[mLow] + 1;
+            else return null;
+          }
+
+          return new Date(year, m - 1, day);
         }
-        return v.split(" ")[0];
       }
-      return String(v);
+      return null;
     }
 
-    const d = toISO(val);
-    const f = toISO(range.from);
-    const t = toISO(range.to);
+    const d = getSafeDate(val);
+    const f = getSafeDate(range.from);
+    const t = getSafeDate(range.to);
 
-    return d >= f && d <= t;
+    if (!d || !f || !t) return false;
+
+    // Reset times to midnight for date-only comparison
+    const dStr = Utilities.formatDate(d, tz, "yyyy-MM-dd");
+    const fStr = Utilities.formatDate(f, tz, "yyyy-MM-dd");
+    const tStr = Utilities.formatDate(t, tz, "yyyy-MM-dd");
+
+    return dStr >= fStr && dStr <= tStr;
   },
 
   getItemProfitability: function (range) {
@@ -1847,6 +2136,14 @@ const ReportService = {
       .getDataRange()
       .getValues()
       .slice(1);
+    const itemsRef = ss
+      .getSheetByName("Items")
+      .getDataRange()
+      .getValues()
+      .slice(1);
+    const costMap = {};
+    itemsRef.forEach((i) => (costMap[i[3]] = parseFloat(i[5]) || 0)); // Map Name -> Cost (index 5)
+
     const result = {};
     sales.forEach((s) => {
       if (!ReportService.isBetween(s[1], range)) return;
@@ -1855,11 +2152,13 @@ const ReportService = {
         cart.forEach((item) => {
           if (!result[item.name])
             result[item.name] = { qty: 0, revenue: 0, cost: 0 };
-          result[item.name].qty += Number(item.qty) || 0;
-          result[item.name].revenue +=
-            (Number(item.qty) || 0) * (Number(item.price) || 0);
-          result[item.name].cost +=
-            (Number(item.qty) || 0) * (Number(item.cost) || 0);
+          const qty = Number(item.qty) || 0;
+          const price = Number(item.price) || 0;
+          const unitCost = Number(item.cost) || costMap[item.name] || 0; // Fallback to current cost
+
+          result[item.name].qty += qty;
+          result[item.name].revenue += qty * price;
+          result[item.name].cost += qty * unitCost;
         });
       } catch (e) {}
     });
@@ -1894,8 +2193,7 @@ const ReportService = {
     var revenue = 0;
     var cogs = 0;
     for (var i = 1; i < sales.length; i++) {
-      var date = String(sales[i][1]);
-      if (date >= from && date <= to + " Z") {
+      if (ReportService.isBetween(sales[i][1], { from: from, to: to })) {
         revenue += Number(sales[i][2]) || 0;
         // Calculate COGS if recipes are linked
         try {
@@ -1911,12 +2209,7 @@ const ReportService = {
     var expenses = ss.getSheetByName("Expenses").getDataRange().getValues();
     var totalExpenses = 0;
     for (var j = 1; j < expenses.length; j++) {
-      var expDate = Utilities.formatDate(
-        new Date(expenses[j][0]),
-        "GMT+2",
-        "yyyy-MM-dd",
-      );
-      if (expDate >= from && expDate <= to) {
+      if (ReportService.isBetween(expenses[j][0], { from: from, to: to })) {
         totalExpenses += Number(expenses[j][2]) || 0;
       }
     }
@@ -1942,13 +2235,81 @@ const ReportService = {
     var moves = ss.getSheetByName("Movements").getDataRange().getValues();
     var filtered = moves
       .slice(1)
-      .filter((m) => ReportService.isBetween(m[2], range))
+      .filter((m) => ReportService.isBetween(m[0], range)) // Index 0 is Date
       .reverse();
     return { status: "success", data: filtered.slice(0, 100) };
   },
 
   salesCons: function (ss, range) {
     return ReportService.itemSales(ss, range);
+  },
+
+  getPlatformAnalysis: function (ss, range) {
+    const sales = ss
+      .getSheetByName("Sales")
+      .getDataRange()
+      .getValues()
+      .slice(1);
+    const results = {
+      Delivery: { sales: 0, trans: 0 },
+      Talabat: { sales: 0, trans: 0 },
+      Menus: { sales: 0, trans: 0 },
+      Etisalat: { sales: 0, trans: 0 },
+      Insta: { sales: 0, trans: 0 },
+      Breadfast: { sales: 0, trans: 0 },
+    };
+
+    sales.forEach((s) => {
+      if (!ReportService.isBetween(s[1], range)) return;
+
+      const total = parseFloat(s[2]) || 0;
+      const orderType = String(s[9] || "").toLowerCase();
+      let payments = [];
+      try {
+        const pData = s[7] || "[]";
+        payments = JSON.parse(pData);
+        // Handle both Array and Object payments
+        if (!Array.isArray(payments) && typeof payments === "object") {
+          payments = Object.entries(payments).map(([id, amount]) => ({
+            id,
+            amount,
+          }));
+        }
+      } catch (e) {}
+
+      // 1. Check for OrderType: Delivery
+      if (orderType.includes("delivery") || orderType.includes("توصيل")) {
+        results.Delivery.sales += total;
+        results.Delivery.trans++;
+      }
+
+      // 2. Check for Platform via Payment Methods
+      if (Array.isArray(payments)) {
+        payments.forEach((p) => {
+          const pid = String(p.id || "").toLowerCase();
+          const pAmt = parseFloat(p.amount) || 0;
+
+          if (pid.includes("talabat") || pid.includes("طلبات")) {
+            results.Talabat.sales += pAmt;
+            results.Talabat.trans++;
+          } else if (pid.includes("menus") || pid.includes("منيو")) {
+            results.Menus.sales += pAmt;
+            results.Menus.trans++;
+          } else if (pid.includes("etisalat") || pid.includes("اتصالات")) {
+            results.Etisalat.sales += pAmt;
+            results.Etisalat.trans++;
+          } else if (pid.includes("insta") || pid.includes("إنستا")) {
+            results.Insta.sales += pAmt;
+            results.Insta.trans++;
+          } else if (pid.includes("breadfast") || pid.includes("بريد")) {
+            results.Breadfast.sales += pAmt;
+            results.Breadfast.trans++;
+          }
+        });
+      }
+    });
+
+    return { status: "success", data: results };
   },
 
   dailySales: function (ss, range) {
@@ -1972,14 +2333,15 @@ const ReportService = {
     var totalValue = 0;
     var data = [];
     for (var i = 1; i < items.length; i++) {
-      var stock = Number(items[i][12]) || 0;
-      var cost = Number(items[i][6]) || 0;
+      var stock = Number(items[i][7]) || 0; // Index 7 is In Stock
+      var cost = Number(items[i][5]) || 0; // Index 5 is Cost
+      var unit = items[i][4] || ""; // Index 4 is Unit
       var val = stock * cost;
       totalValue += val;
       data.push({
         name: items[i][3],
         stock: stock,
-        unit: items[i][5],
+        unit: unit,
         value: val,
       });
     }
@@ -2045,12 +2407,102 @@ const ReportService = {
     };
   },
 
+  getDSR: function (ss, range) {
+    const sales = ss
+      .getSheetByName("Sales")
+      .getDataRange()
+      .getValues()
+      .slice(1);
+    const expenses = ss
+      .getSheetByName("Expenses")
+      .getDataRange()
+      .getValues()
+      .slice(1);
+
+    let stats = {
+      gross: 0,
+      net: 0,
+      discount: 0,
+      orders: 0,
+      payments: {},
+      platforms: {
+        Delivery: 0,
+        Talabat: 0,
+        Menus: 0,
+        Etisalat: 0,
+        Insta: 0,
+        Breadfast: 0,
+      },
+      categories: {},
+      totalExpenses: 0,
+    };
+
+    // Process Sales
+    sales.forEach((s) => {
+      if (!ReportService.isBetween(s[1], range)) return;
+
+      const net = parseFloat(s[2]) || 0;
+      const discount = parseFloat(s[10]) || 0;
+      const orderType = String(s[9] || "").toLowerCase();
+
+      stats.net += net;
+      stats.discount += discount;
+      stats.gross += net + discount;
+      stats.orders++;
+
+      // Payments & Platforms
+      try {
+        let pays = JSON.parse(s[7] || "[]");
+        if (!Array.isArray(pays) && typeof pays === "object") {
+          pays = Object.entries(pays).map(([id, amount]) => ({ id, amount }));
+        }
+
+        pays.forEach((p) => {
+          const mid = p.id || "Cash";
+          const amt = parseFloat(p.amount) || 0;
+          stats.payments[mid] = (stats.payments[mid] || 0) + amt;
+
+          // Platform mapping
+          const pid = mid.toLowerCase();
+          if (pid.includes("talabat")) stats.platforms.Talabat += amt;
+          else if (pid.includes("menus")) stats.platforms.Menus += amt;
+          else if (pid.includes("etisalat")) stats.platforms.Etisalat += amt;
+          else if (pid.includes("insta")) stats.platforms.Insta += amt;
+          else if (pid.includes("breadfast")) stats.platforms.Breadfast += amt;
+        });
+      } catch (e) {}
+
+      // Delivery via OrderType
+      if (orderType.includes("delivery") || orderType.includes("توصيل")) {
+        stats.platforms.Delivery += net;
+      }
+
+      // Categories
+      try {
+        const cart = JSON.parse(s[3] || "[]");
+        cart.forEach((it) => {
+          const cat = it.category || "Other";
+          stats.categories[cat] =
+            (stats.categories[cat] || 0) + (parseFloat(it.qty) || 0);
+        });
+      } catch (e) {}
+    });
+
+    // Process Expenses
+    expenses.forEach((e) => {
+      if (!ReportService.isBetween(e[0], range)) return;
+      stats.totalExpenses += parseFloat(e[2]) || 0;
+    });
+
+    return { status: "success", data: stats };
+  },
+
   onspotCons: function (ss, range) {
     var moves = ss.getSheetByName("Movements").getDataRange().getValues();
     var wastage = [];
     for (var i = 1; i < moves.length; i++) {
-      if (!ReportService.isBetween(moves[i][2], range)) continue;
-      if (["Wastage", "Damaged", "OnSpot"].indexOf(moves[i][1]) !== -1)
+      if (!ReportService.isBetween(moves[i][0], range)) continue; // Index 0 is Date
+      if (["Wastage", "Damaged", "OnSpot", "Waste"].indexOf(moves[i][1]) !== -1)
         wastage.push(moves[i]);
     }
     return { status: "success", data: wastage };

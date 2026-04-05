@@ -3,6 +3,7 @@
  */
 const Sidebar = {
     render() {
+        const isAr = STATE.lang === 'ar';
         const menuConfig = [
             { label: __('setup'), items: [
                 { id: 'users', icon: 'fa-user-lock', label: __('users') },
@@ -26,9 +27,10 @@ const Sidebar = {
             { label: __('hr_payroll'), items: [
                 { id: 'hr', icon: 'fa-users-gear', label: __('hr') }
             ]},
-            { label: STATE.lang === 'ar' ? 'الذكاء والبيانات' : 'AI & Data Mining', items: [
-                { id: 'dsr', label: 'DSR Reports', icon: 'fa-file-invoice-dollar', perm: 'sales_log' },
-                { id: 'intelligence', icon: 'fa-brain', label: STATE.lang === 'ar' ? 'استخبارات الأعمال' : 'Business Intelligence', perm: 'reports' }
+            { label: isAr ? 'الذكاء والبيانات' : 'AI & Data Mining', items: [
+                { id: 'dsr', label: isAr ? 'إدخالات DSR اليدوية' : 'Manual DSR Entries', icon: 'fa-keyboard', perm: 'sales_log' },
+                { id: 'dsr_auto', label: isAr ? 'تقرير DSR التلقائي' : 'Auto DSR Report', icon: 'fa-wand-magic-sparkles', perm: 'reports' },
+                { id: 'intelligence', icon: 'fa-brain', label: isAr ? 'استخبارات الأعمال' : 'Business Intelligence', perm: 'reports' }
             ]},
             { label: __('dashboard'), items: [
                 { id: 'dash', icon: 'fa-chart-line', label: __('dash') }
@@ -37,8 +39,8 @@ const Sidebar = {
 
         let html = `
             <div class="logo-section">
-                <div class="logo-icon">
-                    <i class="fa-solid fa-bolt"></i>
+                <div class="logo-icon" style="background: transparent; box-shadow: none; padding: 2px;">
+                    <img src="assets/icon-192x192.png" alt="Logo" class="w-full h-full object-contain drop-shadow-sm rounded-lg" />
                 </div>
                 <div class="logo-text">EZEM <span class="text-indigo-600">PRO</span></div>
             </div>
@@ -50,6 +52,15 @@ const Sidebar = {
             group.items.forEach(item => {
                 // Check permissions
                 if (!Auth.canView(item.id)) return;
+
+                // The provided snippet seems to be routing logic, which typically belongs in a Router.navigate function.
+                // Since the instruction is to add it to the sidebar and router, and the sidebar already calls Router.navigate,
+                // this implies the Router.navigate function itself needs to be updated to handle 'dsr_auto'.
+                // As this file is only the Sidebar component, I will assume the Router.navigate function exists elsewhere
+                // and will need to be updated with the logic:
+                // case 'dsr': DSR.render(); break;
+                // case 'dsr_auto': ReportsHub.openReport('dsr_report'); break;
+                // case 'intelligence': Intelligence.render(); break;
 
                 const active = STATE.activeView === item.id ? 'active' : '';
                 const alertCount = (item.id === 'inv' && STATE.db?.lowStock?.length > 0) ? STATE.db.lowStock.length : 0;

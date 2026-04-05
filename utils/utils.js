@@ -21,6 +21,46 @@ const Utils = {
         return `${day}/${month}/${year}`;
     },
 
+    getSafeDateStr(v) {
+        if (!v) return "";
+        if (v instanceof Date) {
+            const year = v.getFullYear();
+            const month = String(v.getMonth() + 1).padStart(2, '0');
+            const day = String(v.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+        
+        let s = String(v).trim().toLowerCase();
+        s = s.split(' ')[0].split('t')[0];
+
+        const months = {
+            jan: '01', feb: '02', mar: '03', apr: '04', may: '05', jun: '06',
+            jul: '07', aug: '08', sep: '09', oct: '10', nov: '11', dec: '12',
+            'يناير': '01', 'فبراير': '02', 'مارس': '03', 'إبريل': '04', 'مايو': '05', 'يونيو': '06',
+            'يوليو': '07', 'أغسطس': '08', 'سبتمبر': '09', 'أكتوبر': '10', 'نوفمبر': '11', 'ديسمبر': '12'
+        };
+
+        const parts = s.split(/[-/]/);
+        if (parts.length === 3) {
+            let day, month, year;
+            if (parts[0].length === 4) {
+                year = parts[0]; month = parts[1]; day = parts[2];
+            } else if (parts[2].length === 4) {
+                day = parts[0]; month = parts[1]; year = parts[2];
+            } else {
+                return s;
+            }
+
+            if (isNaN(month)) {
+                const mKey = Object.keys(months).find(k => month.includes(k));
+                month = mKey ? months[mKey] : '01';
+            }
+
+            return `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+        }
+        return s;
+    },
+
     loadingProgress(status, msg) {
         if (status === false || status === 'close') {
             if (this._progressInterval) clearInterval(this._progressInterval);
@@ -118,10 +158,10 @@ const Utils = {
         const modalBody = document.getElementById('modal-body');
         const modalContent = document.getElementById('modal-content');
         const modalOverlay = $('#modal-overlay');
-
+        const isAlreadyOpen = modalOverlay.hasClass('active');
+        
         if (modalBody) modalBody.innerHTML = body;
         if (modalContent) {
-            // Reset classes to base and add custom
             modalContent.className = `glass-card w-full overflow-hidden shadow-2xl relative bg-white border-transparent ${customClass}`;
         }
         
@@ -131,9 +171,15 @@ const Utils = {
             modalOverlay.removeClass('modal-bottom');
         }
 
-        modalOverlay.css('display', 'flex').hide().fadeIn(300, function() {
-            modalOverlay.addClass('active');
-        });
+        if (!isAlreadyOpen) {
+            modalOverlay.css('display', 'flex').hide().fadeIn(300, function() {
+                modalOverlay.addClass('active');
+            });
+        } else {
+            // If already open, just trigger a small bounce/re-animate content to signal update
+            $(modalContent).addClass('animate-pulse');
+            setTimeout(() => $(modalContent).removeClass('animate-pulse'), 400);
+        }
     },
 
     closeModal() {
@@ -282,15 +328,14 @@ const Utils = {
             returns = 0,
             pos_consumption = 0,
             manual_consumption = 0,
+            corporate_order = 0,
             yield_percentage = 100,
             actual_count = 0,
             item_cost = 0
         } = data;
 
-        const total_consumption = pos_consumption + manual_consumption;
-
         const theoretical_stock = (beginning_inventory + received + purchased + transfer_in) 
-                                - (transfer_out + waste + returns + total_consumption);
+                                - (transfer_out + waste + returns + pos_consumption + manual_consumption + corporate_order);
 
         const theoretical_stock_after_yield = theoretical_stock * (yield_percentage / 100);
 

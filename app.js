@@ -7,19 +7,20 @@ const App = {
         console.log("🚀 Initializing Core Systems...");
         
         try {
-            this.updateBootProgress(20, 'Loading Modules...');
+            const isAr = STATE.lang === 'ar';
+            this.updateBootProgress(20, isAr ? 'جاري تحميل الوحدات...' : 'Loading Modules...');
             
             // Check if user is logged in
             if (!STATE.user) {
-                this.updateBootProgress(60, 'Security Handshake...');
+                this.updateBootProgress(60, isAr ? 'فحص أمان النظام...' : 'Security Handshake...');
                 setTimeout(() => this.showLogin(), 800);
                 return;
             }
 
             // 1. Initial Data Sync
-            this.updateBootProgress(40, 'Fetching Enterprise Data...');
+            this.updateBootProgress(40, isAr ? 'جاري جلب بيانات المؤسسة...' : 'Fetching Enterprise Data...');
             await this.syncData();
-            this.updateBootProgress(80, 'Assembling UI Components...');
+            this.updateBootProgress(80, isAr ? 'جاري بناء واجهة المستخدم...' : 'Assembling UI Components...');
 
             // 2. Setup Initial UI
             this.applyLanguage();
@@ -27,7 +28,7 @@ const App = {
             AIAdvisor.init();
             Router.navigate(STATE.activeView);
             Utils.setupEnterNavigation();
-            this.updateBootProgress(100, 'System Ready');
+            this.updateBootProgress(100, isAr ? 'النظام جاهز' : 'System Ready');
 
             // 3. Remove Loader
             setTimeout(() => {
@@ -45,8 +46,33 @@ const App = {
     },
 
     updateBootProgress(percent, status) {
+        const isAr = STATE.lang === 'ar';
         $('#boot-progress').css('width', percent + '%');
-        $('#boot-status').text(percent + '% ' + status);
+        $('#boot-pct').text(percent + '%');
+        $('#boot-status').text(status);
+        $('#boot-insight-label').text(isAr ? 'معلومة استراتيجية' : 'Strategic Insight');
+
+        // Dynamic Insights Integration
+        const insights = isAr ? [
+            "مزامنة البيانات تضمن دقة المخزون والطلبات...",
+            "تحليل المبيعات اليومي يساعدك في اتخاذ قرارات أسرع...",
+            "نظام EZEM يعمل على تحسين كفاءة سلاسل الإمداد...",
+            "الذكاء الاصطناعي مدمج الآن لتحليل الفاقد والهالك...",
+            "يمكنك الوصول لتقاريرك من أي مكان وفي أي وقت..."
+        ] : [
+            "Data sync ensures BOH and Order precision...",
+            "Daily sales analysis helps you make faster decisions...",
+            "EZEM system optimizes your supply chain efficiency...",
+            "AI is now integrated to analyze waste and loss...",
+            "Access your reports anywhere, anytime..."
+        ];
+
+        if (percent % 20 === 0) {
+            const idx = Math.floor(Math.random() * insights.length);
+            $('#boot-insight').fadeOut(300, function() {
+                $(this).text(insights[idx]).fadeIn(300);
+            });
+        }
     },
 
     showLogin() {

@@ -51,8 +51,9 @@ const Inventory = {
                                     <th class="p-5 font-black text-[10px] text-slate-500 uppercase tracking-widest text-center">${__('uom')}</th>
                                     <th class="p-5 font-black text-[10px] text-slate-500 uppercase tracking-widest text-center">${__('cost')}</th>
                                     <th class="p-5 font-black text-[10px] text-slate-500 uppercase tracking-widest text-center">${__('stock')}</th>
-                                    <th class="p-5 font-black text-[10px] text-slate-500 uppercase tracking-widest text-center">${this.viewMode === 'raw' ? 'Yield %' : __('price')}</th>
+                                     <th class="p-5 font-black text-[10px] text-slate-500 uppercase tracking-widest text-center">${this.viewMode === 'raw' ? 'Yield %' : __('price')}</th>
                                     <th class="p-5 font-black text-[10px] text-slate-500 uppercase tracking-widest text-center">${this.viewMode === 'raw' ? 'Min' : 'Status'}</th>
+                                    <th class="p-5 font-black text-[10px] text-slate-500 uppercase tracking-widest text-center">${this.viewMode === 'raw' ? 'Portion/Serving' : ''}</th>
                                     <th class="p-5 font-black text-[10px] text-slate-500 uppercase tracking-widest text-center">${__('actions')}</th>
                                 </tr>
                             </thead>
@@ -87,7 +88,7 @@ const Inventory = {
             const uom = isRaw ? item[4] : 'Each';
             const cost = parseFloat(isRaw ? item[5] : item[5]) || 0;
             const stock = isRaw ? (parseFloat(item[7]) || 0) : '-';
-            const yieldVal = isRaw ? (item[8] || 100) : (parseFloat(item[4]) || 0); // Yield for Raw, Price for Menu
+            const yieldVal = isRaw ? (item[8] || 100) : (parseFloat(item[4]) || 0);
             const minQty = isRaw ? (item[10] || 0) : (item[8] || 'Active');
 
             return `
@@ -109,6 +110,7 @@ const Inventory = {
                     <td class="p-5 text-center">
                         <span class="px-2 py-1 rounded-lg bg-indigo-50 text-indigo-700 font-black text-[10px]">${minQty}</span>
                     </td>
+                    <td class="p-5 text-center font-black text-rose-600">${isRaw ? (item[12] || 0) : ''}</td>
                     <td class="p-5">
                         <div class="flex items-center justify-center gap-2">
                              <button onclick="Inventory.editItem('${code}')" class="action-btn edit"><i class="fa-solid fa-pen"></i></button>
@@ -178,6 +180,10 @@ const Inventory = {
                         <label class="block text-[10px] font-black text-emerald-600 mb-2 uppercase tracking-widest">Yield %</label>
                         <input type="number" id="itm-yield" class="input-premium input-blue-soft font-black text-center h-12 bg-emerald-50" value="100">
                     </div>
+                    <div class="col-span-1">
+                        <label class="block text-[10px] font-black text-blue-600 mb-2 uppercase tracking-widest">Serving/Portion</label>
+                        <input type="number" id="itm-serving" class="input-premium input-blue-soft font-black text-center h-12 bg-blue-50" value="1">
+                    </div>
                 </div>
 
                 <button onclick="Inventory.save()" class="w-full h-14 bg-indigo-600 text-white rounded-2xl text-[12px] font-black shadow-xl shadow-indigo-100 hover:bg-slate-900 transition-all flex items-center justify-center gap-3 mt-4 tracking-widest uppercase">
@@ -208,6 +214,7 @@ const Inventory = {
             unit: $('#itm-unit').val() || 'Each',
             supplier: $('#itm-supp').val() || '-',
             yield: $('#itm-yield').val() || 100,
+            serving: $('#itm-serving').val() || 0,
             sheet: type === 'menu' ? 'Menu POS' : 'Items'
         };
 
@@ -271,6 +278,14 @@ const Inventory = {
                         <label class="block text-[10px] font-black text-emerald-600 mb-2 uppercase tracking-widest">Yield %</label>
                          <input type="number" id="edit-itm-yield" class="input-premium input-blue-soft font-black text-center h-12 bg-emerald-50" value="${item[8] || 100}">
                     </div>
+                    <div class="col-span-1">
+                        <label class="block text-[10px] font-black text-indigo-500 mb-2 uppercase tracking-widest">Min (Alert)</label>
+                         <input type="number" id="edit-itm-min" class="input-premium input-blue-soft font-black text-center h-12 bg-indigo-50" value="${item[10] || 0}">
+                    </div>
+                    <div class="col-span-1">
+                        <label class="block text-[10px] font-black text-blue-600 mb-2 uppercase tracking-widest">Serving/Portion</label>
+                         <input type="number" id="edit-itm-serving" class="input-premium input-blue-soft font-black text-center h-12 bg-blue-50" value="${item[12] || 0}">
+                    </div>
                     `}
                 </div>
 
@@ -300,7 +315,8 @@ const Inventory = {
             { col: 5, val: parseFloat($('#edit-itm-cost').val()) },
             { col: 6, val: $('#edit-itm-supp').val() },
             { col: 8, val: parseFloat($('#edit-itm-yield').val()) || 100 },
-            { col: 10, val: $('#edit-itm-min').val() }
+            { col: 10, val: parseFloat($('#edit-itm-min').val()) || 0 },
+            { col: 12, val: parseFloat($('#edit-itm-serving').val()) || 0 }
         ] : [
             { col: 3, val: $('#edit-itm-name').val() },
             { col: 4, val: parseFloat($('#edit-itm-price').val()) }

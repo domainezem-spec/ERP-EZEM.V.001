@@ -133,22 +133,59 @@ const DSR = {
                                 <i class="fa-solid fa-truck-fast text-xs opacity-50"></i>
                                 ${isAr ? 'مبيعات المنصات' : 'Platform Sales'}
                             </h4>
-                            <div class="grid grid-cols-2 gap-4">
-                                <div class="space-y-1">
+                            <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                                <div class="col-span-2 space-y-1">
                                     <label class="text-[10px] font-black text-slate-600 uppercase">${isAr ? 'مبيعات التوصيل' : 'Delivery Sales'}</label>
                                     <input type="number" id="m-dsr-delivery" placeholder="0.00" class="w-full h-10 bg-white border border-slate-200 rounded-lg px-3 font-black text-slate-900 focus:border-indigo-500 outline-none transition-all">
                                 </div>
-                                <div class="space-y-1">
+                                <div class="col-span-2 space-y-1">
                                     <label class="text-[10px] font-black text-slate-600 uppercase">${isAr ? 'عدد العمليات' : 'Delivery Trans'}</label>
                                     <input type="number" id="m-dsr-delivery-count" placeholder="0" class="w-full h-10 bg-white border border-slate-200 rounded-lg px-3 font-black text-slate-900 focus:border-indigo-500 outline-none transition-all">
                                 </div>
-                                <div class="space-y-1">
-                                    <label class="text-[10px] font-black text-slate-600 uppercase">${isAr ? 'طلبات (Talabat)' : 'Talabat Sales'}</label>
-                                    <input type="number" id="m-dsr-talabat" placeholder="0.00" class="w-full h-10 bg-white border border-slate-200 rounded-lg px-3 font-black text-slate-900 focus:border-indigo-500 outline-none transition-all">
+                                
+                                <div class="space-y-1 border-t border-indigo-50 pt-2">
+                                    <label class="text-[10px] font-black text-slate-500 uppercase">Talabat</label>
+                                    <input type="number" id="m-dsr-talabat" placeholder="Sales" class="w-full h-10 bg-white border border-slate-100 rounded-lg px-3 font-black text-slate-900 text-xs shadow-sm">
                                 </div>
-                                <div class="space-y-1">
-                                    <label class="text-[10px] font-black text-slate-600 uppercase">${isAr ? 'عدد العمليات' : 'Talabat Trans'}</label>
-                                    <input type="number" id="m-dsr-talabat-count" placeholder="0" class="w-full h-10 bg-white border border-slate-200 rounded-lg px-3 font-black text-slate-900 focus:border-indigo-500 outline-none transition-all">
+                                <div class="space-y-1 border-t border-indigo-50 pt-2">
+                                    <label class="text-[10px] font-black text-slate-500 uppercase">Talabat #</label>
+                                    <input type="number" id="m-dsr-talabat-count" placeholder="Trx" class="w-full h-10 bg-white border border-slate-100 rounded-lg px-3 font-black text-slate-900 text-xs shadow-sm">
+                                </div>
+
+                                <div class="space-y-1 border-t border-indigo-50 pt-2">
+                                    <label class="text-[10px] font-black text-slate-500 uppercase">Menus</label>
+                                    <input type="number" id="m-dsr-menus" placeholder="Sales" class="w-full h-10 bg-white border border-slate-100 rounded-lg px-3 font-black text-slate-900 text-xs shadow-sm">
+                                </div>
+                                <div class="space-y-1 border-t border-indigo-50 pt-2">
+                                    <label class="text-[10px] font-black text-slate-500 uppercase">Menus #</label>
+                                    <input type="number" id="m-dsr-menus-count" placeholder="Trx" class="w-full h-10 bg-white border border-slate-100 rounded-lg px-3 font-black text-slate-900 text-xs shadow-sm">
+                                </div>
+
+                                <div class="space-y-1 border-t border-indigo-50 pt-2">
+                                    <label class="text-[10px] font-black text-slate-500 uppercase">Etisalat</label>
+                                    <input type="number" id="m-dsr-etisalat" placeholder="Sales" class="w-full h-10 bg-white border border-slate-100 rounded-lg px-3 font-black text-slate-900 text-xs shadow-sm">
+                                </div>
+                                <div class="space-y-1 border-t border-indigo-50 pt-2">
+                                    <label class="text-[10px] font-black text-slate-500 uppercase">Etisalat #</label>
+                                    <input type="number" id="m-dsr-etisalat-count" placeholder="Trx" class="w-full h-10 bg-white border border-slate-100 rounded-lg px-3 font-black text-slate-900 text-xs shadow-sm">
+                                </div>
+
+                                <div class="space-y-1 border-t border-indigo-50 pt-2">
+                                    <label class="text-[10px] font-black text-slate-500 uppercase">Insta</label>
+                                    <input type="number" id="m-dsr-insta" placeholder="Sales" class="w-full h-10 bg-white border border-slate-100 rounded-lg px-3 font-black text-slate-900 text-xs shadow-sm">
+                                </div>
+                                <div class="space-y-1 border-t border-indigo-50 pt-2">
+                                    <label class="text-[10px] font-black text-slate-500 uppercase">Insta #</label>
+                                    <input type="number" id="m-dsr-insta-count" placeholder="Trx" class="w-full h-10 bg-white border border-slate-100 rounded-lg px-3 font-black text-slate-900 text-xs shadow-sm">
+                                </div>
+
+                                <div class="space-y-1 border-t border-indigo-50 pt-2">
+                                    <label class="text-[10px] font-black text-slate-500 uppercase">Breadfast</label>
+                                    <input type="number" id="m-dsr-breadfast" placeholder="Sales" class="w-full h-10 bg-white border border-slate-100 rounded-lg px-3 font-black text-slate-900 text-xs shadow-sm">
+                                </div>
+                                <div class="space-y-1 border-t border-indigo-50 pt-2">
+                                    <label class="text-[10px] font-black text-slate-500 uppercase">Breadfast #</label>
+                                    <input type="number" id="m-dsr-breadfast-count" placeholder="Trx" class="w-full h-10 bg-white border border-slate-100 rounded-lg px-3 font-black text-slate-900 text-xs shadow-sm">
                                 </div>
                             </div>
                         </div>
@@ -170,7 +207,15 @@ const DSR = {
                     deliverySales: parseFloat(document.getElementById('m-dsr-delivery').value || 0),
                     deliveryCount: parseInt(document.getElementById('m-dsr-delivery-count').value || 0),
                     talabatSales: parseFloat(document.getElementById('m-dsr-talabat').value || 0),
-                    talabatCount: parseInt(document.getElementById('m-dsr-talabat-count').value || 0)
+                    talabatCount: parseInt(document.getElementById('m-dsr-talabat-count').value || 0),
+                    menusSales: parseFloat(document.getElementById('m-dsr-menus').value || 0),
+                    menusCount: parseInt(document.getElementById('m-dsr-menus-count').value || 0),
+                    etisalatSales: parseFloat(document.getElementById('m-dsr-etisalat').value || 0),
+                    etisalatCount: parseInt(document.getElementById('m-dsr-etisalat-count').value || 0),
+                    instaSales: parseFloat(document.getElementById('m-dsr-insta').value || 0),
+                    instaCount: parseInt(document.getElementById('m-dsr-insta-count').value || 0),
+                    breadfastSales: parseFloat(document.getElementById('m-dsr-breadfast').value || 0),
+                    breadfastCount: parseInt(document.getElementById('m-dsr-breadfast-count').value || 0)
                 };
                 if(!data.date) { Swal.showValidationMessage('Date is required'); return false; }
                 return data;

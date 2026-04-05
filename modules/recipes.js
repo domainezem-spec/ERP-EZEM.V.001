@@ -28,9 +28,14 @@ const Recipes = {
                         <button onclick="Recipes.setView('analysis')" class="px-4 py-1.5 rounded-lg text-xs font-bold transition-all ${this.activeView === 'analysis' ? 'bg-white shadow-sm text-blue-600' : 'text-slate-400 hover:text-slate-600'}">${isAr ? 'تحليل الربحية' : 'Analysis'}</button>
                     </div>
 
-                    <button onclick="Recipes.addNew()" class="btn btn-primary shadow-sm">
-                        <i class="fa-solid fa-plus-circle"></i> ${__('add_recipe')}
-                    </button>
+                    <div class="flex gap-2">
+                        <button onclick="Recipes.showReportConfig()" class="btn bg-slate-900 text-white shadow-sm hover:bg-slate-800">
+                            <i class="fa-solid fa-file-pdf"></i> ${isAr ? 'تقرير التكاليف' : 'Cost Report'}
+                        </button>
+                        <button onclick="Recipes.addNew()" class="btn btn-primary shadow-sm">
+                            <i class="fa-solid fa-plus-circle"></i> ${__('add_recipe')}
+                        </button>
+                    </div>
                 </div>
 
                 ${this.activeView === 'list' ? this.renderListView(recipes) : this.renderAnalysisView(recipes)}
@@ -398,19 +403,27 @@ const Recipes = {
                                     <optgroup label="Direct Ingredients">
                                         ${items.map(i => {
                                             const y = i[8] || 100;
-                                            return `<option value="itm_${i[2]}" data-type="item" data-name="${i[3]}" data-cost="${i[5]}" data-unit="${i[4]}" data-yield="${y}">[${i[2]}] ${i[3]} (${y}%)</option>`;
+                                            const s = i[12] || 0;
+                                            return `<option value="itm_${i[2]}" data-type="item" data-name="${i[3]}" data-cost="${i[5]}" data-unit="${i[4]}" data-yield="${y}" data-serving="${s}">[${i[2]}] ${i[3]} (${y}%)</option>`;
                                         }).join('')}
                                     </optgroup>
                                     <optgroup label="Integrated Sub-Recipes">
                                         ${subRecipes.map(r => `<option value="rec_${r[0]}" data-type="recipe" data-name="${r[1]}" data-cost="${r[3]}" data-unit="Portion" data-yield="100">[${r[0]}] ${r[1]} (${Utils.formatCurrency(r[3])})</option>`).join('')}
+                                    </optgroup>
+                                    <optgroup label="${isAr ? 'أصناف المنيو (للكمبوهات والمجاميع)' : 'Menu POS Items (for Combos)'}">
+                                        ${posItems.map(p => `<option value="itm_${p[2]}" data-type="item" data-name="${p[3]}" data-cost="${p[5]}" data-unit="Each" data-yield="100" data-serving="1">[${p[2]}] ${p[3]} (${Utils.formatCurrency(p[5])})</option>`).join('')}
                                     </optgroup>
                                     <option value="NEW_ITEM" class="font-black text-rose-600">➕ ${isAr ? 'إضافة صنف جديد (غير موجود)...' : 'ADD NEW ITEM (NOT IN LIST)...'}</option>
                                 </select>
                             </div>
 
                             <div class="flex-1">
-                                <label class="block text-[7px] font-black text-indigo-400 mb-1 uppercase tracking-widest">Batch Usage Qty</label>
-                                <input type="number" id="ing-qty" class="w-full input-premium input-blue-soft h-9 text-center font-black text-[10px]" placeholder="0.00">
+                                <label class="block text-[7px] font-black text-indigo-400 mb-1 uppercase tracking-widest">Multiplier (Servings)</label>
+                                <input type="number" id="ing-portion-count" oninput="Recipes.calcPortionQty()" class="w-full input-premium input-blue-soft h-9 text-center font-black text-indigo-600 bg-indigo-50/50 text-[10px]" placeholder="Qty">
+                            </div>
+                            <div class="flex-1">
+                                <label class="block text-[7px] font-black text-slate-400 mb-1 uppercase tracking-widest">Total Usage Qty</label>
+                                <input type="number" id="ing-qty" class="w-full input-premium h-9 text-center font-black text-[10px]" placeholder="0.00">
                             </div>
                             <div class="w-16">
                                 <label class="block text-[7px] font-black text-emerald-600 mb-1 uppercase tracking-widest">Fixed Yield</label>
@@ -428,7 +441,10 @@ const Recipes = {
                         <table class="w-full text-left text-[11px] border-collapse">
                             <thead class="bg-slate-50 text-[9px] font-black uppercase tracking-widest text-slate-400 border-b border-slate-100 sticky top-0 z-10">
                                 <tr>
-                                    <th class="p-4">Manufacturing Component</th>
+                                    <th class="p-4 flex items-center gap-2">
+                                        Manufacturing Component
+                                        <span id="ing-count-badge" class="px-2 py-0.5 bg-indigo-100 text-indigo-600 rounded-md text-[8px] font-black">0 ITEMS</span>
+                                    </th>
                                     <th class="p-4 text-center">Batch Qty</th>
                                     <th class="p-4 text-center">Yield %</th>
                                     <th class="p-4 text-center">Net Price</th>
@@ -517,8 +533,10 @@ const Recipes = {
                 if(opt) {
                     const yld = opt.getAttribute('data-yield') || 100;
                     $('#ing-yield').val(yld);
-                    // UX: Auto-focus Qty after selecting item
-                    setTimeout(() => $('#ing-qty').focus(), 100);
+                    // Reset multipliers
+                    $('#ing-portion-count').val('');
+                    // UX: Auto-focus Portion Count after selecting item
+                    setTimeout(() => $('#ing-portion-count').focus(), 100);
                 }
             });
 
@@ -535,11 +553,21 @@ const Recipes = {
                 }
             });
 
-            // Enter key listener for Qty and Yield
-            $('#ing-qty, #ing-yield').on('keypress', function(e) {
+            $('#ing-qty').on('input', function() {
+                if($(this).val() !== '') $('#ing-portion-count').val('');
+            });
+
+            // Global Enter-to-Add listener for the entire injector row
+            $('#ing-select, #ing-qty, #ing-yield, #ing-portion-count').on('keypress', function(e) {
                 if (e.which === 13) {
+                    e.preventDefault();
                     Recipes.addIngredient();
                 }
+            });
+
+            // Also handle Select2 specific Enter key (after selection is made)
+            $ingSel.on('select2:select', function (e) {
+                 // Already focusing ing-portion-count via previous listener
             });
 
             // Initial call to toggleTitleType to set up the correct input field
@@ -594,8 +622,20 @@ const Recipes = {
         }
 
         $('#ing-qty').val('');
+        $('#ing-portion-count').val('');
         $('#ing-yield').val('100');
         this.updateTempTable();
+    },
+
+    calcPortionQty() {
+        const sel = document.getElementById('ing-select');
+        const opt = sel.options[sel.selectedIndex];
+        if(!opt) return;
+        const serving = parseFloat(opt.getAttribute('data-serving')) || 0;
+        const count = parseFloat($('#ing-portion-count').val()) || 0;
+        if(serving > 0 && count > 0) {
+            $('#ing-qty').val((serving * count).toFixed(3));
+        }
     },
 
     removeIngredient(idx) {
@@ -632,10 +672,13 @@ const Recipes = {
             }
 
             const freshCost = i.cost || 0;
-            const usageYield = (i.yield || 100) / 100;
-            const netPrice = freshCost / usageYield;
+            const yieldValRaw = parseFloat(i.yield || 100);
+            const usageYield = (yieldValRaw || 100) / 100;
+            const netPrice = freshCost; // Cost directly requested, yield handled at inventory movement
             const lineTotal = i.qty * netPrice;
             totalBatch += lineTotal;
+
+            const yieldColor = yieldValRaw < 10 ? 'bg-rose-100 text-rose-700 border-rose-200' : 'bg-emerald-50 text-emerald-700 border-emerald-100';
 
             return `
                 <tr class="border-b border-slate-50 hover:bg-slate-50/50 transition-colors">
@@ -650,14 +693,14 @@ const Recipes = {
                             class="w-16 h-8 bg-slate-50 border border-slate-200 rounded-lg text-center font-black text-slate-800 focus:border-indigo-500 outline-none transition-all">
                     </td>
                     <td class="p-4 text-center">
-                        <div class="inline-flex items-center justify-center px-3 py-1 bg-emerald-50 text-emerald-700 rounded-full font-black text-[10px] border border-emerald-100">
-                            ${i.yield || 100}%
+                        <div class="inline-flex items-center justify-center px-3 py-1 ${yieldColor} rounded-full font-black text-[10px] border">
+                            ${yieldValRaw}%
                         </div>
                     </td>
                     <td class="p-4 text-center">
                         <div class="flex flex-col">
                             <span class="text-slate-800 font-bold">${netPrice.toFixed(2)}</span>
-                            <span class="text-[8px] text-slate-400 font-bold">Base: ${freshCost.toFixed(2)}</span>
+                            <span class="text-[8px] text-slate-400 font-bold">Raw Qty w/Yield: ${(i.qty / usageYield).toFixed(3)} ${i.unit}</span>
                         </div>
                     </td>
                     <td class="p-4 text-center font-black text-slate-900">${lineTotal.toFixed(2)}</td>
@@ -674,6 +717,7 @@ const Recipes = {
         const body = document.getElementById('temp-ing-body');
         if(body) body.innerHTML = html || `<tr><td colspan="6" class="p-12 text-center text-slate-300 italic text-[10px] font-black uppercase tracking-widest">Construct your BOM by adding materials above</td></tr>`;
         
+        $('#ing-count-badge').text(`${this.tempIngredients.length} ITEMS`).toggle(this.tempIngredients.length > 0);
         $('#rec-batch-cost').text(totalWithOverhead.toFixed(2));
         $('#rec-unit-cost').text(unitCost.toFixed(2));
 
@@ -943,5 +987,306 @@ const Recipes = {
             } catch(e) { Swal.fire(__('error'), e.toString(), 'error'); }
             finally { Utils.loading(false); }
         }
+    },
+
+    exportReportPDF(selectedIds = null, isDirectPrint = false) {
+        const isAr = STATE.lang === 'ar';
+        const recipes = STATE.db.Recipes || [];
+        const posItems = STATE.db.Menu_POS || [];
+        const items = STATE.db.Items || [];
+
+        // 1. Group POS Items by Category + Filter
+        const grouped = {};
+        posItems.forEach(item => {
+            if(selectedIds && !selectedIds.includes(String(item[2]))) return; // Filter by POS Code
+
+            const cat = item[1] || (isAr ? 'عام' : 'General');
+            if(!grouped[cat]) grouped[cat] = [];
+            
+            // Find recipe for this item
+            const recipeId = item[6];
+            const recipe = recipes.find(r => r[0] === recipeId || (r[6] !== 'Sub' && r[1] === item[3]));
+            
+            if (recipe) {
+                grouped[cat].push({ item, recipe });
+            }
+        });
+
+        // Skip if empty after filter
+        if (Object.keys(grouped).length === 0) {
+            return Utils.toast(isAr ? 'لا يوجد أصناف مختارة للتقرير' : 'No items selected for report', 'warning');
+        }
+
+        // 2. Build HTML
+        let htmlRows = '';
+        let grandTotalWeightGrams = 0;
+        
+        Object.keys(grouped).sort().forEach(cat => {
+            htmlRows += `
+                <div class="category-block">
+                    <h2 class="category-title">${cat}</h2>
+                    ${grouped[cat].map(({ item, recipe }) => {
+                        let ingredientsHtml = '';
+                        let ingJson = [];
+                        let totalWeightGrams = 0;
+                        try { ingJson = JSON.parse(recipe[2] || '[]'); } catch(e) {}
+                        
+                        // Internal Helper for sub-recipe weight lookup
+                        const getWeight = (json) => {
+                            let w = 0;
+                            json.forEach(i => {
+                                const unit = (i.unit || '').toLowerCase();
+                                const q = parseFloat(i.qty) || 0;
+                                if (['kg', 'kilogram', 'liter', 'l'].includes(unit)) w += (q * 1000);
+                                else if (['gm', 'gram', 'ml', 'milliliter'].includes(unit)) w += q;
+                                else if (i.type === 'recipe') {
+                                    const sub = recipes.find(r => r[0] === (i.id.includes('_') ? i.id.split('_')[1] : i.id));
+                                    if (sub) {
+                                        try { w += getWeight(JSON.parse(sub[2] || '[]')); } catch(err) {}
+                                    }
+                                }
+                            });
+                            return w;
+                        };
+
+                        totalWeightGrams = getWeight(ingJson);
+                        grandTotalWeightGrams += totalWeightGrams;
+                        
+                        ingJson.forEach(ing => {
+                            // Find real cost from Items sheet
+                            const rawId = ing.id.includes('_') ? ing.id.split('_')[1] : ing.id;
+                            const dbItem = ing.type === 'item' ? items.find(x => x[2] === rawId) : recipes.find(x => x[0] === rawId);
+                            const currentCost = dbItem ? parseFloat(ing.type === 'item' ? dbItem[5] : dbItem[3]) : (ing.cost || 0);
+                            
+                            ingredientsHtml += `
+                                <tr>
+                                    <td>• ${ing.name} ${ing.type === 'recipe' ? '⚡' : ''}</td>
+                                    <td class="text-center">${ing.qty} ${ing.unit || ''}</td>
+                                    <td class="text-center">${currentCost.toFixed(2)}</td>
+                                    <td class="text-right">${(ing.qty * currentCost).toFixed(2)}</td>
+                                </tr>
+                            `;
+                        });
+
+                        const recipeTotal = parseFloat(recipe[3]) || 0;
+                        const itemPrice = parseFloat(item[4]) || 0;
+                        
+                        // Format weight display (Convert back to KG if > 1000)
+                        const weightDisplay = totalWeightGrams >= 1000 ? (totalWeightGrams / 1000).toFixed(3) + ' KG' : totalWeightGrams.toFixed(0) + ' GM';
+
+                        return `
+                            <div class="recipe-card">
+                                <div class="recipe-header">
+                                    <div class="recipe-meta flex-1">
+                                        <div class="recipe-name">${item[3]} <span class="recipe-code">#${item[2]}</span></div>
+                                        <div class="flex gap-6 mt-1">
+                                            <div class="recipe-price">${isAr ? 'سعر المنيو:' : 'Menu Price:'} ${Utils.formatCurrency(itemPrice)}</div>
+                                            <div class="text-[10px] font-black text-slate-400 uppercase">${isAr?'إجمالي الوزن:':'TOTAL WEIGHT:'} <span class="text-slate-900">${weightDisplay}</span></div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <table class="ing-table">
+                                    <thead>
+                                        <tr>
+                                            <th>${isAr ? 'المكون' : 'Ingredient'}</th>
+                                            <th class="text-center">${isAr ? 'الكمية' : 'Qty'}</th>
+                                            <th class="text-center">${isAr ? 'السعر' : 'Price'}</th>
+                                            <th class="text-right">${isAr ? 'الإجمالي' : 'Total'}</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>${ingredientsHtml}</tbody>
+                                    <tfoot>
+                                        <tr>
+                                            <td colspan="3" class="text-right font-black">${isAr ? 'إجمالي تكلفة المكونات (BOM):' : 'Total BOM Cost:'}</td>
+                                            <td class="text-right font-black recipe-total">${Utils.formatCurrency(recipeTotal)}</td>
+                                        </tr>
+                                    </tfoot>
+                                </table>
+                            </div>
+                        `;
+                    }).join('')}
+                </div>
+            `;
+        });
+
+        const finalHtml = `
+            <div id="recipe-report-container" class="${isAr ? 'text-right' : 'text-left'}" dir="${isAr ? 'rtl' : 'ltr'}" style="font-family: ${isAr ? "'Cairo', sans-serif" : "'Inter', sans-serif"};">
+                <style>
+                    #recipe-report-view .report-header { border-bottom: 3px solid #0f172a; padding-bottom: 15px; margin-bottom: 30px; display: flex; justify-content: space-between; align-items: flex-end; }
+                    #recipe-report-view .report-title { font-size: 24px; font-weight: 900; color: #0f172a; margin: 0; }
+                    #recipe-report-view .category-block { margin-bottom: 40px; page-break-inside: avoid; }
+                    #recipe-report-view .category-title { background: #f1f5f9; padding: 10px 20px; border-radius: 8px; font-size: 14px; font-weight: 900; color: #475569; text-transform: uppercase; margin-bottom: 15px; border-left: 5px solid #6366f1; }
+                    #recipe-report-view .recipe-card { border: 1px solid #e2e8f0; border-radius: 12px; padding: 15px; margin-bottom: 20px; background: white; box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
+                    #recipe-report-view .recipe-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; border-bottom: 1px dashed #e2e8f0; padding-bottom: 10px; }
+                    #recipe-report-view .recipe-name { font-size: 16px; font-weight: 900; color: #0f172a; }
+                    #recipe-report-view .recipe-code { color: #94a3b8; font-family: monospace; font-size: 12px; margin-left: 10px; }
+                    #recipe-report-view .recipe-price { font-size: 12px; font-weight: 700; color: #059669; }
+                    #recipe-report-view .ing-table { width: 100%; border-collapse: collapse; font-size: 11px; margin-top: 10px; }
+                    #recipe-report-view .ing-table th { text-align: inherit; padding: 6px 10px; color: #64748b; font-weight: 900; text-transform: uppercase; border-bottom: 1px solid #f1f5f9; }
+                    #recipe-report-view .ing-table td { padding: 6px 10px; border-bottom: 1px solid #f8fafc; }
+                    #recipe-report-view .ing-table tfoot td { padding-top: 10px; font-size: 13px; color: #0f172a; }
+                    #recipe-report-view .recipe-total { color: #4f46e5 !important; font-weight: 900; }
+                </style>
+                <div id="recipe-report-view">
+                    <div class="report-header">
+                        <div>
+                            <h1 class="report-title">EZEM COSTING ENGINE</h1>
+                            <p style="font-size:10px; color:#64748b; font-weight:700; margin-top:5px; text-transform:uppercase; letter-spacing:1px;">Production Recipes & BOM Analysis Report</p>
+                        </div>
+                        <div style="text-align:end; font-size:10px;">
+                            <div style="color:#0f172a; font-weight:900; font-size:14px; margin-bottom:4px;">
+                                ${isAr ? 'إجمالي وزن التقرير:' : 'GRAND TOTAL WEIGHT:'} 
+                                <span style="color:#6366f1;">${grandTotalWeightGrams >= 1000 ? (grandTotalWeightGrams/1000).toFixed(2) + ' KG' : grandTotalWeightGrams.toFixed(0) + ' GM'}</span>
+                            </div>
+                            <div style="color:#94a3b8; font-weight:700;">
+                                DATE: ${new Date().toLocaleDateString()}<br>
+                                TIME: ${new Date().toLocaleTimeString()}
+                            </div>
+                        </div>
+                    </div>
+                    ${htmlRows}
+                </div>
+            </div>
+        `;
+
+        // If direct print, open new window (handles browser print)
+        if (isDirectPrint) {
+            const win = window.open('', '_blank');
+            win.document.write(`<html><head><title>Report</title></head><body onload="window.print();window.close();">${finalHtml}</body></html>`);
+            win.document.close();
+        } else {
+            // Show Preview Modal
+            const body = `
+                <div class="flex flex-col h-[90vh] bg-white">
+                    <div class="p-4 bg-slate-900 text-white flex justify-between items-center shrink-0">
+                        <div class="flex items-center gap-3">
+                            <i class="fa-solid fa-eye text-indigo-400"></i>
+                            <span class="font-black uppercase tracking-widest text-xs">${isAr ? 'معاينة التقرير قبل الطباعة' : 'Report Preview'}</span>
+                        </div>
+                        <div class="flex gap-2">
+                            <button onclick="Recipes.exportReportPDF(${selectedIds ? `['${selectedIds.join("','")}']` : 'null'}, true)" class="h-10 px-8 bg-indigo-600 text-white rounded-xl font-black text-xs uppercase hover:bg-slate-800 transition-all flex items-center gap-2">
+                                <i class="fa-solid fa-print"></i> ${isAr ? 'تأكيد الطباعة' : 'Print Now'}
+                            </button>
+                            <button onclick="Utils.closeModal()" class="w-10 h-10 flex items-center justify-center rounded-xl bg-white/10 hover:bg-white/20 transition-all"><i class="fa-solid fa-times"></i></button>
+                        </div>
+                    </div>
+                    <div class="flex-1 overflow-y-auto p-10 bg-slate-200 custom-scrollbar">
+                        <div class="max-w-4xl mx-auto bg-white shadow-2xl p-12 rounded-lg">
+                            ${finalHtml}
+                        </div>
+                    </div>
+                </div>
+            `;
+            Utils.openModal(body, 'max-w-6xl');
+        }
+    },
+
+    showReportConfig() {
+        const isAr = STATE.lang === 'ar';
+        const recipes = STATE.db.Recipes || [];
+        const posItems = (STATE.db.Menu_POS || []).filter(item => {
+            // Only items that actually have recipes or were created as recipes
+            return recipes.some(r => r[0] === item[6] || (r[6] !== 'Sub' && r[1] === item[3]));
+        });
+
+        // Group categories for selection
+        const categories = [...new Set(posItems.map(i => i[1] || (isAr ? 'عام' : 'General')))].sort();
+
+        const body = `
+            <div class="${isAr ? 'text-right' : 'text-left'}" dir="${isAr ? 'rtl' : 'ltr'}">
+                <div class="flex items-center gap-3 mb-6 p-4 bg-slate-50 rounded-2xl border border-slate-100">
+                    <div class="w-12 h-12 bg-indigo-600 text-white rounded-2xl flex items-center justify-center text-xl shadow-lg">
+                        <i class="fa-solid fa-sliders"></i>
+                    </div>
+                    <div>
+                        <h3 class="text-lg font-black text-slate-800">${isAr ? 'تخصيص تقرير التكاليف' : 'Customize Cost Report'}</h3>
+                        <p class="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Select specific sections or items to print</p>
+                    </div>
+                </div>
+
+                <div class="space-y-6 max-h-[60vh] overflow-y-auto px-2 custom-scrollbar">
+                    <!-- Categories Selection -->
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between border-b border-indigo-100 pb-2">
+                            <h4 class="text-xs font-black text-indigo-600 uppercase tracking-widest">${isAr ? 'الأقسام' : 'BY CATEGORY'}</h4>
+                            <label class="flex items-center gap-2 cursor-pointer">
+                                <input type="checkbox" onchange="$('.cat-check').prop('checked', this.checked); Recipes.updateItemSelectionFromCat();" class="w-4 h-4 accent-indigo-600">
+                                <span class="text-[9px] font-black text-slate-400 uppercase">${isAr ? 'تحديد الكل' : 'Select All'}</span>
+                            </label>
+                        </div>
+                        <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+                            ${categories.map(cat => `
+                                <label class="flex items-center gap-3 p-3 bg-white border border-slate-100 rounded-xl hover:bg-slate-50 transition-all cursor-pointer">
+                                    <input type="checkbox" class="cat-check w-4 h-4 accent-indigo-600" data-cat="${cat}" onchange="Recipes.updateItemSelectionFromCat()">
+                                    <span class="text-[11px] font-black text-slate-600">${cat}</span>
+                                </label>
+                            `).join('')}
+                        </div>
+                    </div>
+
+                    <!-- Individual Items -->
+                    <div class="space-y-3">
+                         <div class="flex items-center justify-between border-b border-slate-100 pb-2">
+                             <h4 class="text-xs font-black text-slate-400 uppercase tracking-widest">${isAr ? 'الأصناف الفردية' : 'BY INDIVIDUAL ITEM'}</h4>
+                             <input type="text" oninput="Recipes.filterItemsInModal(this.value)" placeholder="${isAr ? 'بحث سريع...' : 'Quick search...'}" 
+                                class="h-8 px-3 text-[10px] font-black bg-white border border-slate-100 rounded-lg outline-none focus:border-indigo-400 w-40">
+                         </div>
+                         <div class="grid grid-cols-1 md:grid-cols-2 gap-2" id="report-items-grid">
+                            ${posItems.map(item => `
+                                <label class="item-label flex items-center justify-between p-2 px-4 bg-white border border-slate-50 rounded-lg hover:border-indigo-200 transition-all cursor-pointer" data-cat="${item[1] || (isAr ? 'عام' : 'General')}">
+                                    <div class="flex items-center gap-3">
+                                        <input type="checkbox" value="${item[2]}" class="item-check w-4 h-4 accent-indigo-600">
+                                        <div class="flex flex-col">
+                                            <span class="text-[11px] font-black text-slate-700">${item[3]}</span>
+                                            <span class="text-[8px] text-slate-400 font-mono">#${item[2]}</span>
+                                        </div>
+                                    </div>
+                                    <span class="text-[9px] font-black text-indigo-400 bg-indigo-50 px-2 py-0.5 rounded-md">${item[1] || '-'}</span>
+                                </label>
+                            `).join('')}
+                         </div>
+                    </div>
+                </div>
+
+                <div class="mt-8 flex justify-end gap-3 pt-6 border-t border-slate-100">
+                    <button onclick="Utils.closeModal()" class="px-6 h-12 rounded-xl text-slate-400 font-black text-xs uppercase hover:bg-slate-100 transition-all">${isAr ? 'إلغاء' : 'Cancel'}</button>
+                    <button onclick="Recipes.generateSelectedReport()" class="px-8 h-12 bg-indigo-600 text-white rounded-xl font-black text-xs uppercase shadow-lg shadow-indigo-100 hover:bg-slate-900 transition-all flex items-center gap-2">
+                        <i class="fa-solid fa-print"></i> ${isAr ? 'عرض ومعاينة التقرير' : 'View & Print Report'}
+                    </button>
+                </div>
+            </div>
+        `;
+        Utils.openModal(body, 'max-w-3xl');
+    },
+
+    filterItemsInModal(q) {
+        const query = (q || '').toLowerCase();
+        $('.item-label').each(function() {
+            const txt = $(this).text().toLowerCase();
+            $(this).toggle(txt.includes(query));
+        });
+    },
+
+    updateItemSelectionFromCat() {
+        const activeCats = [];
+        $('.cat-check:checked').each(function() { activeCats.push($(this).data('cat')); });
+        
+        $('.item-check').each(function() {
+            const itemCat = $(this).closest('.item-label').data('cat');
+            $(this).prop('checked', activeCats.includes(itemCat));
+        });
+    },
+
+    generateSelectedReport() {
+        const selectedIds = [];
+        $('.item-check:checked').each(function() { selectedIds.push(String($(this).val())); });
+        
+        if (!selectedIds.length) {
+            const isAr = STATE.lang === 'ar';
+            return Swal.fire(isAr?'تنبيه':'Warning', isAr?'يجب اختيار صنف واحد على الأقل':'Select at least one item', 'warning');
+        }
+
+        // Utils.closeModal(); // REMOVED: To prevent flicker/disappear, just let openModal replace content
+        this.exportReportPDF(selectedIds);
     }
 };

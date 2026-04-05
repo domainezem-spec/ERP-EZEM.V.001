@@ -203,26 +203,7 @@ const Reconciliation = {
     _buildConsMap(from, to) {
         const consMap = {};
         const sales = (STATE.db.Sales || []).map(s => {
-            const d = s[1];
-            let dateStr = '';
-            if (d instanceof Date) {
-                dateStr = d.toISOString().split('T')[0];
-            } else if (typeof d === 'string') {
-                const parts = d.split(' ')[0].split('T')[0];
-                if (parts.includes('-')) {
-                    dateStr = parts;
-                } else if (parts.includes('/')) {
-                    const bits = parts.split('/');
-                    if (bits[0].length === 4) dateStr = bits.join('-');
-                    else if (bits[2].length === 4) dateStr = `${bits[2]}-${bits[0].padStart(2,'0')}-${bits[1].padStart(2,'0')}`;
-                    else dateStr = parts;
-                } else {
-                    dateStr = parts;
-                }
-            } else {
-                dateStr = String(d || '').split('T')[0].split(' ')[0];
-            }
-            return [s[0], dateStr, ...s.slice(2)];
+            return [s[0], Utils.getSafeDateStr(s[1]), ...s.slice(2)];
         });
         const recipes = STATE.db.Recipes || [];
 
@@ -259,24 +240,7 @@ const Reconciliation = {
 
     _normalizeMovements() {
         return (STATE.db.Movements || []).map(m => {
-            const d = m[0];
-            let dateStr = '';
-            if (d instanceof Date) {
-                dateStr = d.toISOString().split('T')[0];
-            } else {
-                const parts = String(d || '').split('T')[0].split(' ')[0];
-                if (parts.includes('-')) {
-                    dateStr = parts;
-                } else if (parts.includes('/')) {
-                    const bits = parts.split('/');
-                    if (bits[0].length === 4) dateStr = bits.join('-');
-                    else if (bits[2].length === 4) dateStr = `${bits[2]}-${bits[0].padStart(2,'0')}-${bits[1].padStart(2,'0')}`;
-                    else dateStr = parts;
-                } else {
-                    dateStr = parts;
-                }
-            }
-            return [dateStr, ...m.slice(1)];
+            return [Utils.getSafeDateStr(m[0]), ...m.slice(1)];
         });
     },
 
@@ -312,31 +276,37 @@ const Reconciliation = {
             const nameKey = name.toLowerCase();
             const codeKey = code.toLowerCase();
 
-            const itemMv = movements.filter(m => (m[2] && m[2] !== '-' ? String(m[2]).trim() === code : String(m[3]).trim() === name));
+            const itemMv = movements.filter(m => {
+                const mCode = String(m[2] || '').trim().toLowerCase();
+                const mName = String(m[3] || '').trim().toLowerCase();
+                return (mCode && mCode !== '-') ? (mCode === codeKey) : (mName === nameKey);
+            });
             
-            const getMv = (types, locCol) => {
-                const typeList = Array.isArray(types) ? types : [types];
-                const lowerTypes = typeList.map(t => String(t).toLowerCase());
+            const getMv = (keywords, locCol, ignoreStartDate = false) => {
+                const lowerKeywords = keywords.map(k => k.toLowerCase());
                 return itemMv
                     .filter(m => {
                         const mType = String(m[1] || '').trim().toLowerCase();
-                        const matchesType = lowerTypes.includes(mType);
-                        const matchesDate = m[0] >= from && m[0] <= to;
-                        const matchesLoc = !loc || m[locCol || 10] === loc;
+                        const matchesType = lowerKeywords.some(k => mType.includes(k));
+                        const mDate = m[0];
+                        const matchesDate = (ignoreStartDate || mDate >= from) && mDate <= to;
+                        const mLoc = String(m[locCol || 10] || '').trim();
+                        const matchesLoc = !loc || mLoc === loc;
                         return matchesType && matchesDate && matchesLoc;
                     })
                     .reduce((s, m) => s + (parseFloat(m[4]) || 0), 0);
             };
 
-            const beginning       = getMv(['Beginning Inventory', 'رصيد أول المدة'], 10);
-            const receiving       = getMv(['Receiving', 'استلام توريد', 'استلام'], 10);
-            const purchasing      = getMv(['Purchasing', 'شراء مباشر', 'شراء'], 10);
-            const transferIn      = getMv(['Transfer In', 'تحويل وارد'], 10);
-            const transferOut     = getMv(['Transfer Out', 'تحويل صادر'], 9);
-            const waste           = getMv(['Waste', 'هالك'], 9);
-            const returns         = getMv(['Return', 'مرتجع'], 9);
-            const manualCons      = getMv(['Consumption', 'Consumption (Manual)', 'استهلاك (يدوي)', 'استهلاك'], 9);   
-            const onHandMv        = getMv(['On Hand', 'جرد رصيد فعلي', 'رصيد فعلي (On Hand)'], 10);       
+            const beginning       = getMv(['beginning', 'أول المدة', 'افتتاح', 'بدايه', 'بداية'], 10, false);
+            const receiving       = getMv(['receiving', 'استلام', 'توريد'], 10);
+            const purchasing      = getMv(['purchasing', 'شراء', 'مشتريات'], 10);
+            const transferIn      = getMv(['transfer in', 'وارد'], 10);
+            const transferOut     = getMv(['transfer out', 'صادر'], 9);
+            const waste           = getMv(['waste', 'هالك', 'تالف', 'فقد'], 9);
+            const returns         = getMv(['return', 'مرتجع'], 9);
+            const manualCons      = getMv(['consumption', 'استهلاك'], 9);   
+            const corporateOrder  = getMv(['corporate order', 'طلب شركات'], 9);
+            const onHandMv        = getMv(['on hand', 'جرد', 'فعلي'], 10);       
 
             const posConsumption = (codeKey && consMap[codeKey]) ? consMap[codeKey] : (consMap[nameKey] || 0);
 
@@ -358,6 +328,7 @@ const Reconciliation = {
                 returns: returns,
                 pos_consumption: posConsumption,
                 manual_consumption: manualCons,
+                corporate_order: corporateOrder,
                 yield_percentage: yieldVal,
                 actual_count: actual,
                 item_cost: cost
@@ -412,33 +383,40 @@ const Reconciliation = {
         const consMap = this._buildConsMap(from, to);
 
         items.forEach(item => {
-            const name = String(item[3] || '').trim();
-            const code = String(item[2] || '').trim();
-            const costValue = parseFloat(item[5]) || 0;
-            const currentStock = parseFloat(item[7]) || 0;
+            const nameKey = name.toLowerCase();
+            const codeKey = code.toLowerCase();
 
-            const itemMv = movements.filter(m => (m[2] && m[2] !== '-' ? String(m[2]).trim() === code : String(m[3]).trim() === name));
+            const itemMv = movements.filter(m => {
+                const mCode = String(m[2] || '').trim().toLowerCase();
+                const mName = String(m[3] || '').trim().toLowerCase();
+                return (mCode && mCode !== '-') ? (mCode === codeKey) : (mName === nameKey);
+            });
             
-            const getMv = (types, locCol) => {
-                const typeList = Array.isArray(types) ? types : [types];
-                const lowerTypes = typeList.map(t => String(t).toLowerCase());
+            const getMv = (keywords, locCol, ignoreStartDate = false) => {
+                const lowerKeywords = keywords.map(k => k.toLowerCase());
                 return itemMv
                     .filter(m => {
                         const mType = String(m[1] || '').trim().toLowerCase();
-                        return lowerTypes.includes(mType) && m[0] >= from && m[0] <= to && (!loc || m[locCol || 10] === loc);
+                        const matchesType = lowerKeywords.some(k => mType.includes(k));
+                        const mDate = m[0];
+                        const matchesDate = (ignoreStartDate || mDate >= from) && mDate <= to;
+                        const mLoc = String(m[locCol || 10] || '').trim();
+                        const matchesLoc = !loc || mLoc === loc;
+                        return matchesType && matchesDate && matchesLoc;
                     })
                     .reduce((s, m) => s + (parseFloat(m[4]) || 0), 0);
             };
 
-            const beginning  = getMv(['Beginning Inventory', 'رصيد أول المدة'], 10);
-            const rec        = getMv(['Receiving', 'استلام توريد', 'استلام'], 10);
-            const pur        = getMv(['Purchasing', 'شراء مباشر', 'شراء'], 10);
-            const tin        = getMv(['Transfer In', 'تحويل وارد'], 10);
-            const tout       = getMv(['Transfer Out', 'تحويل صادر'], 9);
-            const wst        = getMv(['Waste', 'هالك'], 9);
-            const ret        = getMv(['Return', 'مرتجع'], 9);
-            const manualCons = getMv(['Consumption', 'Consumption (Manual)', 'استهلاك (يدوي)', 'استهلاك'], 9);
-            const onHandMv   = getMv(['On Hand', 'جرد رصيد فعلي', 'رصيد فعلي (On Hand)'], 10);
+            const beginning  = getMv(['beginning', 'أول المدة', 'افتتاح', 'بدايه', 'بداية'], 10, false);
+            const rec        = getMv(['receiving', 'استلام', 'توريد'], 10);
+            const pur        = getMv(['purchasing', 'شراء', 'مشتريات'], 10);
+            const tin        = getMv(['transfer in', 'وارد'], 10);
+            const tout       = getMv(['transfer out', 'صادر'], 9);
+            const wst        = getMv(['waste', 'هالك', 'تالف', 'فقد'], 9);
+            const ret        = getMv(['return', 'مرتجع'], 9);
+            const manualCons = getMv(['consumption', 'استهلاك'], 9);
+            const corpOrd    = getMv(['corporate order', 'طلب شركات'], 9);
+            const onHandMv   = getMv(['on hand', 'جرد', 'فعلي'], 10);
 
             const posCons  = (code && consMap[code.toLowerCase()]) ? consMap[code.toLowerCase()] : (consMap[name.toLowerCase()] || 0);
             const yieldVal = (String(item[8]).trim() === "" || isNaN(parseFloat(item[8]))) ? 100 : parseFloat(item[8]);
@@ -458,6 +436,7 @@ const Reconciliation = {
                 returns: ret,
                 pos_consumption: posCons,
                 manual_consumption: manualCons,
+                corporate_order: corpOrd,
                 yield_percentage: yieldVal,
                 actual_count: actual,
                 item_cost: costValue

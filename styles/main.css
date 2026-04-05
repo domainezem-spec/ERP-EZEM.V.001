@@ -759,3 +759,34 @@ tr:hover td {
 .shadow-premium {
   box-shadow: 0 10px 30px -10px rgba(79, 70, 229, 0.1);
 }
+
+/* ========== CATEGORY PILLS ========== */
+.category-pill {
+  padding: 8px 16px;
+  border-radius: 12px;
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  transition: all 0.2s;
+  border: 1px solid var(--border-color);
+  background: #ffffff;
+  color: #64748b;
+  cursor: pointer;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.category-pill:hover {
+  background: #f8fafc;
+  border-color: var(--brand-primary);
+  color: var(--brand-primary);
+}
+.category-pill.active {
+  background: #0f172a;
+  border-color: #0f172a;
+  color: #ffffff !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+

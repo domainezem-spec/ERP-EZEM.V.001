@@ -61,7 +61,8 @@ const Router = {
                 case 'sales_log': Reports.render('ops'); break;
                 case 'reports_hub': ReportsHub.render(); break;
                 case 'dsr': DSR.render(); break;
-            case 'intelligence': Intelligence.render(); break;
+                case 'dsr_auto': ReportsHub.openReport('dsr_report'); break;
+                case 'intelligence': Intelligence.render(); break;
             }
         } catch (e) {
             console.error(`❌ Module [${viewId}] Render Crash:`, e);

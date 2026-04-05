@@ -8,6 +8,8 @@
     <!-- PWA -->
     <link rel="manifest" href="manifest.json" />
     <meta name="theme-color" content="#4f46e5" />
+    <link rel="icon" type="image/png" href="assets/icon-192x192.png" />
+    <link rel="apple-touch-icon" href="assets/icon-192x192.png" />
 
     <!-- Dependencies -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -40,35 +42,47 @@
         --text-main: #1e293b;
         --accent-soft: #f1f5f9;
       }
-      
+
       body {
         background-color: var(--bg-main);
         color: var(--text-main);
-        font-family: 'Inter', sans-serif;
+        font-family: "Inter", sans-serif;
         letter-spacing: -0.01em;
       }
 
       /* 👁️ Eye-Comfort Scrollbar */
-      .custom-scrollbar::-webkit-scrollbar { width: 5px; height: 5px; }
-      .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-      .custom-scrollbar::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
-      .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+      .custom-scrollbar::-webkit-scrollbar {
+        width: 5px;
+        height: 5px;
+      }
+      .custom-scrollbar::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      .custom-scrollbar::-webkit-scrollbar-thumb {
+        background: #cbd5e1;
+        border-radius: 10px;
+      }
+      .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+        background: #94a3b8;
+      }
 
       /* 🔢 Premium Numbers (Monospace & High Visibility) */
       .premium-num {
-        font-family: 'JetBrains Mono', 'Fira Code', monospace;
+        font-family: "JetBrains Mono", "Fira Code", monospace;
         font-variant-numeric: tabular-nums;
         letter-spacing: -0.05em;
       }
 
       /* 🏛️ Unified Professional Table Headers (Matches Image) */
-      table thead, .table-header-soft {
+      table thead,
+      .table-header-soft {
         background-color: #f8fafc !important;
         border-top: 1px solid #e2e8f0 !important;
         border-bottom: 1px solid #e2e8f0 !important;
       }
-      
-      table thead th, .table-header-soft th {
+
+      table thead th,
+      .table-header-soft th {
         color: #334155 !important; /* Dark Slate (High Contrast) */
         text-transform: uppercase;
         font-size: 0.7rem !important;
@@ -83,11 +97,11 @@
         border-bottom: 1px solid #f1f5f9;
         transition: background-color 0.2s;
       }
-      
+
       tbody tr:hover {
         background-color: #f8fafc;
       }
-      
+
       tbody td {
         padding: 1rem !important;
         color: #1e293b !important;
@@ -96,14 +110,18 @@
       /* ✨ Premium SaaS Design System Upgrade */
       .premium-card {
         background: var(--card-bg);
-        border: 1px solid rgba(0,0,0,0.04);
+        border: 1px solid rgba(0, 0, 0, 0.04);
         border-radius: 1.5rem;
         transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px -1px rgba(0, 0, 0, 0.01);
+        box-shadow:
+          0 4px 6px -1px rgba(0, 0, 0, 0.02),
+          0 2px 4px -1px rgba(0, 0, 0, 0.01);
       }
       .premium-card:hover {
         transform: translateY(-2px);
-        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.05), 0 10px 10px -5px rgba(0, 0, 0, 0.02);
+        box-shadow:
+          0 20px 25px -5px rgba(0, 0, 0, 0.05),
+          0 10px 10px -5px rgba(0, 0, 0, 0.02);
         border-color: var(--primary);
       }
 
@@ -127,10 +145,13 @@
       }
 
       /* ⌨️ Modern Inputs */
-      input, select, textarea {
+      input,
+      select,
+      textarea {
         @apply transition-all duration-200 outline-none;
       }
-      input:focus, select:focus {
+      input:focus,
+      select:focus {
         border-color: var(--primary) !important;
         box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1) !important;
       }
@@ -139,7 +160,9 @@
       .word-art-active {
         color: #2563eb !important;
         font-weight: 900 !important;
-        text-shadow: 2px 2px 0px rgba(37, 99, 235, 0.1), 0 0 15px rgba(37, 99, 235, 0.2);
+        text-shadow:
+          2px 2px 0px rgba(37, 99, 235, 0.1),
+          0 0 15px rgba(37, 99, 235, 0.2);
         letter-spacing: -0.02em;
         transition: all 0.3s ease;
         transform: scale(1.02);
@@ -151,8 +174,14 @@
         animation: fadeUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
       }
       @keyframes fadeUp {
-        from { opacity: 0; transform: translateY(10px); }
-        to { opacity: 1; transform: translateY(0); }
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
       }
 
       /* 🌑 Custom Glassmorphism Section */
@@ -193,44 +222,57 @@
   <body
     class="bg-[#f8fafc] text-slate-900 selection:bg-indigo-500/30 overflow-hidden"
   >
-    <!-- LOADER -->
-    <div
-      id="loader"
-      class="fixed inset-0 bg-white z-[9999] flex flex-col items-center justify-center"
-    >
-      <div class="relative">
-        <div class="text-5xl font-black mb-4 tracking-tighter text-slate-900">
-          EZEM <span class="text-indigo-600">PRO</span>
-        </div>
-        <div
-          class="absolute -right-4 -top-4 w-4 h-4 bg-indigo-500 rounded-full animate-ping"
-        ></div>
-      </div>
-      <div
-        class="animate-spin rounded-full h-10 w-10 border-4 border-indigo-600 border-t-transparent mt-4"
-      ></div>
-      <div
-        class="mt-6 text-slate-400 font-bold text-[10px] tracking-[0.2em] uppercase mb-4"
-      >
-        Enterprise Engine Booting...
-      </div>
+    <!-- PREMIUM LOADER -->
+    <div id="loader" class="fixed inset-0 bg-[#fefefe] z-[9999] flex flex-col items-center justify-center overflow-hidden">
+        <!-- Abstract Background Decoration -->
+        <div class="absolute -top-40 -left-40 w-96 h-96 bg-indigo-50 rounded-full blur-[100px] opacity-60"></div>
+        <div class="absolute -bottom-40 -right-40 w-96 h-96 bg-emerald-50 rounded-full blur-[100px] opacity-60"></div>
 
-      <!-- Premium Loading Bar -->
-      <div
-        class="w-64 h-1.5 bg-slate-100 rounded-full overflow-hidden relative border border-slate-50"
-      >
-        <div
-          id="boot-progress"
-          class="absolute top-0 right-0 h-full bg-indigo-600 transition-all duration-500 ease-out"
-          style="width: 0%"
-        ></div>
-      </div>
-      <div
-        id="boot-status"
-        class="mt-2 text-[9px] font-black text-indigo-500/50 uppercase tracking-widest"
-      >
-        0% Synchronized
-      </div>
+        <div class="relative z-10 flex flex-col items-center">
+            <!-- Animated Logo -->
+            <div class="relative mb-12 group">
+                <div class="w-24 h-24 bg-white rounded-[2rem] shadow-2xl flex items-center justify-center p-5 border border-slate-100 relative z-10 animate-float">
+                    <img src="assets/icon-192x192.png" alt="EZEM" class="w-full h-full object-contain drop-shadow-md rounded-xl">
+                </div>
+                <!-- Pulsing Rings -->
+                <div class="absolute inset-0 bg-indigo-500/10 rounded-[2rem] animate-ping opacity-20 scale-110"></div>
+                <div class="absolute inset-0 bg-indigo-500/5 rounded-[2rem] animate-pulse opacity-10 scale-125"></div>
+            </div>
+
+            <div class="text-center space-y-2 mb-10">
+                <div class="text-4xl font-black tracking-tighter text-slate-900 flex items-center gap-2 justify-center">
+                    EZEM <span class="text-indigo-600">PRO</span>
+                </div>
+                <div class="text-[9px] font-black text-slate-400 uppercase tracking-[0.4em] ml-1">Enterprise Brain</div>
+            </div>
+
+            <!-- Enhanced Progress Area -->
+            <div class="w-80 space-y-4">
+                <div class="flex justify-between items-end px-1">
+                    <div id="boot-status" class="text-[10px] font-black text-indigo-600 uppercase tracking-widest bg-indigo-50 px-3 py-1 rounded-full">Initializing...</div>
+                    <div id="boot-pct" class="text-sm font-black text-slate-900">0%</div>
+                </div>
+                
+                <div class="h-2 w-full bg-slate-100 rounded-full overflow-hidden p-0.5 border border-slate-50 shadow-inner">
+                    <div id="boot-progress" class="h-full bg-gradient-to-r from-indigo-500 to-indigo-700 rounded-full transition-all duration-700 ease-out shadow-lg shadow-indigo-200" style="width: 5%"></div>
+                </div>
+
+                <!-- Strategic Insights (Dynamic Tips) -->
+                <div id="boot-insight-container" class="pt-8 text-center animate-fade-in">
+                    <div id="boot-insight-label" class="text-[8px] font-black text-slate-300 uppercase tracking-widest mb-3">Strategic Insight</div>
+                    <p id="boot-insight" class="text-[11px] font-bold text-slate-500 leading-relaxed max-w-[280px] mx-auto italic px-4">
+                        Data synchronization improves BOH precision...
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- System Version Footer -->
+        <div class="absolute bottom-10 text-[10px] font-black text-slate-300 uppercase tracking-[0.2em] flex items-center gap-4">
+            <span>EZEM ERP v4.5</span>
+            <span class="w-1 h-1 bg-slate-200 rounded-full"></span>
+            <span>Branch's Solutions</span>
+        </div>
     </div>
 
     <!-- LOGIN PAGE -->
@@ -259,9 +301,9 @@
           <div class="relative z-10">
             <div class="mb-10 floating-icon">
               <div
-                class="w-16 h-16 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center text-3xl mb-6 shadow-2xl"
+                class="w-16 h-16 bg-white/20 backdrop-blur-md rounded-2xl flex items-center justify-center text-3xl mb-6 shadow-2xl p-1"
               >
-                <i class="fa-solid fa-cube text-white"></i>
+                <img src="assets/icon-192x192.png" alt="Logo" class="w-full h-full object-contain drop-shadow-md rounded-xl" />
               </div>
               <h1 class="text-4xl font-black tracking-tight leading-tight">
                 قوة البيانات <br /><span class="text-indigo-200"
