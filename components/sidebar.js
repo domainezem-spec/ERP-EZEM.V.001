@@ -6,6 +6,7 @@ const Sidebar = {
         const isAr = STATE.lang === 'ar';
         const menuConfig = [
             { label: __('setup'), items: [
+                { id: 'mobile_link', icon: 'fa-mobile-screen-button', label: isAr ? 'رابط الجوال السريع' : 'Mobile Quick Entry' },
                 { id: 'users', icon: 'fa-user-lock', label: __('users') },
                 { id: 'settings', icon: 'fa-gears', label: __('settings') },
                 { id: 'suppliers', icon: 'fa-truck-fast', label: __('suppliers') }

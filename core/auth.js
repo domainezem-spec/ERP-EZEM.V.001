@@ -18,7 +18,7 @@ const Auth = {
         if (role === 'Admin' || role === 'Group Super Admin' || permsStr === 'all' || permsStr === '*') return true;
         
         // 2. Public / Common Views
-        const publicViews = ['dash', 'profile', 'notifications'];
+        const publicViews = ['dash', 'profile', 'notifications', 'mobile_link'];
         if (publicViews.includes(viewId)) return true;
 
         // 3. Strictly Granular Permissions (If perms field is not empty, it takes priority)

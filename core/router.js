@@ -8,6 +8,12 @@ const Router = {
     navigate(viewId) {
         console.log(`📍 Navigating to: ${viewId}`);
         
+        // Intercept Mobile Link to show QR Code modal
+        if (viewId === 'mobile_link') {
+            this.showMobileEntryModal();
+            return;
+        }
+        
         // Permission Check BEFORE navigation
         if (!Auth.canView(viewId)) {
             Swal.fire(STATE.lang === 'ar' ? 'غير مصرح' : 'Unauthorized', STATE.lang === 'ar' ? 'ليس لديك صلاحية للدخول لهذا القسم' : 'You do not have permission to access this section', 'error');
@@ -314,4 +320,76 @@ const Router = {
             });
         }
     }
+};
+
+/**
+ * 📲 GENERATE DYNAMIC MOBILE ENTRY QR MODAL
+ */
+Router.showMobileEntryModal = function() {
+    const isAr = STATE.lang === 'ar';
+    
+    // Calculate dynamic URL for mobile entry
+    const currentUrl = window.location.href;
+    let mobileUrl = currentUrl;
+    
+    if (currentUrl.includes('index.html')) {
+        mobileUrl = currentUrl.replace('index.html', 'mobile.html');
+    } else if (currentUrl.endsWith('/')) {
+        mobileUrl = currentUrl + 'mobile.html';
+    } else {
+        // Find last slash
+        const slashIdx = currentUrl.lastIndexOf('/');
+        mobileUrl = currentUrl.substring(0, slashIdx) + '/mobile.html';
+    }
+    
+    // Public high-speed QR generator API (CORS & HTTPS Safe)
+    const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(mobileUrl)}`;
+    
+    const titleHtml = `
+        <div class="flex items-center gap-3 justify-center">
+            <div class="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center shadow-inner">
+                <i class="fa-solid fa-mobile-screen-button text-lg"></i>
+            </div>
+            <span class="font-black text-slate-800">${isAr ? 'رابط الجوال السريع' : 'Mobile Quick Entry Link'}</span>
+        </div>
+    `;
+    
+    const contentHtml = `
+        <div class="p-6 text-center space-y-6 ${isAr ? 'text-right' : 'text-left'}" dir="${isAr ? 'rtl' : 'ltr'}" style="font-family: 'Cairo', sans-serif;">
+            <p class="text-xs text-slate-500 font-bold leading-relaxed text-center">
+                ${isAr ? 'قم بمسح رمز الاستجابة السريعة (QR Code) بكاميرا الهاتف لفتح واجهة الإدخال السريع الخاصة بالهالك والتحويلات مباشرة من جوالك!' 
+                       : 'Scan this QR Code with your mobile camera to open the Quick Waste & Transfers Entry interface directly on your phone!'}
+            </p>
+            
+            <div class="flex flex-col items-center justify-center p-6 bg-slate-50 rounded-3xl border border-slate-100 max-w-[280px] mx-auto shadow-inner">
+                <img src="${qrCodeUrl}" alt="QR Code" class="w-48 h-48 rounded-2xl border border-slate-200 p-2 bg-white shadow-md" />
+                <span class="text-[9px] font-black text-indigo-600 uppercase tracking-widest mt-4 flex items-center gap-1.5 animate-pulse">
+                    <span class="w-1.5 h-1.5 bg-indigo-600 rounded-full"></span>
+                    ${isAr ? 'جاهز للمسح الضوئي' : 'Ready to Scan'}
+                </span>
+            </div>
+            
+            <div class="space-y-2">
+                <label class="text-[9px] font-black text-slate-400 uppercase tracking-wider block text-center">${isAr ? 'أو انسخ الرابط المباشر:' : 'Or copy the direct link:'}</label>
+                <div class="flex items-center gap-2 bg-slate-50 border border-slate-100 rounded-2xl p-2 pl-4 max-w-sm mx-auto shadow-inner">
+                    <button onclick="navigator.clipboard.writeText('${mobileUrl}').then(() => Swal.fire({toast:true, position:'top-end', icon:'success', title:'${isAr ? 'تم نسخ الرابط!' : 'Link Copied!'}', showConfirmButton:false, timer:1500}));" 
+                            class="h-10 px-4 bg-indigo-600 text-white rounded-xl text-xs font-black shadow-lg shadow-indigo-100 hover:bg-slate-900 transition-all flex items-center gap-2 active:scale-95 shrink-0">
+                        <i class="fa-solid fa-copy"></i>
+                        <span>${isAr ? 'نسخ' : 'Copy'}</span>
+                    </button>
+                    <input type="text" readonly value="${mobileUrl}" class="flex-1 bg-transparent text-slate-600 text-center font-mono text-[10px] font-bold outline-none select-all truncate">
+                </div>
+            </div>
+        </div>
+    `;
+    
+    Swal.fire({
+        title: titleHtml,
+        html: contentHtml,
+        showConfirmButton: true,
+        confirmButtonText: isAr ? 'إغلاق' : 'Close',
+        customClass: {
+            confirmButton: 'btn-premium bg-slate-900 text-white rounded-xl px-8 py-3.5 font-black text-[11px] uppercase tracking-widest'
+        }
+    });
 };

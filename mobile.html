@@ -1,0 +1,1566 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>EZEM Mobile | الإدخال السريع للجوال</title>
+    
+    <!-- Meta & Theme Color for Mobile -->
+    <meta name="theme-color" content="#4f46e5" />
+    <link rel="icon" type="image/png" href="assets/icon-192x192.png" />
+    <link rel="apple-touch-icon" href="assets/icon-192x192.png" />
+
+    <!-- ⚡ Performance: preconnect to CDN origins -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+    <link rel="preconnect" href="https://cdn.jsdelivr.net">
+    <link rel="dns-prefetch" href="https://code.jquery.com">
+
+    <!-- External Dependencies (blocking but required for inline scripts) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet" media="print" onload="this.media='all'">
+    <noscript><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet"></noscript>
+    <!-- Reduced font weights for faster load -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+
+    <!-- ERP-EZEM Local Main Styles -->
+    <link rel="stylesheet" href="styles/main.css" />
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        cairo: ['Cairo', 'sans-serif'],
+                        sans: ['Plus Jakarta Sans', 'Cairo', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Mobile Touch & Scroll Fixes */
+        body {
+            font-family: 'Plus Jakarta Sans', 'Cairo', sans-serif !important;
+            background: linear-gradient(135deg, #f8fafc 0%, #eef2ff 100%) !important;
+            background-attachment: fixed !important;
+            color: #0f172a !important;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            overflow-y: auto !important;
+            height: auto !important;
+            min-height: 100vh;
+        }
+
+        /* Responsive glass card (Premium Slim Style) */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.75) !important;
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.6) !important;
+            box-shadow: 0 10px 40px -10px rgba(79, 70, 229, 0.08), 0 1px 3px rgba(0,0,0,0.02) !important;
+            border-radius: 20px !important;
+        }
+
+        /* Custom adjustments for mobile finger targets */
+        .input-premium {
+            height: 42px !important;
+            font-size: 12px !important;
+            border-radius: 14px !important;
+            border: 1px solid rgba(203, 213, 225, 0.6) !important;
+            background: rgba(255, 255, 255, 0.9) !important;
+            color: #0f172a !important;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.01) !important;
+        }
+
+        .input-premium:focus {
+            border-color: #6366f1 !important;
+            background: #ffffff !important;
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.15), inset 0 1px 2px rgba(0,0,0,0.02) !important;
+            outline: none !important;
+        }
+
+        /* Category chips matching Slim styling */
+        .category-pill {
+            padding: 6px 14px !important;
+            border-radius: 100px !important;
+            font-size: 10px !important;
+            font-weight: 800 !important;
+            border: 1px solid rgba(203, 213, 225, 0.5) !important;
+            background: rgba(255, 255, 255, 0.8) !important;
+            color: #475569 !important;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+            backdrop-filter: blur(8px);
+        }
+
+        .category-pill.active {
+            background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%) !important;
+            border-color: transparent !important;
+            color: #ffffff !important;
+            box-shadow: 0 8px 16px -4px rgba(99, 102, 241, 0.4) !important;
+            transform: translateY(-1px);
+        }
+
+        /* Slide animations */
+        @keyframes slideIn {
+            from { transform: translateY(20px); opacity: 0; }
+            to { transform: translateY(0); opacity: 1; }
+        }
+        .animate-slide-in {
+            animation: slideIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+        }
+        
+        /* Premium Buttons */
+        .btn-slim-primary {
+            background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%) !important;
+            box-shadow: 0 8px 20px -6px rgba(79, 70, 229, 0.5) !important;
+            border: none !important;
+            color: white !important;
+            transition: all 0.2s ease !important;
+        }
+        .btn-slim-primary:active {
+            transform: scale(0.97) !important;
+            box-shadow: 0 4px 10px -4px rgba(79, 70, 229, 0.4) !important;
+        }
+
+        /* Touch target limits */
+        .touch-target {
+            min-height: 48px;
+            min-width: 48px;
+        }
+        
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+
+        /* Floating background elements for premium feel */
+        .bg-shape {
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(60px);
+            z-index: -1;
+            opacity: 0.4;
+            pointer-events: none;
+        }
+        .bg-shape-1 { width: 300px; height: 300px; background: #e0e7ff; top: -100px; right: -100px; }
+        .bg-shape-2 { width: 250px; height: 250px; background: #fce7f3; bottom: 10%; left: -50px; }
+
+        /* 🖨️ PDF Print Styles */
+        @media print {
+            body {
+                background: #ffffff !important;
+                color: #000000 !important;
+                font-family: 'Cairo', 'Plus Jakarta Sans', sans-serif !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                overflow-y: auto !important;
+                height: auto !important;
+            }
+            #app, #loader, #login-container, #floating-footer, #success-screen, .swal2-container, header, button, .bg-shape {
+                display: none !important;
+            }
+            #print-receipt-area {
+                display: block !important;
+                width: 100% !important;
+                direction: ltr !important;
+            }
+            [dir="rtl"] #print-receipt-area {
+                direction: rtl !important;
+            }
+        }
+        #print-receipt-area {
+            display: none;
+        }
+
+        /* 🌙 Dark Mode Styles */
+        html.dark body {
+            background: linear-gradient(135deg, #0f172a 0%, #1e1b4b 100%) !important;
+            color: #e2e8f0 !important;
+        }
+        html.dark .glass-card {
+            background: rgba(30, 27, 75, 0.75) !important;
+            border: 1px solid rgba(99, 102, 241, 0.2) !important;
+            box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.4) !important;
+        }
+        html.dark header {
+            background: rgba(15, 23, 42, 0.85) !important;
+            border-color: rgba(99, 102, 241, 0.2) !important;
+        }
+        html.dark .input-premium {
+            background: rgba(15, 23, 42, 0.8) !important;
+            border-color: rgba(99, 102, 241, 0.3) !important;
+            color: #e2e8f0 !important;
+        }
+        html.dark .input-premium:focus {
+            background: rgba(15, 23, 42, 0.95) !important;
+            border-color: #6366f1 !important;
+        }
+        html.dark .category-pill {
+            background: rgba(30, 27, 75, 0.8) !important;
+            border-color: rgba(99, 102, 241, 0.25) !important;
+            color: #94a3b8 !important;
+        }
+        html.dark .category-pill.active {
+            background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%) !important;
+            color: #ffffff !important;
+        }
+        html.dark #floating-footer {
+            background: rgba(15, 23, 42, 0.97) !important;
+            border-color: rgba(99, 102, 241, 0.2) !important;
+        }
+        html.dark .text-slate-800 { color: #e2e8f0 !important; }
+        html.dark .text-slate-700 { color: #cbd5e1 !important; }
+        html.dark .text-slate-600 { color: #94a3b8 !important; }
+        html.dark .text-slate-500 { color: #64748b !important; }
+        html.dark .bg-white { background: rgba(30, 27, 75, 0.9) !important; }
+        html.dark .border-slate-200 { border-color: rgba(99, 102, 241, 0.2) !important; }
+        html.dark .bg-slate-50 { background: rgba(15, 23, 42, 0.6) !important; }
+        html.dark .bg-slate-100 { background: rgba(30, 27, 75, 0.8) !important; }
+        html.dark .divide-slate-100 > * + * { border-color: rgba(99, 102, 241, 0.15) !important; }
+        html.dark .swipeable-card { background: rgba(15, 23, 42, 0.95) !important; }
+        html.dark .bg-shape-1 { background: #312e81; opacity: 0.3; }
+        html.dark .bg-shape-2 { background: #1e1b4b; opacity: 0.3; }
+    </style>
+</head>
+<body class="flex flex-col pb-28 relative">
+    <!-- Premium Slim Background Shapes -->
+    <div class="bg-shape bg-shape-1"></div>
+    <div class="bg-shape bg-shape-2"></div>
+
+    <!-- ⏳ LIGHT LOADER SCREEN -->
+    <div id="loader" class="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-white/40 backdrop-blur-md">
+        <div class="relative mb-5">
+            <div class="w-16 h-16 bg-white rounded-2xl border border-white/60 flex items-center justify-center p-3 shadow-xl relative z-10">
+                <img src="assets/icon-192x192.png" alt="EZEM" class="w-full h-full object-contain rounded-xl">
+            </div>
+            <div class="absolute inset-0 bg-indigo-500/20 rounded-2xl animate-ping scale-110"></div>
+        </div>
+        <div class="text-base font-black text-slate-800 tracking-tight flex items-center gap-1.5 drop-shadow-sm">
+            EZEM <span class="text-indigo-600">MOBILE</span>
+        </div>
+        <div class="text-[10px] font-black text-slate-500 uppercase tracking-widest mt-1">جاري تحميل المنظومة اللوجستية...</div>
+        <div class="w-32 h-1.5 bg-slate-200/60 rounded-full mt-6 overflow-hidden backdrop-blur-sm">
+            <div class="h-full bg-indigo-600 rounded-full w-1/3 animate-[pulse_1.5s_infinite]"></div>
+        </div>
+    </div>
+
+    <!-- 🔑 LIGHT LOGIN CONTAINER -->
+    <div id="login-container" class="hidden fixed inset-0 z-[1000] bg-[#f1f5f9] flex flex-col justify-center px-6">
+        <div class="text-center mb-8">
+            <div class="inline-flex w-16 h-16 bg-white rounded-2xl border border-slate-200/80 items-center justify-center p-3 mb-4 shadow-md">
+                <img src="assets/icon-192x192.png" alt="Logo" class="w-full h-full object-contain rounded-xl" />
+            </div>
+            <h2 class="text-xl font-black text-slate-800 mb-1">تسجيل الدخول للجوال</h2>
+            <p class="text-slate-500 text-xs font-semibold">أدخل بيانات الحساب لتسجيل الهالك والتحويلات</p>
+        </div>
+
+        <div class="glass-card p-6 space-y-4 max-w-sm mx-auto w-full relative z-10">
+            <div class="space-y-1 text-right">
+                <label class="text-[10px] font-black text-slate-400 uppercase tracking-wider block">اسم المستخدم</label>
+                <div class="relative">
+                    <input type="text" id="login-user" class="w-full h-11 rounded-xl px-4 pr-10 input-premium font-bold text-sm text-slate-800" placeholder="admin" autocomplete="username">
+                    <i class="fa-solid fa-user absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                </div>
+            </div>
+
+            <div class="space-y-1 text-right">
+                <label class="text-[10px] font-black text-slate-400 uppercase tracking-wider block">كلمة المرور</label>
+                <div class="relative">
+                    <input type="password" id="login-pass" class="w-full h-11 rounded-xl px-4 pr-10 input-premium font-bold text-sm text-slate-800" placeholder="••••••••" autocomplete="current-password">
+                    <i class="fa-solid fa-lock absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                </div>
+            </div>
+
+            <button id="login-submit-btn" class="w-full h-12 btn-slim-primary rounded-xl font-bold text-xs flex items-center justify-center gap-2 mt-2">
+                <span>دخول إلى المنظومة</span>
+                <i class="fa-solid fa-arrow-left text-[10px] opacity-80"></i>
+            </button>
+        </div>
+
+        <div class="mt-12 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">
+            EZEM ERP MOBILE • BRANCH'S SOLUTIONS
+        </div>
+    </div>
+
+    <!-- 📱 APP MAIN VIEW -->
+    <div id="app" class="hidden flex-1 flex flex-col z-10 w-full px-4 pt-4 max-w-md mx-auto">
+        
+        <!-- 👤 Header Info -->
+        <header class="flex items-center justify-between mb-4 glass-card p-2.5 shadow-sm sticky top-4 z-50">
+            <div class="flex items-center gap-2.5">
+                <div class="w-8 h-8 rounded-xl bg-slate-100 flex items-center justify-center p-1.5 border border-slate-200">
+                    <img src="assets/icon-192x192.png" alt="User" class="w-full h-full object-contain rounded-md">
+                </div>
+                <div class="text-right">
+                    <div class="text-[8px] font-black text-slate-400 uppercase tracking-wider" id="user-role-label">مستودع / جرد</div>
+                    <div class="text-[11px] font-black text-slate-800" id="user-name-label">المدير العام</div>
+                </div>
+            </div>
+            
+            <div class="flex items-center gap-2">
+                <button onclick="changeLanguage()" class="w-7 h-7 rounded-lg bg-slate-100 border border-slate-200 flex items-center justify-center text-[9px] font-black text-slate-600">
+                    <span id="lang-btn-text">EN</span>
+                </button>
+                <button onclick="toggleDarkMode()" id="btn-dark-mode" class="w-7 h-7 rounded-lg bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-600">
+                    <i class="fa-solid fa-moon text-[10px]"></i>
+                </button>
+                <button onclick="Auth.logout()" class="w-7 h-7 rounded-lg bg-rose-50 border border-rose-100 flex items-center justify-center text-rose-500">
+                    <i class="fa-solid fa-power-off text-[10px]"></i>
+                </button>
+            </div>
+        </header>
+
+        <!-- 🎛️ DASHBOARD SCREEN -->
+        <div id="screen-dashboard" class="space-y-4 animate-slide-in">
+            <div class="text-right px-1">
+                <h1 class="text-base font-black text-slate-800 mb-0.5" id="dash-welcome">مرحباً بك في الإدخال السريع</h1>
+                <p class="text-[9px] text-slate-400 font-bold" id="dash-subtitle">اختر العملية المطلوبة للبدء بالإدخال الفوري من الهاتف</p>
+            </div>
+
+            <!-- Dashboard Action Cards -->
+            <div class="grid grid-cols-1 gap-3.5">
+                <!-- 🗑️ WASTE CARD -->
+                <button onclick="startMovement('Waste')" class="w-full text-right p-4 rounded-2xl bg-white border border-slate-200 shadow-sm flex items-center justify-between transition-all active:scale-[0.98] group relative overflow-hidden">
+                    <div class="space-y-0.5 relative z-10 flex-1">
+                        <div class="w-8 h-8 rounded-xl bg-rose-50 text-rose-500 flex items-center justify-center text-sm border border-rose-100 mb-2">
+                            <i class="fa-solid fa-trash-can"></i>
+                        </div>
+                        <h2 class="text-sm font-black text-slate-800" id="btn-waste-title">تسجيل كمية هالك</h2>
+                        <p class="text-[9px] text-slate-400 font-bold" id="btn-waste-desc">تسجيل تالف، منتهي صلاحية، أو عجز بالخط الساخن</p>
+                    </div>
+                    <i class="fa-solid fa-chevron-left text-slate-300 text-xs transition-transform group-hover:-translate-x-1 pl-1"></i>
+                </button>
+
+                <!-- 🔄 TRANSFER CARD -->
+                <button onclick="startMovement('Transfer Out')" class="w-full text-right p-4 rounded-2xl bg-white border border-slate-200 shadow-sm flex items-center justify-between transition-all active:scale-[0.98] group relative overflow-hidden">
+                    <div class="space-y-0.5 relative z-10 flex-1">
+                        <div class="w-8 h-8 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-sm border border-indigo-100 mb-2">
+                            <i class="fa-solid fa-truck-ramp-box"></i>
+                        </div>
+                        <h2 class="text-sm font-black text-slate-800" id="btn-transfer-title">حركة تحويل بين الفروع</h2>
+                        <p class="text-[9px] text-slate-400 font-bold" id="btn-transfer-desc">تحويل بضائع أو خامات بين المواقع والفروع</p>
+                    </div>
+                    <i class="fa-solid fa-chevron-left text-slate-300 text-xs transition-transform group-hover:-translate-x-1 pl-1"></i>
+                </button>
+            </div>
+
+            <!-- Stats Preview (Low Stock alerts matching main dashboard design) -->
+            <div class="glass-card rounded-2xl p-4 space-y-3">
+                <h3 class="text-[10px] font-black text-slate-700 uppercase tracking-widest flex items-center gap-2 border-b border-slate-100 pb-2.5">
+                    <i class="fa-solid fa-circle-exclamation text-amber-500 text-[10px]"></i>
+                    <span id="low-stock-title">تنبيهات نواقص المخزن</span>
+                </h3>
+                
+                <div id="low-stock-list" class="space-y-1.5 max-h-40 overflow-y-auto pr-0.5">
+                    <!-- Loaded dynamically -->
+                    <div class="text-[10px] text-slate-400 text-center py-2 font-bold" id="low-stock-empty">لا يوجد نواقص مخزون حالياً</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 📝 TRANSACTION ENTRY SCREEN -->
+        <div id="screen-entry" class="hidden flex-1 flex flex-col space-y-4 animate-slide-in pb-16">
+            
+            <!-- Back navigation header -->
+            <div class="flex items-center justify-between">
+                <button onclick="goBackToDashboard()" class="flex items-center gap-1.5 text-xs font-black text-indigo-600 active:opacity-75">
+                    <i class="fa-solid fa-arrow-right"></i>
+                    <span id="btn-back">رجوع للرئيسية</span>
+                </button>
+                <div class="px-2.5 py-0.5 rounded-full text-[9px] font-black uppercase tracking-widest bg-indigo-50 text-indigo-600 border border-indigo-100" id="entry-badge">هالك</div>
+            </div>
+
+            <!-- Dynamic Headers Form -->
+            <div class="glass-card rounded-2xl p-4 space-y-3 text-right">
+                <h3 class="text-[9px] font-black text-slate-400 uppercase tracking-wider mb-1" id="hdr-section-title">بيانات ترويسة الحركة</h3>
+                
+                <div class="grid grid-cols-2 gap-3">
+                    <div class="space-y-1">
+                        <label class="text-[9px] font-black text-slate-500 block" id="lbl-date">التاريخ</label>
+                        <input type="date" id="txDate" class="w-full h-11 rounded-xl px-3 input-premium text-xs font-bold">
+                    </div>
+                    
+                    <!-- DYNAMIC FIELD: Reason for Waste OR To Location for Transfer -->
+                    <div class="space-y-1" id="form-group-dynamic">
+                        <!-- Filled by JS -->
+                    </div>
+                </div>
+
+                <!-- From Location (Only shown for Transfers) -->
+                <div class="grid grid-cols-1 gap-3 hidden" id="form-group-transfer-from">
+                    <div class="space-y-1">
+                        <label class="text-[9px] font-black text-slate-500 block" id="lbl-from">الموقع المحوّل منه (من)</label>
+                        <select id="txFrom" class="w-full h-11 rounded-xl px-3 input-premium text-xs font-bold">
+                            <!-- Filled dynamically -->
+                        </select>
+                    </div>
+                </div>
+
+                <div class="space-y-1">
+                    <label class="text-[9px] font-black text-slate-500 block" id="lbl-notes">ملاحظات / سبب إضافي</label>
+                    <input type="text" id="txNotes" class="w-full h-11 rounded-xl px-3 input-premium text-xs font-bold" placeholder="ملاحظات توضيحية اختياري...">
+                </div>
+
+                <!-- 📷 Waste Photo Upload Card (Only visible when currentMode === 'Waste') -->
+                <div class="space-y-1 pt-1" id="form-group-waste-photo">
+                    <label class="text-[9px] font-black text-slate-500 block" id="lbl-photo">صورة إثبات الهالك</label>
+                    <div onclick="$('#txImageInput').click();" class="glass-card rounded-2xl p-4 text-center border-2 border-dashed border-slate-200 hover:border-indigo-500 transition-all cursor-pointer relative" id="photo-upload-card" style="margin-bottom: 0 !important; background: #ffffff !important;">
+                        <input type="file" accept="image/*" capture="environment" id="txImageInput" class="hidden">
+                        
+                        <div id="upload-placeholder" class="space-y-1 py-1.5">
+                            <i class="fa-solid fa-camera text-slate-400 text-lg"></i>
+                            <div class="text-xs font-black text-slate-700" id="lbl-photo-box-title">إرفاق صورة الهالك</div>
+                            <div class="text-[9px] text-slate-400 font-bold" id="lbl-photo-box-desc">اضغط لفتح الكاميرا والتقاط صورة واضحة</div>
+                        </div>
+                        
+                        <div id="upload-preview-container" class="hidden relative inline-block mx-auto">
+                            <img id="upload-preview" src="" class="w-32 h-32 object-cover rounded-xl border border-slate-200">
+                            <button type="button" onclick="removeUploadedPhoto(event)" class="absolute -top-2 -left-2 w-6 h-6 rounded-full bg-rose-500 text-white flex items-center justify-center text-xs shadow-md border border-white">
+                                <i class="fa-solid fa-xmark"></i>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 🔎 ITEM SEARCH WIDGET -->
+            <div class="glass-card rounded-2xl p-4 flex flex-col space-y-2.5">
+                <h3 class="text-[10px] font-black text-slate-700 uppercase tracking-widest flex items-center justify-between">
+                    <span id="catalog-title">كتالوج اختيار الأصناف</span>
+                    <span class="text-[9px] text-slate-400 font-bold" id="catalog-items-count">0 صنف متوفر</span>
+                </h3>
+
+                <!-- Search box with Voice and Barcode -->
+                <div class="flex items-center gap-2">
+                    <div class="relative flex-1">
+                        <input type="text" id="item-search" oninput="filterItems()" class="w-full h-11 rounded-xl pr-9 pl-9 input-premium text-xs font-bold" placeholder="ابحث باسم أو كود الصنف...">
+                        <i class="fa-solid fa-magnifying-glass absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                        <button id="btn-voice-search" onclick="startVoiceSearch()" class="absolute left-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-lg flex items-center justify-center text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 transition-colors">
+                            <i class="fa-solid fa-microphone"></i>
+                        </button>
+                    </div>
+                    <button onclick="startBarcodeScanner()" class="w-11 h-11 rounded-xl btn-slim-primary flex flex-shrink-0 items-center justify-center text-lg shadow-sm">
+                        <i class="fa-solid fa-barcode"></i>
+                    </button>
+                </div>
+
+                <!-- Horizontal Category Filter Chips -->
+                <div class="flex items-center gap-1.5 overflow-x-auto no-scrollbar py-0.5" id="category-chips">
+                    <!-- Loaded dynamically -->
+                </div>
+
+                <!-- Dropdown Search Results (Compact List) -->
+                <div id="search-results-container" class="max-h-48 overflow-y-auto divide-y divide-slate-100 pr-0.5">
+                    <!-- Results dynamically loaded -->
+                </div>
+            </div>
+
+            <!-- 🛒 SELECTED ITEMS (CART) -->
+            <div class="space-y-2.5 text-right">
+                <h3 class="text-[10px] font-black text-slate-700 uppercase tracking-widest" id="cart-title">الأصناف المحددة للترحيل</h3>
+                
+                <div id="cart-items-container" class="space-y-2">
+                    <!-- Items slide in here -->
+                    <div class="text-center py-6 text-slate-400 text-xs font-bold bg-white border border-slate-200 rounded-xl" id="cart-empty-state">
+                        <i class="fa-solid fa-cart-shopping text-slate-300 text-base mb-2 block"></i>
+                        <span id="cart-empty-text">لم يتم تحديد أي أصناف بعد</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 📥 FIXED FLOATING BOTTOM FOOTER -->
+    <div id="floating-footer" class="hidden fixed bottom-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-t border-slate-200 p-4 shadow-lg flex items-center justify-between max-w-md mx-auto rounded-t-2xl">
+        <div class="flex items-center gap-4 text-right">
+            <div class="space-y-0.5">
+                <div class="text-[8px] font-black text-slate-400 uppercase tracking-wider" id="lbl-total-items">العدد</div>
+                <div class="text-base font-black text-slate-800 leading-none premium-num" id="footer-count">0</div>
+            </div>
+            <div class="h-6 w-px bg-slate-200"></div>
+            <div class="space-y-0.5">
+                <div class="text-[8px] font-black text-slate-400 uppercase tracking-wider" id="lbl-total-cost">التكلفة الإجمالية</div>
+                <div class="text-base font-black text-emerald-600 leading-none premium-num" id="footer-cost">0.00</div>
+            </div>
+        </div>
+        
+        <button onclick="postTransaction()" id="btn-post" class="h-11 px-5 btn-slim-primary rounded-xl text-xs font-black flex items-center gap-1.5">
+            <i class="fa-solid fa-check text-[10px]"></i>
+            <span id="btn-post-text">ترحيل الحركة</span>
+        </button>
+    </div>
+
+    <!-- 🎉 SUCCESS SCREEN OVERLAY -->
+    <div id="success-screen" class="hidden fixed inset-0 z-[2000] flex flex-col items-center justify-center p-6 text-center bg-white/40 backdrop-blur-md">
+        <!-- Glowing animated checkmark -->
+        <div class="relative mb-5">
+            <div class="w-16 h-16 bg-emerald-50 text-emerald-500 rounded-2xl border border-emerald-100 flex items-center justify-center text-3xl shadow-sm relative z-10">
+                <i class="fa-solid fa-check-double"></i>
+            </div>
+            <div class="absolute inset-0 bg-emerald-500/5 rounded-2xl animate-ping opacity-60"></div>
+        </div>
+
+        <h2 class="text-xl font-black text-slate-800 mb-1 drop-shadow-sm" id="success-title">تم ترحيل الحركة بنجاح!</h2>
+        <p class="text-xs text-slate-500 font-bold max-w-xs leading-relaxed mb-6" id="success-desc">تم إرسال الحركة فوراً وتحديث الأرصدة في خادم جوجل شيتس المركزي.</p>
+
+        <div class="glass-card w-full max-w-xs rounded-2xl p-4 space-y-2.5 text-right mb-6 relative z-10">
+            <div class="flex justify-between border-b border-slate-100 pb-2">
+                <span class="text-xs font-black text-slate-800" id="success-dt">-</span>
+                <span class="text-[9px] font-black text-slate-400" id="success-lbl-date">التاريخ</span>
+            </div>
+            <div class="flex justify-between border-b border-slate-100 pb-2">
+                <span class="text-xs font-black text-indigo-600" id="success-type">-</span>
+                <span class="text-[9px] font-black text-slate-400" id="success-lbl-type">نوع الحركة</span>
+            </div>
+            <div class="flex justify-between border-b border-slate-100 pb-2">
+                <span class="text-xs font-black text-slate-800 premium-num" id="success-count">0</span>
+                <span class="text-[9px] font-black text-slate-400" id="success-lbl-count">عدد الأصناف</span>
+            </div>
+            <div class="flex justify-between">
+                <span class="text-xs font-black text-emerald-600 premium-num" id="success-cost">0.00</span>
+                <span class="text-[9px] font-black text-slate-400" id="success-lbl-cost">إجمالي التكلفة</span>
+            </div>
+        </div>
+
+        <div class="w-full max-w-xs space-y-2.5 relative z-10">
+            <button onclick="printReceiptPDF()" id="btn-success-print-wrapper" class="w-full h-12 btn-slim-primary rounded-xl font-bold text-xs flex items-center justify-center gap-2">
+                <i class="fa-solid fa-print"></i>
+                <span id="btn-success-print">طباعة إيصال PDF المعتمد</span>
+            </button>
+
+            <button onclick="resetAppAfterSuccess()" class="w-full h-11 glass-card text-slate-700 rounded-xl font-bold text-xs transition-all flex items-center justify-center gap-1.5 shadow-sm hover:bg-white/50 active:scale-95">
+                <i class="fa-solid fa-rotate-left"></i>
+                <span id="btn-success-new">تسجيل حركة جديدة</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- 🖨️ PRINT RECEIPT AREA (HIDDEN EXCEPT FOR PRINTING) -->
+    <div id="print-receipt-area"></div>
+
+    <!-- 📷 BARCODE SCANNER MODAL -->
+    <div id="scanner-modal" class="hidden fixed inset-0 z-[3000] bg-black flex flex-col">
+        <div class="p-4 flex items-center justify-between bg-black/80 text-white z-10 absolute top-0 left-0 right-0">
+            <h3 class="text-sm font-bold">مسح باركود الصنف</h3>
+            <button onclick="closeBarcodeScanner()" class="w-8 h-8 flex items-center justify-center bg-white/20 rounded-full">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+        <div id="qr-reader" class="flex-1 w-full flex items-center justify-center bg-black"></div>
+    </div>
+
+    <!-- Core Scripts Load -->
+    <script src="core/state.js"></script>
+    <script src="core/i18n.js"></script>
+    <script src="core/auth.js"></script>
+    <script src="core/api.js"></script>
+
+    <!-- jsPDF + html2canvas: loaded ON DEMAND only when PDF button clicked (saves ~600KB on initial load) -->
+    <!-- These are injected dynamically by loadPdfLibsIfNeeded() -->
+
+    <script>
+        // --- ⚙️ MOBILE CONTROLLER CORE ---
+        
+        // Dynamic Languages definition for quick translation overrides
+        const translationOverrides = {
+            ar: {
+                title: "الإدخال السريع للجوال",
+                welcome: "مرحباً بك في الإدخال السريع",
+                subtitle: "اختر العملية المطلوبة للبدء بالإدخال الفوري من الهاتف",
+                btn_waste_title: "تسجيل كمية هالك",
+                btn_waste_desc: "تسجيل تالف، منتهي صلاحية، أو عجز بالخط الساخن",
+                btn_transfer_title: "حركة تحويل بين الفروع",
+                btn_transfer_desc: "تحويل بضائع أو خامات بين المواقع والفروع",
+                low_stock_title: "تنبيهات نواقص المخزن",
+                low_stock_empty: "لا يوجد نواقص مخزون حالياً",
+                btn_back: "رجوع للرئيسية",
+                hdr_section_title: "بيانات ترويسة الحركة",
+                lbl_date: "التاريخ",
+                lbl_notes: "ملاحظات / سبب إضافي",
+                notes_placeholder: "ملاحظات توضيحية اختياري...",
+                lbl_reason: "السبب",
+                lbl_to: "الفرع المحوّل إليه (إلى)",
+                lbl_from: "الموقع المحوّل منه (من)",
+                catalog_title: "كتالوج اختيار الأصناف",
+                catalog_items_count: "{count} صنف متوفر",
+                search_placeholder: "ابحث باسم الصنف أو الكود...",
+                cart_title: "الأصناف المحددة للترحيل",
+                cart_empty_text: "لم يتم تحديد أي أصناف بعد",
+                lbl_total_items: "العدد",
+                lbl_total_cost: "التكلفة الإجمالية",
+                btn_post_text: "ترحيل الحركة",
+                success_title: "تم ترحيل الحركة بنجاح!",
+                success_desc: "تم إرسال الحركة فوراً وتحديث الأرصدة في خادم جوجل شيتس المركزي.",
+                success_lbl_date: "التاريخ",
+                success_lbl_type: "نوع الحركة",
+                success_lbl_count: "عدد الأصناف",
+                success_lbl_cost: "إجمالي التكلفة",
+                btn_success_new: "تسجيل حركة جديدة",
+                err_empty_cart: "يرجى تحديد صنف واحد على الأقل!",
+                err_empty_header: "يرجى ملء جميع الحقول المطلوبة للتكملة!",
+                all_cats: "📁 الكل",
+                waste_reasons: {
+                    "Expired": "💥 منتهي الصلاحية",
+                    "Damaged": "⚠️ تالف / مكسور",
+                    "Error": "🚫 خطأ في الإدخال",
+                    "Theft": "🕵️ عجز / سرقة",
+                    "Quality Care": "🛡️ عناية جودة",
+                    "Other": "📝 أخرى"
+                }
+            },
+            en: {
+                title: "Quick Mobile Entry",
+                welcome: "Welcome to Quick Entry",
+                subtitle: "Choose the action to begin instant entry from your phone",
+                btn_waste_title: "Record Waste/Scrap",
+                btn_waste_desc: "Log expired, damaged, or stolen stock immediately",
+                btn_transfer_title: "Record Branch Transfer",
+                btn_transfer_desc: "Transfer raw materials or products between locations",
+                low_stock_title: "Low Stock Alerts",
+                low_stock_empty: "No low stock alerts at this moment",
+                btn_back: "Back to Home",
+                hdr_section_title: "Movement Header Details",
+                lbl_date: "Date",
+                lbl_notes: "Notes / Additional Reason",
+                notes_placeholder: "Optional descriptive notes...",
+                lbl_reason: "Reason",
+                lbl_to: "To Location (To)",
+                lbl_from: "From Location (From)",
+                catalog_title: "Choose Items Catalog",
+                catalog_items_count: "{count} items available",
+                search_placeholder: "Search by item name or code...",
+                cart_title: "Selected Items to Post",
+                cart_empty_text: "No items selected yet",
+                lbl_total_items: "Items",
+                lbl_total_cost: "Total Cost",
+                btn_post_text: "Post Transaction",
+                success_title: "Movement Posted Successfully!",
+                success_desc: "The transaction has been submitted instantly and Sheets DB updated in real-time.",
+                success_lbl_date: "Date",
+                success_lbl_type: "Movement Type",
+                success_lbl_count: "Items Count",
+                success_lbl_cost: "Total Cost",
+                btn_success_new: "Record New Movement",
+                err_empty_cart: "Please select at least one item!",
+                err_empty_header: "Please fill in all required headers to continue!",
+                all_cats: "📁 All",
+                waste_reasons: {
+                    "Expired": "💥 Expired",
+                    "Damaged": "⚠️ Damaged / Broken",
+                    "Error": "🚫 Entry Error",
+                    "Theft": "🕵️ Shortage / Theft",
+                    "Quality Care": "🛡️ Quality Care",
+                    "Other": "📝 Other"
+                }
+            }
+        };
+
+        // --- Application State ---
+        let currentMode = "Waste"; // "Waste" or "Transfer Out"
+        let selectedCategory = "";
+        let mobileCart = []; // Array of selected items
+        let itemsCache = []; // Copy of items for search
+        let uploadedImageBase64 = ""; // Base64 of waste photo
+        
+        // --- 📳 Haptic Feedback Utility ---
+        function hapticFeedback(type = 'light') {
+            if (!navigator.vibrate) return;
+            switch(type) {
+                case 'light': navigator.vibrate(20); break;
+                case 'medium': navigator.vibrate(40); break;
+                case 'heavy': navigator.vibrate(60); break;
+                case 'success': navigator.vibrate([30, 50, 30]); break;
+                case 'error': navigator.vibrate([50, 50, 50, 50]); break;
+            }
+        }
+
+        // --- 🎙️ Voice Search Utility ---
+        function startVoiceSearch() {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!SpeechRecognition) {
+                Swal.fire({ icon: 'error', title: 'غير مدعوم', text: 'متصفحك لا يدعم البحث الصوتي.' });
+                return;
+            }
+            
+            hapticFeedback('medium');
+            const recognition = new SpeechRecognition();
+            recognition.lang = STATE.lang === 'ar' ? 'ar-SA' : 'en-US';
+            recognition.interimResults = false;
+            recognition.maxAlternatives = 1;
+            
+            const voiceBtn = $('#btn-voice-search');
+            const originalHtml = voiceBtn.html();
+            voiceBtn.html('<i class="fa-solid fa-spinner fa-spin text-indigo-500"></i>').addClass('animate-pulse');
+
+            recognition.start();
+
+            recognition.onresult = (event) => {
+                const speechResult = event.results[0][0].transcript;
+                $('#item-search').val(speechResult);
+                filterItems();
+                hapticFeedback('light');
+            };
+
+            recognition.onspeechend = () => {
+                recognition.stop();
+                voiceBtn.html(originalHtml).removeClass('animate-pulse');
+            };
+
+            recognition.onerror = (event) => {
+                console.error("Speech error", event.error);
+                recognition.stop();
+                voiceBtn.html(originalHtml).removeClass('animate-pulse');
+            };
+        }
+
+        // --- 📷 Barcode Scanner Utility ---
+        let html5QrcodeScanner = null;
+
+        async function startBarcodeScanner() {
+            $('#scanner-modal').removeClass('hidden');
+            hapticFeedback('medium');
+            
+            // Lazy load the library if not present
+            if (!window.Html5QrcodeScanner) {
+                Swal.fire({ title: 'جاري التحميل...', text: 'جاري تشغيل قارئ الباركود', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+                await new Promise((resolve, reject) => {
+                    const script = document.createElement('script');
+                    script.src = 'https://unpkg.com/html5-qrcode';
+                    script.onload = resolve;
+                    script.onerror = reject;
+                    document.head.appendChild(script);
+                });
+                Swal.close();
+            }
+
+            if (!html5QrcodeScanner) {
+                html5QrcodeScanner = new window.Html5Qrcode("qr-reader");
+            }
+            
+            html5QrcodeScanner.start(
+                { facingMode: "environment" },
+                { fps: 10, qrbox: { width: 250, height: 150 } },
+                (decodedText) => {
+                    // Success
+                    hapticFeedback('success');
+                    closeBarcodeScanner();
+                    $('#item-search').val(decodedText);
+                    filterItems();
+                },
+                (errorMessage) => {
+                    // ignore continuous scanning errors
+                }
+            ).catch(err => {
+                console.error("Camera start error", err);
+                Swal.fire('خطأ', 'تعذر الوصول للكاميرا، تأكد من الصلاحيات.', 'error');
+                closeBarcodeScanner();
+            });
+        }
+
+        function closeBarcodeScanner() {
+            $('#scanner-modal').addClass('hidden');
+            if (html5QrcodeScanner) {
+                html5QrcodeScanner.stop().catch(err => console.error(err));
+            }
+        }
+
+        // Shimming dynamic functions expected by core files
+        const App = {
+            async syncData(manual = false, navigate = false) {
+                console.log("📡 Mobile Sync Started...");
+                try {
+                    const response = await API.call('INIT_DATA');
+                    if (response && response.status === 'success') {
+                        STATE.db = response.db;
+                        itemsCache = STATE.db.Items || [];
+                        return true;
+                    }
+                    throw new Error(response.message || "Unknown response");
+                } catch (error) {
+                    console.error("Sync error:", error);
+                    throw error;
+                }
+            }
+        };
+
+        // --- Bootstrap Logic ---
+        $(document).ready(async function() {
+            try {
+                // Initialize default lang
+                if (!localStorage.getItem('ezem_lang')) {
+                    localStorage.setItem('ezem_lang', 'ar');
+                    STATE.lang = 'ar';
+                }
+                applyLanguageUI();
+
+                // Check auth
+                if (!STATE.user) {
+                    $('#loader').fadeOut(300, () => {
+                        $('#login-container').removeClass('hidden');
+                        Auth.init();
+                    });
+                } else {
+                    await initMobileApp();
+                }
+            } catch (e) {
+                console.error("Bootstrap error:", e);
+                $('#loader').fadeOut(200);
+                Swal.fire("خطأ في النظام", "فشل تحميل البيانات الأساسية، يرجى إعادة المحاولة.", "error");
+            }
+            
+            // --- 🖐️ Swipe to Delete Gestures ---
+            let swipeStartX = 0;
+            let currentSwipeElem = null;
+
+            $(document).on('touchstart', '.swipeable-card', function(e) {
+                swipeStartX = e.originalEvent.touches[0].clientX;
+                currentSwipeElem = $(this);
+                currentSwipeElem.css('transition', 'none');
+            });
+
+            $(document).on('touchmove', '.swipeable-card', function(e) {
+                if (!currentSwipeElem) return;
+                const touchX = e.originalEvent.touches[0].clientX;
+                const deltaX = swipeStartX - touchX;
+                // In RTL, swipe right (deltaX < 0) reveals the left underlay
+                // Or swipe left (deltaX > 0)
+                // We'll support both directions up to 80px
+                if (Math.abs(deltaX) > 0) {
+                    currentSwipeElem.css('transform', `translateX(${-deltaX}px)`);
+                }
+            });
+
+            $(document).on('touchend', '.swipeable-card', function(e) {
+                if (!currentSwipeElem) return;
+                const touchX = e.originalEvent.changedTouches[0].clientX;
+                const deltaX = swipeStartX - touchX;
+                
+                currentSwipeElem.css('transition', 'transform 0.2s cubic-bezier(0.4, 0, 0.2, 1)');
+                if (Math.abs(deltaX) > 60) { // Threshold
+                    const direction = deltaX > 0 ? -150 : 150;
+                    currentSwipeElem.css('transform', `translateX(${direction}px)`);
+                    const code = currentSwipeElem.data('code');
+                    setTimeout(() => {
+                        removeItemFromCart(code);
+                    }, 200);
+                } else {
+                    currentSwipeElem.css('transform', 'translateX(0)');
+                }
+                currentSwipeElem = null;
+            });
+
+        });
+
+        // Initialize mobile app once logged in
+        async function initMobileApp() {
+            $('#login-container').addClass('hidden');
+            $('#loader').show();
+            
+            try {
+                await App.syncData();
+                renderUserInfo();
+                renderDashboard();
+                $('#loader').fadeOut(400, () => {
+                    $('#app').removeClass('hidden');
+                });
+            } catch (e) {
+                console.error(e);
+                Swal.fire("فشل الاتصال", "تعذر الاتصال بقاعدة البيانات اللوجستية.", "error")
+                    .then(() => {
+                        Auth.logout();
+                    });
+            }
+        }
+
+        // --- UI Renders ---
+        
+        function renderUserInfo() {
+            if (!STATE.user) return;
+            $('#user-name-label').text(STATE.user.name);
+            $('#user-role-label').text(STATE.lang === 'ar' ? (STATE.user.role === 'Admin' ? 'المدير العام' : STATE.user.role) : STATE.user.role);
+        }
+
+        function renderDashboard() {
+            // Render Low Stock list
+            const lowStock = STATE.db.lowStock || [];
+            const container = $('#low-stock-list');
+            container.empty();
+            
+            if (lowStock.length === 0) {
+                container.html(`<div class="text-[10px] text-slate-400 text-center py-4 font-bold" id="low-stock-empty">${translationOverrides[STATE.lang].low_stock_empty}</div>`);
+            } else {
+                lowStock.forEach(item => {
+                    const row = $(`
+                        <div class="flex items-center justify-between bg-slate-50 border border-slate-200/60 px-3 py-2 rounded-xl">
+                            <span class="text-xs font-black text-rose-500 premium-num">${item.qty} ${item.uom}</span>
+                            <span class="text-xs font-bold text-slate-700 text-right">${item.name}</span>
+                        </div>
+                    `);
+                    container.append(row);
+                });
+            }
+        }
+
+        function startMovement(type) {
+            currentMode = type;
+            mobileCart = [];
+            selectedCategory = "";
+            
+            const isAr = STATE.lang === 'ar';
+            const dict = translationOverrides[STATE.lang];
+            
+            $('#entry-badge').text(type === 'Waste' ? (isAr ? 'هالك' : 'Waste') : (isAr ? 'تحويل صادر' : 'Transfer Out'));
+            $('#txDate').val(new Date().toISOString().split("T")[0]);
+            $('#txNotes').val('');
+
+            // Render Dynamic Form Header
+            const dynamicContainer = $('#form-group-dynamic');
+            dynamicContainer.empty();
+
+            if (type === 'Waste') {
+                $('#form-group-transfer-from').addClass('hidden');
+                
+                // Reason list
+                let options = `<option value="">${isAr ? 'اختر السبب...' : 'Select Reason...'}</option>`;
+                Object.entries(dict.waste_reasons).forEach(([k, v]) => {
+                    options += `<option value="${k}">${v}</option>`;
+                });
+                
+
+                dynamicContainer.html(`
+                    <label class="text-[9px] font-black text-slate-500 block">${dict.lbl_reason}</label>
+                    <select id="txReason" class="w-full h-11 rounded-xl px-3 input-premium text-xs font-bold">
+                        ${options}
+                    </select>
+                    <!-- Photo Upload -->
+                    <div class="mt-2 flex items-center">
+                        <label class="text-[9px] font-black text-slate-500 block mr-2">${dict.lbl_notes}</label>
+                        <input type="file" accept="image/*" id="txImageInput" class="hidden" />
+                        <label for="txImageInput" class="cursor-pointer flex items-center gap-1 bg-indigo-50 border border-indigo-100 rounded-xl px-2 py-1 text-xs text-indigo-600">
+                            <i class="fa-solid fa-camera"></i> <span>اختر صورة</span>
+                        </label>
+                    </div>
+                    <div id="upload-placeholder" class="text-center text-slate-400 text-xs mt-2">${dict.notes_placeholder}</div>
+                    <div id="upload-preview-container" class="hidden mt-2"><img id="upload-preview" class="max-w-full h-auto rounded-md" src="" alt="Preview"/></div>
+                `);
+            } else {
+                // Transfers Out: Render From (Location) & To (Location)
+                $('#form-group-transfer-from').removeClass('hidden');
+
+                // Locations
+                const locations = STATE.db.Locations || [];
+                let locOptions = `<option value="">${isAr ? 'اختر الفرع...' : 'Select Location...'}</option>`;
+                locations.forEach(l => {
+                    locOptions += `<option value="${l[1]}">${l[1]}</option>`;
+                });
+
+                // Populate txFrom select
+                $('#txFrom').html(locOptions);
+
+                // Render txTo select inside dynamic container
+                dynamicContainer.html(`
+                    <label class="text-[9px] font-black text-slate-500 block">${dict.lbl_to}</label>
+                    <select id="txTo" class="w-full h-11 rounded-xl px-3 input-premium text-xs font-bold">
+                        ${locOptions}
+                    </select>
+                `);
+            }
+
+            // Render Catalog Categories & Items
+            renderCatalogCategoryChips();
+            renderCatalogItems();
+            updateCartUI();
+
+            // Toggle screens
+            $('#screen-dashboard').fadeOut(200, () => {
+                $('#screen-entry').removeClass('hidden').show();
+                $('#floating-footer').removeClass('hidden').addClass('flex');
+            });
+        }
+
+        function goBackToDashboard() {
+            $('#screen-entry').fadeOut(200, () => {
+                $('#screen-dashboard').fadeIn(200);
+                $('#floating-footer').addClass('hidden').removeClass('flex');
+                renderDashboard();
+            });
+        }
+
+        // --- Catalog & Search Engine ---
+
+        function renderCatalogCategoryChips() {
+            const items = STATE.db.Items || [];
+            const allCats = [...new Set(items.map(i => i[1]).filter(String))].sort();
+            const container = $('#category-chips');
+            container.empty();
+
+            const dict = translationOverrides[STATE.lang];
+            
+            // All Chip
+            const allChip = $(`<button onclick="selectCategory('')" class="category-pill whitespace-nowrap text-xs transition-all ${selectedCategory === '' ? 'active' : ''}">${dict.all_cats}</button>`);
+            container.append(allChip);
+
+            allCats.forEach(cat => {
+                const chip = $(`<button onclick="selectCategory('${cat}')" class="category-pill whitespace-nowrap text-xs transition-all ${selectedCategory === cat ? 'active' : ''}">${cat}</button>`);
+                container.append(chip);
+            });
+        }
+
+        function selectCategory(cat) {
+            selectedCategory = cat;
+            renderCatalogCategoryChips();
+            renderCatalogItems();
+        }
+
+        function filterItems() {
+            renderCatalogItems();
+        }
+
+        function renderCatalogItems() {
+            const query = ($('#item-search').val() || '').toLowerCase();
+            const items = STATE.db.Items || [];
+            const container = $('#search-results-container');
+            container.empty();
+
+            // Filter items based on category and search query
+            const filtered = items.filter(i => {
+                const code = String(i[2]).toLowerCase();
+                const name = String(i[3]).toLowerCase();
+                const cat = i[1] || '';
+
+                const matchesCat = !selectedCategory || cat === selectedCategory;
+                const matchesSearch = !query || code.includes(query) || name.includes(query);
+                
+                return matchesCat && matchesSearch;
+            });
+
+            $('#catalog-items-count').text(STATE.lang === 'ar' ? `${filtered.length} صنف متاح` : `${filtered.length} items available`);
+
+            if (filtered.length === 0) {
+                container.html(`<div class="text-[10px] font-bold text-slate-400 text-center py-5">${STATE.lang === 'ar' ? 'لا يوجد نتائج للبحث' : 'No items match search'}</div>`);
+                return;
+            }
+
+            filtered.slice(0, 15).forEach(item => {
+                const cartItem = mobileCart.find(c => c.code === item[2]);
+                const badgeHtml = cartItem ? `<span class="bg-indigo-600 text-white text-[9px] font-black px-1.5 py-0.5 rounded-full premium-num">${cartItem.qty}</span>` : '';
+
+                const itemRow = $(`
+                    <div class="flex items-center justify-between py-2 active:bg-slate-50 transition-all">
+                        <button onclick="addItemToCart('${item[2]}', '${item[3].replace(/'/g, "\\'")}', ${item[5]})" class="w-9 h-9 rounded-xl bg-indigo-50 border border-indigo-100 text-indigo-600 flex items-center justify-center text-sm active:bg-indigo-600 active:text-white transition-all touch-target">
+                            <i class="fa-solid fa-plus text-[10px]"></i>
+                        </button>
+                        
+                        <div class="text-right flex-1 pr-3 pr-2">
+                            <div class="text-xs font-black text-slate-800 flex items-center justify-end gap-1.5">
+                                ${badgeHtml}
+                                <span>${item[3]}</span>
+                            </div>
+                            <div class="text-[8px] font-black text-slate-400 flex items-center justify-end gap-1.5 mt-0.5 uppercase tracking-wide">
+                                <span>${item[1]}</span>
+                                <span class="w-0.5 h-0.5 bg-slate-300 rounded-full"></span>
+                                <span class="font-mono">#${item[2]}</span>
+                            </div>
+                        </div>
+                    </div>
+                `);
+                container.append(itemRow);
+            });
+        }
+
+        // --- Cart Operations ---
+
+        function addItemToCart(code, name, cost) {
+            const existing = mobileCart.find(c => c.code === code);
+            
+            if (existing) {
+                existing.qty++;
+            } else {
+                mobileCart.push({
+                    code: code,
+                    name: name,
+                    qty: 1,
+                    cost: parseFloat(cost) || 0,
+                    batch: "MOBILE",
+                    expiry: ""
+                });
+            }
+
+            hapticFeedback('light');
+            
+            updateCartUI();
+            renderCatalogItems();
+        }
+
+        function adjustQty(code, amount) {
+            const item = mobileCart.find(c => c.code === code);
+            if (!item) return;
+
+            item.qty += amount;
+            if (item.qty <= 0) {
+                mobileCart = mobileCart.filter(c => c.code !== code);
+            }
+
+            hapticFeedback('medium');
+
+            updateCartUI();
+            renderCatalogItems();
+        }
+
+        function removeItemFromCart(code) {
+            mobileCart = mobileCart.filter(c => c.code !== code);
+            hapticFeedback('heavy');
+            updateCartUI();
+            renderCatalogItems();
+        }
+
+        function updateCartUI() {
+            const container = $('#cart-items-container');
+            
+            if (mobileCart.length === 0) {
+                container.html(`
+                    <div class="text-center py-6 text-slate-400 text-xs font-bold bg-white border border-slate-200 rounded-xl" id="cart-empty-state">
+                        <i class="fa-solid fa-cart-shopping text-slate-300 text-base mb-2 block"></i>
+                        <span id="cart-empty-text">${translationOverrides[STATE.lang].cart_empty_text}</span>
+                    </div>
+                `);
+                
+                $('#footer-count').text("0");
+                $('#footer-cost').text("0.00");
+                return;
+            }
+
+            container.empty();
+
+            let totalItems = 0;
+            let totalCost = 0;
+
+            mobileCart.forEach(item => {
+                totalItems += item.qty;
+                const costLine = item.qty * item.cost;
+                totalCost += costLine;
+
+                const itemCard = $(`
+                    <div class="glass-card rounded-xl relative overflow-hidden animate-slide-in h-16 mb-2">
+                        <!-- Delete Background Action -->
+                        <div class="absolute inset-0 bg-rose-500 flex items-center justify-end px-5 z-0" id="bg-delete-${item.code}">
+                            <i class="fa-solid fa-trash-can text-white text-lg"></i>
+                        </div>
+
+                        <!-- Foreground Swipeable Content -->
+                        <div class="swipeable-card absolute inset-0 bg-white/95 backdrop-blur-md flex items-center justify-between p-3 z-10 transition-transform" data-code="${item.code}">
+                            <button onclick="removeItemFromCart('${item.code}')" class="text-slate-300 hover:text-rose-500 p-2 touch-target text-xs">
+                                <i class="fa-solid fa-trash-can"></i>
+                            </button>
+                            
+                        <div class="flex items-center gap-1">
+                            <button onclick="adjustQty('${item.code}', -1)" class="w-8 h-8 rounded-lg bg-slate-50 text-slate-600 font-bold flex items-center justify-center text-xs border border-slate-200 active:bg-slate-100 touch-target">-</button>
+                            <input type="number" step="any" value="${item.qty}" onchange="changeQtyDirectly('${item.code}', this.value)" class="w-11 h-8 bg-slate-50 border border-slate-200 text-slate-800 text-center font-black text-xs rounded-lg premium-num">
+                            <button onclick="adjustQty('${item.code}', 1)" class="w-8 h-8 rounded-lg bg-slate-50 text-indigo-600 font-bold flex items-center justify-center text-xs border border-slate-200 active:bg-slate-100 touch-target">+</button>
+                        </div>
+                        
+                        <div class="text-right flex-1 pl-3 pr-2">
+                            <div class="text-xs font-black text-slate-800">${item.name}</div>
+                            <div class="text-[9px] font-black text-slate-400 mt-0.5">
+                                <span class="font-mono text-indigo-600 premium-num">${item.cost.toFixed(2)}</span>
+                                <span class="mx-1">×</span>
+                                <span>إجمالي: <span class="font-mono text-emerald-600 premium-num">${costLine.toFixed(2)}</span></span>
+                            </div>
+                        </div>
+                    </div>
+                `);
+                container.append(itemCard);
+            });
+
+            $('#footer-count').text(totalItems);
+            $('#footer-cost').text(totalCost.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}));
+        }
+
+        function changeQtyDirectly(code, val) {
+            const item = mobileCart.find(c => c.code === code);
+            if (!item) return;
+            const parsed = parseFloat(val) || 0;
+            if (parsed <= 0) {
+                mobileCart = mobileCart.filter(c => c.code !== code);
+            } else {
+                item.qty = parsed;
+            }
+            updateCartUI();
+            renderCatalogItems();
+        }
+
+        // --- Transaction Posting ---
+        
+        async function postTransaction() {
+            const dict = translationOverrides[STATE.lang];
+            
+            if (mobileCart.length === 0) {
+                Swal.fire({ title: STATE.lang === 'ar' ? 'تنبيه' : 'Warning', text: dict.err_empty_cart, icon: 'warning', confirmButtonText: STATE.lang === 'ar' ? 'حسناً' : 'OK' });
+                return;
+            }
+
+            const dateVal = $('#txDate').val();
+            const notesVal = $('#txNotes').val();
+            
+            let reasonVal = "";
+            let fromVal = "Main Mobile Store";
+            let toVal = "";
+
+            if (currentMode === 'Waste') {
+                reasonVal = $('#txReason').val();
+                toVal = "Waste Account";
+                
+                if (!reasonVal) {
+                    Swal.fire({ title: STATE.lang === 'ar' ? 'ترويسة ناقصة' : 'Missing Fields', text: dict.err_empty_header, icon: 'warning', confirmButtonText: STATE.lang === 'ar' ? 'حسناً' : 'OK' });
+                    return;
+                }
+            } else {
+                // Transfer Mode
+                fromVal = $('#txFrom').val();
+                toVal = $('#txTo').val();
+                reasonVal = "Mobile Branch Transfer";
+
+                if (!fromVal || !toVal) {
+                    Swal.fire({ title: STATE.lang === 'ar' ? 'ترويسة ناقصة' : 'Missing Fields', text: dict.err_empty_header, icon: 'warning', confirmButtonText: STATE.lang === 'ar' ? 'حسناً' : 'OK' });
+                    return;
+                }
+
+                if (fromVal === toVal) {
+                    Swal.fire({ title: STATE.lang === 'ar' ? 'خطأ منطقي' : 'Logic Error', text: STATE.lang === 'ar' ? 'لا يمكن التحويل لنفس الفرع!' : 'Cannot transfer to same branch!', icon: 'warning', confirmButtonText: STATE.lang === 'ar' ? 'حسناً' : 'OK' });
+                    return;
+                }
+            }
+
+            // Assemble Payload for API.call
+            const data = {
+                headers: {
+                    date: dateVal,
+                    type: currentMode,
+                    from: fromVal,
+                    to: toVal,
+                    supp: "-",
+                    ref: "MOBILE-TXN-" + Date.now().toString().slice(-4),
+                    notes: notesVal || "Mobile entry logging",
+                    reason: reasonVal
+                },
+                items: mobileCart
+            };
+
+            // 📶 OFFLINE MODE CHECK
+            if (!navigator.onLine) {
+                const offlineTx = JSON.parse(localStorage.getItem('ezem_offline_tx') || '[]');
+                offlineTx.push(data);
+                localStorage.setItem('ezem_offline_tx', JSON.stringify(offlineTx));
+                
+                hapticFeedback('success');
+                
+                $('#success-dt').text(dateVal);
+                $('#success-type').text(STATE.lang === 'ar' ? 'تم الحفظ بلا إنترنت' : 'Saved Offline');
+                $('#success-desc').text(STATE.lang === 'ar' ? 'لا يوجد اتصال بالإنترنت حالياً. تم حفظ الحركة محلياً وسيتم ترحيلها تلقائياً عند عودة الاتصال.' : 'No internet connection. Saved locally and will sync when online.');
+                $('#success-count').text(mobileCart.length);
+                const totalCost = mobileCart.reduce((sum, item) => sum + (item.qty * item.cost), 0);
+                $('#success-cost').text(totalCost.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}));
+
+                $('#success-screen').removeClass('hidden').show();
+                return;
+            }
+
+            // Loading status
+            Utils.loadingProgress(true);
+            
+            try {
+                const response = await API.call("SAVE_MOVEMENT", data);
+                Utils.loadingProgress(false);
+
+                if (response.status === 'success') {
+                    // Show success screen
+                    $('#success-dt').text(dateVal);
+                    $('#success-type').text(currentMode === 'Waste' ? (STATE.lang === 'ar' ? 'هالك' : 'Waste') : (STATE.lang === 'ar' ? 'تحويل صادر' : 'Transfer Out'));
+                    $('#success-desc').text(dict.success_desc);
+                    $('#success-count').text(mobileCart.length);
+                    
+                    const totalCost = mobileCart.reduce((sum, item) => sum + (item.qty * item.cost), 0);
+                    $('#success-cost').text(totalCost.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}));
+
+                    $('#success-screen').removeClass('hidden').show();
+                    
+                    hapticFeedback('success');
+                } else {
+                    throw new Error(response.message || "Post error");
+                }
+            } catch (e) {
+                Utils.loadingProgress('close');
+                hapticFeedback('error');
+                Swal.fire({
+
+                    title: STATE.lang === 'ar' ? 'فشل الترحيل' : 'Post Failed',
+                    text: STATE.lang === 'ar' ? 'حدث خطأ أثناء التواصل مع السيرفر: ' + e.message : 'Error communicating with DB: ' + e.message,
+                    icon: 'error',
+                    confirmButtonText: STATE.lang === 'ar' ? 'حسناً' : 'OK'
+                });
+            }
+        }
+
+        function resetAppAfterSuccess() {
+            $('#success-screen').fadeOut(200, () => {
+                $('#success-screen').addClass('hidden');
+                goBackToDashboard();
+            });
+        }
+
+        // --- 📶 Auto-Sync Offline Transactions ---
+        async function syncOfflineTransactions() {
+            const offlineTx = JSON.parse(localStorage.getItem('ezem_offline_tx') || '[]');
+            if (offlineTx.length === 0) return;
+
+            console.log(`Syncing ${offlineTx.length} offline transactions...`);
+            
+            // Show toast
+            Swal.fire({
+                toast: true, position: 'top-end', showConfirmButton: false, timer: 3000,
+                icon: 'info', title: STATE.lang === 'ar' ? 'جاري مزامنة الحركات...' : 'Syncing...'
+            });
+
+            const failedTx = [];
+            for (let data of offlineTx) {
+                try {
+                    const response = await API.call("SAVE_MOVEMENT", data);
+                    if (response.status !== 'success') {
+                        failedTx.push(data); // keep failed
+                    }
+                } catch (e) {
+                    failedTx.push(data);
+                }
+            }
+
+            if (failedTx.length === 0) {
+                localStorage.removeItem('ezem_offline_tx');
+                Swal.fire({ toast: true, position: 'top-end', showConfirmButton: false, timer: 3000, icon: 'success', title: STATE.lang === 'ar' ? 'تمت المزامنة بنجاح' : 'Synced Successfully' });
+                hapticFeedback('success');
+            } else {
+                localStorage.setItem('ezem_offline_tx', JSON.stringify(failedTx));
+            }
+        }
+
+        window.addEventListener('online', syncOfflineTransactions);
+
+        // --- 🌙 Dark Mode Toggle ---
+        function toggleDarkMode() {
+            document.documentElement.classList.toggle('dark');
+            const isDark = document.documentElement.classList.contains('dark');
+            localStorage.setItem('ezem_dark_mode', isDark ? 'true' : 'false');
+            hapticFeedback('light');
+            updateDarkModeIcon(isDark);
+        }
+
+        function updateDarkModeIcon(isDark) {
+            const btn = $('#btn-dark-mode i');
+            if (isDark) {
+                btn.removeClass('fa-moon text-slate-600').addClass('fa-sun text-amber-500');
+                $('#btn-dark-mode').removeClass('bg-slate-100 border-slate-200').addClass('bg-amber-50 border-amber-200');
+            } else {
+                btn.removeClass('fa-sun text-amber-500').addClass('fa-moon text-slate-600');
+                $('#btn-dark-mode').removeClass('bg-amber-50 border-amber-200').addClass('bg-slate-100 border-slate-200');
+            }
+        }
+        
+        // Check initial dark mode state
+        if (localStorage.getItem('ezem_dark_mode') === 'true') {
+            document.documentElement.classList.add('dark');
+            // Update icon after jQuery is ready
+            $(function() { updateDarkModeIcon(true); });
+        }
+
+// --- Image Upload Handlers ---
+function handlePhotoSelection(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const img = new Image();
+        img.onload = function() {
+            const maxWidth = 500;
+            const scale = Math.min(1, maxWidth / img.width);
+            const canvas = document.createElement('canvas');
+            canvas.width = img.width * scale;
+            canvas.height = img.height * scale;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+            uploadedImageBase64 = canvas.toDataURL('image/jpeg', 0.85);
+            $('#upload-preview').attr('src', uploadedImageBase64);
+            $('#upload-preview-container').removeClass('hidden');
+            $('#upload-placeholder').addClass('hidden');
+        };
+        img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+}
+
+function removeUploadedPhoto(event) {
+    event.stopPropagation();
+    uploadedImageBase64 = '';
+    $('#upload-preview').attr('src', '');
+    $('#upload-preview-container').addClass('hidden');
+    $('#upload-placeholder').removeClass('hidden');
+    $('#txImageInput').val('');
+}
+
+$(document).on('change', '#txImageInput', handlePhotoSelection);
+
+// --- PDF Print Function ---
+async function loadPdfLibsIfNeeded() {
+    if (window.jspdf && window.html2canvas) return true;
+    
+    return new Promise((resolve) => {
+        const script1 = document.createElement('script');
+        script1.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
+        
+        const script2 = document.createElement('script');
+        script2.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
+        
+        let loaded = 0;
+        const checkDone = () => {
+            loaded++;
+            if(loaded === 2) resolve(true);
+        };
+        
+        script1.onload = checkDone;
+        script2.onload = checkDone;
+        
+        document.head.appendChild(script1);
+        document.head.appendChild(script2);
+    });
+}
+
+async function printReceiptPDF() {
+    // Show a small loader state on button
+    const btn = $('#btn-success-print');
+    const originalHtml = btn.html();
+    btn.html('<i class="fa-solid fa-spinner fa-spin"></i> <span>جاري التجهيز...</span>').prop('disabled', true);
+
+    await loadPdfLibsIfNeeded();
+    
+    const dict = translationOverrides[STATE.lang];
+    const receiptHTML = `
+        <div style="font-family: 'Cairo', sans-serif; max-width: 380px; margin:auto; padding:10px; background:#fff;">
+            <h2 style="text-align:center; font-size:1.2rem; margin-bottom:0.5rem; color:#1e293b;">${dict.success_title}</h2>
+            <p style="text-align:center; font-size:0.9rem; color:#64748b; margin-bottom:1rem;">${dict.success_desc}</p>
+            <table style="width:100%; border-collapse:collapse; margin-bottom:1rem; font-size:0.9rem; color:#334155;">
+                <tr><td style="padding:4px; font-weight:bold;">${dict.success_lbl_date}:</td><td style="padding:4px; text-align:left;">${$('#success-dt').text()}</td></tr>
+                <tr><td style="padding:4px; font-weight:bold;">${dict.success_lbl_type}:</td><td style="padding:4px; text-align:left;">${$('#success-type').text()}</td></tr>
+                <tr><td style="padding:4px; font-weight:bold;">${dict.success_lbl_count}:</td><td style="padding:4px; text-align:left;">${$('#success-count').text()}</td></tr>
+                <tr><td style="padding:4px; font-weight:bold;">${dict.success_lbl_cost}:</td><td style="padding:4px; text-align:left; color:#059669;">${$('#success-cost').text()}</td></tr>
+            </table>
+            ${uploadedImageBase64 ? `<div style="text-align:center; margin-bottom:1rem;"><img src="${uploadedImageBase64}" style="max-width:100%; height:auto; border:1px solid #e2e8f0; border-radius:8px;" alt="Waste Photo"/></div>` : ''}
+            <p style="font-size:0.7rem; color:#94a3b8; text-align:center; margin-top:10px; border-top:1px dashed #e2e8f0; padding-top:10px;">
+                ${new Date().toLocaleString(STATE.lang === 'ar' ? 'ar-EG' : 'en-US')}
+            </p>
+        </div>`;
+    
+    // Insert HTML into hidden container for rendering
+    $('#print-receipt-area').html(receiptHTML).show();
+    
+    try {
+        // Use html2canvas to capture the container and generate PDF
+        const canvas = await window.html2canvas(document.getElementById('print-receipt-area'), {
+            scale: 2, // High quality
+            useCORS: true,
+            backgroundColor: '#ffffff'
+        });
+        
+        $('#print-receipt-area').hide(); // Hide again
+
+        const imgData = canvas.toDataURL('image/jpeg', 0.9);
+        // jsPDF handles pt unit
+        const pdf = new window.jspdf.jsPDF({
+            orientation: 'p', 
+            unit: 'pt', 
+            format: [canvas.width, canvas.height]
+        });
+        
+        pdf.addImage(imgData, 'JPEG', 0, 0, canvas.width, canvas.height);
+        pdf.save(`receipt-${Date.now()}.pdf`);
+        
+    } catch (err) {
+        console.error('PDF generation error:', err);
+        $('#print-receipt-area').hide();
+        // Fallback to simple print if conversion fails
+        window.print();
+    } finally {
+        // Restore button state
+        btn.html(originalHtml).prop('disabled', false);
+    }
+}
+
+
+        // --- Translation & Locale Engine ---
+
+        function changeLanguage() {
+            const next = STATE.lang === 'ar' ? 'en' : 'ar';
+            STATE.lang = next;
+            localStorage.setItem('ezem_lang', next);
+            applyLanguageUI();
+            
+            renderUserInfo();
+            if ($('#screen-entry').is(':visible')) {
+                startMovement(currentMode); 
+            } else {
+                renderDashboard();
+            }
+        }
+
+        function applyLanguageUI() {
+            const lang = STATE.lang || 'ar';
+            document.documentElement.lang = lang;
+            document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+
+            $('#lang-btn-text').text(lang === 'ar' ? 'EN' : 'AR');
+
+            const dict = translationOverrides[lang];
+
+            $('#dash-welcome').text(dict.welcome);
+            $('#dash-subtitle').text(dict.subtitle);
+            $('#btn-waste-title').text(dict.btn_waste_title);
+            $('#btn-waste-desc').text(dict.btn_waste_desc);
+            $('#btn-transfer-title').text(dict.btn_transfer_title);
+            $('#btn-transfer-desc').text(dict.btn_transfer_desc);
+            $('#low-stock-title').text(dict.low_stock_title);
+            
+            $('#btn-back').html(`<i class="fa-solid ${lang === 'ar' ? 'fa-arrow-right' : 'fa-arrow-left'}"></i> <span>${dict.btn_back}</span>`);
+            $('#hdr-section-title').text(dict.hdr_section_title);
+            $('#lbl-date').text(dict.lbl_date);
+            $('#lbl-notes').text(dict.lbl_notes);
+            $('#txNotes').attr('placeholder', dict.notes_placeholder);
+            $('#lbl-from').text(dict.lbl_from);
+            
+            $('#catalog-title').text(dict.catalog_title);
+            $('#item-search').attr('placeholder', dict.search_placeholder);
+            $('#cart-title').text(dict.cart_title);
+            $('#cart-empty-text').text(dict.cart_empty_text);
+
+            $('#lbl-total-items').text(dict.lbl_total_items);
+            $('#lbl-total-cost').text(dict.lbl_total_cost);
+            $('#btn-post-text').text(dict.btn_post_text);
+
+            $('#success-title').text(dict.success_title);
+            $('#success-desc').text(dict.success_desc);
+            $('#success-lbl-date').text(dict.success_lbl_date);
+            $('#success-lbl-type').text(dict.success_lbl_type);
+            $('#success-lbl-count').text(dict.success_lbl_count);
+            $('#success-lbl-cost').text(dict.success_lbl_cost);
+            $('#btn-success-new').text(dict.btn_success_new);
+            
+            document.title = `EZEM Mobile | ${dict.title}`;
+        }
+    </script>
+</body>
+</html>
