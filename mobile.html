@@ -17,93 +17,91 @@
     <link rel="preconnect" href="https://cdn.jsdelivr.net">
     <link rel="dns-prefetch" href="https://code.jquery.com">
 
-    <!-- External Dependencies (blocking but required for inline scripts) -->
-    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- External Dependencies -->
+    <link href="styles/tailwind.min.css" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet" media="print" onload="this.media='all'">
     <noscript><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet"></noscript>
-    <!-- Reduced font weights for faster load -->
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
+
 
     <!-- ERP-EZEM Local Main Styles -->
     <link rel="stylesheet" href="styles/main.css" />
 
-    <script>
-        tailwind.config = {
-            theme: {
-                extend: {
-                    fontFamily: {
-                        cairo: ['Cairo', 'sans-serif'],
-                        sans: ['Plus Jakarta Sans', 'Cairo', 'sans-serif'],
-                    }
-                }
-            }
-        }
-    </script>
-
     <style>
+        :root {
+            --bg-body: #F5F7FB;
+            --primary: #5B5FEF;
+            --primary-hover: #4F46E5;
+            --danger: #EF4444;
+            --warning: #F59E0B;
+            --success: #10B981;
+            --text-primary: #1F2937;
+            --text-secondary: #6B7280;
+            --card-bg: #FFFFFF;
+            --border-color: #E5E7EB;
+            --shadow-soft: 0 1px 2px rgba(0,0,0,.04), 0 4px 12px rgba(0,0,0,.04);
+            --shadow-floating: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+        }
+
         /* Mobile Touch & Scroll Fixes */
         body {
-            font-family: 'Plus Jakarta Sans', 'Cairo', sans-serif !important;
-            background: linear-gradient(135deg, #f8fafc 0%, #eef2ff 100%) !important;
+            font-family: 'Inter', 'SF Pro Display', 'IBM Plex Sans', 'Cairo', sans-serif !important;
+            background: var(--bg-body) !important;
             background-attachment: fixed !important;
-            color: #0f172a !important;
+            color: var(--text-primary) !important;
             user-select: none;
             -webkit-tap-highlight-color: transparent;
             overflow-y: auto !important;
             height: auto !important;
             min-height: 100vh;
+            letter-spacing: -0.2px;
         }
 
-        /* Responsive glass card (Premium Slim Style) */
+        /* Responsive glass card (Premium Mobile Design) */
         .glass-card {
-            background: rgba(255, 255, 255, 0.75) !important;
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.6) !important;
-            box-shadow: 0 10px 40px -10px rgba(79, 70, 229, 0.08), 0 1px 3px rgba(0,0,0,0.02) !important;
-            border-radius: 20px !important;
+            background: var(--card-bg) !important;
+            border: 1px solid var(--border-color) !important;
+            box-shadow: var(--shadow-soft) !important;
+            border-radius: 12px !important;
+            transition: all 0.2s ease;
         }
 
-        /* Custom adjustments for mobile finger targets */
+        /* Custom adjustments for mobile finger targets - Movoments style */
         .input-premium {
-            height: 42px !important;
-            font-size: 12px !important;
-            border-radius: 14px !important;
-            border: 1px solid rgba(203, 213, 225, 0.6) !important;
-            background: rgba(255, 255, 255, 0.9) !important;
-            color: #0f172a !important;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.01) !important;
+            height: 44px !important;
+            font-size: 13px !important;
+            border-radius: 10px !important;
+            border: 1px solid #f1f5f9 !important;
+            background: #ffffff !important;
+            color: #1e293b !important;
+            transition: all 0.2s ease !important;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.02) !important;
+            padding: 0 0.75rem !important;
         }
 
         .input-premium:focus {
-            border-color: #6366f1 !important;
-            background: #ffffff !important;
-            box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.15), inset 0 1px 2px rgba(0,0,0,0.02) !important;
+            border-color: var(--primary) !important;
+            box-shadow: 0 0 0 3px rgba(91, 95, 239, 0.1) !important;
             outline: none !important;
         }
 
-        /* Category chips matching Slim styling */
+        /* Category chips matching Premium styling */
         .category-pill {
-            padding: 6px 14px !important;
-            border-radius: 100px !important;
-            font-size: 10px !important;
-            font-weight: 800 !important;
-            border: 1px solid rgba(203, 213, 225, 0.5) !important;
-            background: rgba(255, 255, 255, 0.8) !important;
-            color: #475569 !important;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-            backdrop-filter: blur(8px);
+            padding: 4px 10px !important;
+            border-radius: 6px !important;
+            font-size: 11px !important;
+            font-weight: 600 !important;
+            border: 1px solid var(--border-color) !important;
+            background: #ffffff !important;
+            color: var(--text-secondary) !important;
+            transition: all 0.2s ease !important;
         }
 
         .category-pill.active {
-            background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%) !important;
-            border-color: transparent !important;
+            background: var(--primary) !important;
+            border-color: var(--primary) !important;
             color: #ffffff !important;
-            box-shadow: 0 8px 16px -4px rgba(99, 102, 241, 0.4) !important;
-            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(91, 95, 239, 0.2) !important;
         }
 
         /* Slide animations */
@@ -117,15 +115,52 @@
         
         /* Premium Buttons */
         .btn-slim-primary {
-            background: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%) !important;
-            box-shadow: 0 8px 20px -6px rgba(79, 70, 229, 0.5) !important;
+            background: var(--primary) !important;
+            box-shadow: 0 8px 20px -6px rgba(91, 108, 255, 0.5) !important;
             border: none !important;
             color: white !important;
             transition: all 0.2s ease !important;
+            font-weight: 700 !important;
+            border-radius: 16px !important;
+
+/* Movoments style action button */
+.btn-action {
+    background: var(--primary) !important;
+    color: #ffffff !important;
+    border: none !important;
+    border-radius: 12px !important;
+    padding: 0.5rem 1rem !important;
+    font-weight: 600 !important;
+    font-size: 0.875rem !important;
+    box-shadow: 0 4px 12px -4px rgba(91,108,255,0.4) !important;
+    transition: all 0.2s ease !important;
+}
+.btn-action:hover {
+    background: var(--primary-hover) !important;
+    box-shadow: 0 6px 14px -4px rgba(91,108,255,0.5) !important;
+}
+.btn-action:active {
+    transform: scale(0.97) !important;
+    box-shadow: 0 2px 8px -4px rgba(91,108,255,0.3) !important;
+}
         }
         .btn-slim-primary:active {
             transform: scale(0.97) !important;
-            box-shadow: 0 4px 10px -4px rgba(79, 70, 229, 0.4) !important;
+            box-shadow: 0 4px 10px -4px rgba(91, 108, 255, 0.4) !important;
+        }
+
+        /* Premium Action Card Hover & Active states */
+        .action-card {
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+            border-radius: 24px !important;
+            background: rgba(255, 255, 255, 0.95) !important;
+            border: 1px solid rgba(255, 255, 255, 1) !important;
+            box-shadow: 0 8px 24px -12px rgba(0,0,0,0.06), 0 2px 4px rgba(0,0,0,0.02) !important;
+        }
+        .action-card:active {
+            transform: scale(0.98) !important;
+            background: #ffffff !important;
+            box-shadow: 0 4px 12px -8px rgba(0,0,0,0.1) !important;
         }
 
         /* Touch target limits */
@@ -229,15 +264,33 @@
         html.dark .swipeable-card { background: rgba(15, 23, 42, 0.95) !important; }
         html.dark .bg-shape-1 { background: #312e81; opacity: 0.3; }
         html.dark .bg-shape-2 { background: #1e1b4b; opacity: 0.3; }
+
+        /* Ripple Effect */
+        .ripple {
+            position: absolute;
+            border-radius: 50%;
+            transform: scale(0);
+            animation: ripple-animation 0.6s linear;
+            background-color: rgba(255, 255, 255, 0.4);
+            pointer-events: none;
+        }
+        @keyframes ripple-animation {
+            to { transform: scale(4); opacity: 0; }
+        }
     </style>
 </head>
 <body class="flex flex-col pb-28 relative">
+    <!-- 📴 OFFLINE BANNER -->
+    <div id="offline-badge" class="hidden fixed top-0 left-0 w-full z-[9999] bg-red-500 text-white text-center text-[10px] font-black py-1.5 tracking-widest shadow-md transition-all">
+        <i class="fa-solid fa-wifi"></i> أنت تعمل الآن في وضع عدم الاتصال (Offline) - سيتم حفظ البيانات محلياً
+    </div>
+
     <!-- Premium Slim Background Shapes -->
     <div class="bg-shape bg-shape-1"></div>
     <div class="bg-shape bg-shape-2"></div>
 
     <!-- ⏳ LIGHT LOADER SCREEN -->
-    <div id="loader" class="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-white/40 backdrop-blur-md">
+    <div id="loader" style="display: none;" class="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-white/40 backdrop-blur-md">
         <div class="relative mb-5">
             <div class="w-16 h-16 bg-white rounded-2xl border border-white/60 flex items-center justify-center p-3 shadow-xl relative z-10">
                 <img src="assets/icon-192x192.png" alt="EZEM" class="w-full h-full object-contain rounded-xl">
@@ -254,10 +307,10 @@
     </div>
 
     <!-- 🔑 LIGHT LOGIN CONTAINER -->
-    <div id="login-container" class="hidden fixed inset-0 z-[1000] bg-[#f1f5f9] flex flex-col justify-center px-6">
+    <div id="login-container" style="display: none;" class="fixed inset-0 z-[1000] bg-[#f1f5f9] flex flex-col justify-center px-6">
         <div class="text-center mb-8">
             <div class="inline-flex w-16 h-16 bg-white rounded-2xl border border-slate-200/80 items-center justify-center p-3 mb-4 shadow-md">
-                <img src="assets/icon-192x192.png" alt="Logo" class="w-full h-full object-contain rounded-xl" />
+                <img src="assets/icon-192x192.png" alt="Logo" loading="lazy" class="w-full h-full object-contain rounded-xl" />
             </div>
             <h2 class="text-xl font-black text-slate-800 mb-1">تسجيل الدخول للجوال</h2>
             <p class="text-slate-500 text-xs font-semibold">أدخل بيانات الحساب لتسجيل الهالك والتحويلات</p>
@@ -280,9 +333,9 @@
                 </div>
             </div>
 
-            <button id="login-submit-btn" class="w-full h-12 btn-slim-primary rounded-xl font-bold text-xs flex items-center justify-center gap-2 mt-2">
+            <button id="login-submit-btn" class="w-full h-12 btn-action rounded-xl font-bold text-xs flex items-center justify-center gap-2 mt-2">
                 <span>دخول إلى المنظومة</span>
-                <i class="fa-solid fa-arrow-left text-[10px] opacity-80"></i>
+                <i class="fa-solid fa-arrow-left text-[9px] opacity-80"></i>
             </button>
         </div>
 
@@ -291,71 +344,116 @@
         </div>
     </div>
 
+    <script>
+        // Instant view routing to prevent CDN loading delays for login screen
+        (function() {
+            var user = localStorage.getItem('ezem_user');
+            if (user) {
+                document.getElementById('loader').style.display = 'flex';
+            } else {
+                document.getElementById('login-container').style.display = 'flex';
+            }
+        })();
+    </script>
+
     <!-- 📱 APP MAIN VIEW -->
     <div id="app" class="hidden flex-1 flex flex-col z-10 w-full px-4 pt-4 max-w-md mx-auto">
         
         <!-- 👤 Header Info -->
-        <header class="flex items-center justify-between mb-4 glass-card p-2.5 shadow-sm sticky top-4 z-50">
-            <div class="flex items-center gap-2.5">
-                <div class="w-8 h-8 rounded-xl bg-slate-100 flex items-center justify-center p-1.5 border border-slate-200">
-                    <img src="assets/icon-192x192.png" alt="User" class="w-full h-full object-contain rounded-md">
+        <header class="flex items-center justify-between mb-3 glass-card p-1.5 px-2.5 shadow-sm sticky top-2 z-50">
+            <div class="flex items-center gap-1.5">
+                <div class="w-7 h-7 rounded-lg bg-[var(--bg-body)] flex items-center justify-center p-1 border border-[var(--border-color)]">
+                    <img src="assets/icon-192x192.png" alt="User" loading="lazy" class="w-full h-full object-contain rounded-md">
                 </div>
-                <div class="text-right">
-                    <div class="text-[8px] font-black text-slate-400 uppercase tracking-wider" id="user-role-label">مستودع / جرد</div>
-                    <div class="text-[11px] font-black text-slate-800" id="user-name-label">المدير العام</div>
+                <div class="text-right flex flex-col justify-center">
+                    <div class="text-[7px] font-black text-[var(--primary)] uppercase tracking-widest bg-indigo-50 px-1 py-0.5 rounded-md inline-block mb-0.5 w-max">ADMIN</div>
+                    <div class="text-[10px] font-bold text-[var(--text-primary)] leading-none" id="user-name-label">Administrator</div>
                 </div>
             </div>
             
-            <div class="flex items-center gap-2">
-                <button onclick="changeLanguage()" class="w-7 h-7 rounded-lg bg-slate-100 border border-slate-200 flex items-center justify-center text-[9px] font-black text-slate-600">
+            <div class="flex items-center gap-1.5">
+                <button onclick="changeLanguage()" class="w-7 h-7 rounded-lg bg-[var(--bg-body)] border border-[var(--border-color)] flex items-center justify-center text-[9px] font-black text-[var(--text-secondary)] hover:bg-white transition-colors">
                     <span id="lang-btn-text">EN</span>
                 </button>
-                <button onclick="toggleDarkMode()" id="btn-dark-mode" class="w-7 h-7 rounded-lg bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-600">
+                <button onclick="toggleDarkMode()" id="btn-dark-mode" class="w-7 h-7 rounded-lg bg-[var(--bg-body)] border border-[var(--border-color)] flex items-center justify-center text-[var(--text-secondary)] hover:bg-white transition-colors">
                     <i class="fa-solid fa-moon text-[10px]"></i>
                 </button>
-                <button onclick="Auth.logout()" class="w-7 h-7 rounded-lg bg-rose-50 border border-rose-100 flex items-center justify-center text-rose-500">
+                <button onclick="Auth.logout()" class="w-7 h-7 rounded-lg bg-[#FFF0F2] border border-[#FFE0E4] flex items-center justify-center text-[var(--danger)] hover:bg-[#FFE0E4] transition-colors">
                     <i class="fa-solid fa-power-off text-[10px]"></i>
                 </button>
             </div>
         </header>
 
-        <!-- 🎛️ DASHBOARD SCREEN -->
-        <div id="screen-dashboard" class="space-y-4 animate-slide-in">
+        <!-- 🖨️ DASHBOARD SCREEN -->
+        <div id="screen-dashboard" class="space-y-3 animate-slide-in">
             <div class="text-right px-1">
-                <h1 class="text-base font-black text-slate-800 mb-0.5" id="dash-welcome">مرحباً بك في الإدخال السريع</h1>
-                <p class="text-[9px] text-slate-400 font-bold" id="dash-subtitle">اختر العملية المطلوبة للبدء بالإدخال الفوري من الهاتف</p>
+                <h1 class="text-[14px] font-black text-[var(--text-primary)] tracking-tight" id="dash-welcome">مرحباً بك في لوحة القيادة</h1>
+                <p class="text-[10px] text-[var(--text-secondary)] font-medium mt-0.5" id="dash-subtitle">اختر العملية المطلوبة للبدء بالإدخال الفوري</p>
             </div>
 
             <!-- Dashboard Action Cards -->
-            <div class="grid grid-cols-1 gap-3.5">
-                <!-- 🗑️ WASTE CARD -->
-                <button onclick="startMovement('Waste')" class="w-full text-right p-4 rounded-2xl bg-white border border-slate-200 shadow-sm flex items-center justify-between transition-all active:scale-[0.98] group relative overflow-hidden">
-                    <div class="space-y-0.5 relative z-10 flex-1">
-                        <div class="w-8 h-8 rounded-xl bg-rose-50 text-rose-500 flex items-center justify-center text-sm border border-rose-100 mb-2">
-                            <i class="fa-solid fa-trash-can"></i>
+            <div class="grid grid-cols-1 gap-2">
+                
+                <!-- 📦 RECEIVING CARD -->
+                <button onclick="startMovement('Receiving')" data-action="receive" class="btn-action w-full text-right p-3 flex items-center justify-between group">
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-lg bg-green-50 text-green-600 flex items-center justify-center text-sm border border-green-100">
+                            <i class="fa-solid fa-boxes-packing"></i>
                         </div>
-                        <h2 class="text-sm font-black text-slate-800" id="btn-waste-title">تسجيل كمية هالك</h2>
-                        <p class="text-[9px] text-slate-400 font-bold" id="btn-waste-desc">تسجيل تالف، منتهي صلاحية، أو عجز بالخط الساخن</p>
+                        <div>
+                            <h2 class="text-[12px] font-bold text-[var(--text-primary)]" id="btn-receive-title">استلام بضاعة</h2>
+                            <p class="text-[9px] text-[var(--text-secondary)] leading-tight mt-0.5" id="btn-receive-desc">تسجيل استلام بضائع من الموردين أو المطبخ المركزي</p>
+                        </div>
                     </div>
-                    <i class="fa-solid fa-chevron-left text-slate-300 text-xs transition-transform group-hover:-translate-x-1 pl-1"></i>
+                    <i class="fa-solid fa-chevron-left text-slate-300 text-[10px]"></i>
                 </button>
 
-                <!-- 🔄 TRANSFER CARD -->
-                <button onclick="startMovement('Transfer Out')" class="w-full text-right p-4 rounded-2xl bg-white border border-slate-200 shadow-sm flex items-center justify-between transition-all active:scale-[0.98] group relative overflow-hidden">
-                    <div class="space-y-0.5 relative z-10 flex-1">
-                        <div class="w-8 h-8 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-sm border border-indigo-100 mb-2">
-                            <i class="fa-solid fa-truck-ramp-box"></i>
+                <!-- 🔄 TRANSFER OUT CARD -->
+                <button onclick="startMovement('TransferOut')" data-action="transfer-out" class="btn-action w-full text-right p-3 flex items-center justify-between group">
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-lg bg-indigo-50 text-[var(--primary)] flex items-center justify-center text-sm border border-indigo-100">
+                            <i class="fa-solid fa-arrow-right-from-bracket"></i>
                         </div>
-                        <h2 class="text-sm font-black text-slate-800" id="btn-transfer-title">حركة تحويل بين الفروع</h2>
-                        <p class="text-[9px] text-slate-400 font-bold" id="btn-transfer-desc">تحويل بضائع أو خامات بين المواقع والفروع</p>
+                        <div>
+                            <h2 class="text-[12px] font-bold text-[var(--text-primary)]" id="btn-transfer-out-title">تحويل صادر (Transfer Out)</h2>
+                            <p class="text-[9px] text-[var(--text-secondary)] leading-tight mt-0.5" id="btn-transfer-out-desc">إرسال بضائع أو خامات من موقعك إلى موقع آخر</p>
+                        </div>
                     </div>
-                    <i class="fa-solid fa-chevron-left text-slate-300 text-xs transition-transform group-hover:-translate-x-1 pl-1"></i>
+                    <i class="fa-solid fa-chevron-left text-slate-300 text-[10px]"></i>
+                </button>
+
+                <!-- 📥 TRANSFER IN CARD -->
+                <button onclick="startMovement('TransferIn')" data-action="transfer-in" class="btn-action w-full text-right p-3 flex items-center justify-between group" style="background: linear-gradient(135deg,#f0fdf4,#dcfce7) !important; border:1px solid #bbf7d0 !important;">
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center text-sm border border-emerald-100">
+                            <i class="fa-solid fa-arrow-right-to-bracket"></i>
+                        </div>
+                        <div>
+                            <h2 class="text-[12px] font-bold text-[var(--text-primary)]" id="btn-transfer-in-title">تحويل وارد (Transfer In)</h2>
+                            <p class="text-[9px] text-[var(--text-secondary)] leading-tight mt-0.5" id="btn-transfer-in-desc">استقبال بضائع أو خامات قادمة من موقع آخر</p>
+                        </div>
+                    </div>
+                    <i class="fa-solid fa-chevron-left text-slate-300 text-[10px]"></i>
+                </button>
+
+                <!-- 🗑️ WASTE CARD -->
+                <button onclick="startMovement('Waste')" data-action="waste" class="btn-action w-full text-right p-3 flex items-center justify-between group">
+                    <div class="flex items-center gap-3">
+                        <div class="w-8 h-8 rounded-lg bg-red-50 text-[var(--danger)] flex items-center justify-center text-sm border border-red-100">
+                            <i class="fa-solid fa-trash-can"></i>
+                        </div>
+                        <div>
+                            <h2 class="text-[12px] font-bold text-[var(--text-primary)]" id="btn-waste-title">تسجيل كمية هالك</h2>
+                            <p class="text-[9px] text-[var(--text-secondary)] leading-tight mt-0.5" id="btn-waste-desc">تسجيل تالف، منتهي صلاحية، أو عجز بالخط الساخن</p>
+                        </div>
+                    </div>
+                    <i class="fa-solid fa-chevron-left text-slate-300 text-[10px]"></i>
                 </button>
             </div>
 
             <!-- Stats Preview (Low Stock alerts matching main dashboard design) -->
-            <div class="glass-card rounded-2xl p-4 space-y-3">
-                <h3 class="text-[10px] font-black text-slate-700 uppercase tracking-widest flex items-center gap-2 border-b border-slate-100 pb-2.5">
+            <div class="glass-card p-3">
+                <h3 class="text-[9px] font-black text-slate-500 uppercase tracking-widest mb-3 flex items-center gap-2">
                     <i class="fa-solid fa-circle-exclamation text-amber-500 text-[10px]"></i>
                     <span id="low-stock-title">تنبيهات نواقص المخزن</span>
                 </h3>
@@ -380,75 +478,101 @@
             </div>
 
             <!-- Dynamic Headers Form -->
-            <div class="glass-card rounded-2xl p-4 space-y-3 text-right">
-                <h3 class="text-[9px] font-black text-slate-400 uppercase tracking-wider mb-1" id="hdr-section-title">بيانات ترويسة الحركة</h3>
+            <div class="glass-card rounded-2xl p-5 space-y-4 text-right relative overflow-hidden">
+                <div class="absolute top-0 right-0 w-full h-1 bg-gradient-to-r from-[var(--primary)] to-indigo-300"></div>
+                <h3 class="text-[11px] font-black text-slate-800 flex items-center gap-2 mb-4" id="hdr-section-title">
+                    <div class="w-6 h-6 rounded-md bg-indigo-50 text-[var(--primary)] flex items-center justify-center text-[10px]">
+                        <i class="fa-solid fa-file-invoice"></i>
+                    </div>
+                    بيانات ترويسة الحركة (Transaction Header)
+                </h3>
                 
-                <div class="grid grid-cols-2 gap-3">
-                    <div class="space-y-1">
-                        <label class="text-[9px] font-black text-slate-500 block" id="lbl-date">التاريخ</label>
-                        <input type="date" id="txDate" class="w-full h-11 rounded-xl px-3 input-premium text-xs font-bold">
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="space-y-1.5">
+                        <label class="text-[9px] font-black text-slate-400 uppercase tracking-wider block" id="lbl-date">التاريخ DATE</label>
+                        <div class="relative">
+                            <input type="date" id="txDate" class="w-full h-11 rounded-xl px-4 input-premium text-xs font-bold text-slate-800">
+                        </div>
                     </div>
                     
-                    <!-- DYNAMIC FIELD: Reason for Waste OR To Location for Transfer -->
-                    <div class="space-y-1" id="form-group-dynamic">
-                        <!-- Filled by JS -->
-                    </div>
-                </div>
-
-                <!-- From Location (Only shown for Transfers) -->
-                <div class="grid grid-cols-1 gap-3 hidden" id="form-group-transfer-from">
-                    <div class="space-y-1">
-                        <label class="text-[9px] font-black text-slate-500 block" id="lbl-from">الموقع المحوّل منه (من)</label>
-                        <select id="txFrom" class="w-full h-11 rounded-xl px-3 input-premium text-xs font-bold">
+                    <div class="space-y-1.5">
+                        <label class="text-[9px] font-black text-slate-400 uppercase tracking-wider block" id="lbl-trx-type">نوع الحركة TRX TYPE</label>
+                        <select id="txType" class="w-full h-11 rounded-xl px-4 input-premium text-xs font-bold text-slate-800 pointer-events-none bg-slate-50" disabled>
                             <!-- Filled dynamically -->
                         </select>
                     </div>
                 </div>
 
-                <div class="space-y-1">
-                    <label class="text-[9px] font-black text-slate-500 block" id="lbl-notes">ملاحظات / سبب إضافي</label>
-                    <input type="text" id="txNotes" class="w-full h-11 rounded-xl px-3 input-premium text-xs font-bold" placeholder="ملاحظات توضيحية اختياري...">
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="space-y-1.5" id="form-group-from">
+                        <label class="text-[9px] font-black text-slate-400 uppercase tracking-wider block" id="lbl-from">من FROM</label>
+                        <select id="txFrom" class="w-full h-11 rounded-xl px-4 input-premium text-xs font-bold text-slate-800">
+                            <!-- Filled dynamically -->
+                        </select>
+                    </div>
+
+                    <div class="space-y-1.5" id="form-group-to">
+                        <label class="text-[9px] font-black text-slate-400 uppercase tracking-wider block" id="lbl-to">إلى TO</label>
+                        <div id="to-container">
+                            <select id="txTo" class="w-full h-11 rounded-xl px-4 input-premium text-xs font-bold text-slate-800">
+                                <!-- Filled dynamically -->
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="space-y-1.5" id="form-group-reason">
+                    <label class="text-[9px] font-black text-slate-400 uppercase tracking-wider block" id="lbl-reason">السبب REASON</label>
+                    <div id="reason-container">
+                        <input type="text" id="txReason" class="w-full h-11 rounded-xl px-4 input-premium text-xs font-bold text-slate-800" placeholder="---">
+                    </div>
+                </div>
+
+                <div class="space-y-1.5">
+                    <label class="text-[9px] font-black text-slate-400 uppercase tracking-wider block" id="lbl-ref">رقم المرجع REF #</label>
+                    <input type="text" id="txRef" class="w-full h-11 rounded-xl px-4 input-premium text-xs font-bold text-slate-800" placeholder="Invoice #">
+                </div>
+
+                <div class="space-y-1.5">
+                    <label class="text-[9px] font-black text-slate-400 uppercase tracking-wider block" id="lbl-notes">ملاحظات NOTES</label>
+                    <textarea id="txNotes" class="w-full rounded-xl p-3 input-premium text-xs font-bold text-slate-800 resize-none min-h-[60px]"></textarea>
                 </div>
 
                 <!-- 📷 Waste Photo Upload Card (Only visible when currentMode === 'Waste') -->
                 <div class="space-y-1 pt-1" id="form-group-waste-photo">
                     <label class="text-[9px] font-black text-slate-500 block" id="lbl-photo">صورة إثبات الهالك</label>
-                    <div onclick="$('#txImageInput').click();" class="glass-card rounded-2xl p-4 text-center border-2 border-dashed border-slate-200 hover:border-indigo-500 transition-all cursor-pointer relative" id="photo-upload-card" style="margin-bottom: 0 !important; background: #ffffff !important;">
-                        <input type="file" accept="image/*" capture="environment" id="txImageInput" class="hidden">
+                    <div onclick="document.getElementById('txImageInput').click();" class="glass-card rounded-2xl p-4 text-center border-2 border-dashed border-slate-200 hover:border-indigo-500 transition-all cursor-pointer relative" id="photo-upload-card" style="margin-bottom: 0 !important; background: #ffffff !important;">
+                        <input type="file" accept="image/*" id="txImageInput" class="hidden" multiple onchange="handleImageUpload(event)">
                         
-                        <div id="upload-placeholder" class="space-y-1 py-1.5">
+                        <div id="upload-placeholder" class="space-y-1 py-1.5 pointer-events-none">
                             <i class="fa-solid fa-camera text-slate-400 text-lg"></i>
                             <div class="text-xs font-black text-slate-700" id="lbl-photo-box-title">إرفاق صورة الهالك</div>
-                            <div class="text-[9px] text-slate-400 font-bold" id="lbl-photo-box-desc">اضغط لفتح الكاميرا والتقاط صورة واضحة</div>
+                            <div class="text-[9px] text-slate-400 font-bold" id="lbl-photo-box-desc">اضغط لاختيار أكثر من صورة أو التقاط بالكاميرا</div>
                         </div>
                         
-                        <div id="upload-preview-container" class="hidden relative inline-block mx-auto">
-                            <img id="upload-preview" src="" class="w-32 h-32 object-cover rounded-xl border border-slate-200">
-                            <button type="button" onclick="removeUploadedPhoto(event)" class="absolute -top-2 -left-2 w-6 h-6 rounded-full bg-rose-500 text-white flex items-center justify-center text-xs shadow-md border border-white">
-                                <i class="fa-solid fa-xmark"></i>
-                            </button>
+                        <div id="upload-preview-container" class="hidden flex-wrap gap-2 justify-center mx-auto mt-2" onclick="event.stopPropagation()">
+                            <!-- Images injected here -->
                         </div>
                     </div>
                 </div>
             </div>
 
             <!-- 🔎 ITEM SEARCH WIDGET -->
-            <div class="glass-card rounded-2xl p-4 flex flex-col space-y-2.5">
-                <h3 class="text-[10px] font-black text-slate-700 uppercase tracking-widest flex items-center justify-between">
+            <div class="glass-card p-4 flex flex-col space-y-3 mt-4">
+                <h3 class="text-[10px] font-black text-slate-400 uppercase tracking-wider mb-2 flex items-center justify-between">
                     <span id="catalog-title">كتالوج اختيار الأصناف</span>
-                    <span class="text-[9px] text-slate-400 font-bold" id="catalog-items-count">0 صنف متوفر</span>
+                    <span class="text-slate-400 font-bold" id="catalog-items-count">0 صنف متوفر</span>
                 </h3>
 
                 <!-- Search box with Voice and Barcode -->
                 <div class="flex items-center gap-2">
                     <div class="relative flex-1">
-                        <input type="text" id="item-search" oninput="filterItems()" class="w-full h-11 rounded-xl pr-9 pl-9 input-premium text-xs font-bold" placeholder="ابحث باسم أو كود الصنف...">
-                        <i class="fa-solid fa-magnifying-glass absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400"></i>
-                        <button id="btn-voice-search" onclick="startVoiceSearch()" class="absolute left-2 top-1/2 -translate-y-1/2 w-7 h-7 rounded-lg flex items-center justify-center text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 transition-colors">
-                            <i class="fa-solid fa-microphone"></i>
-                        </button>
+                        <input type="text" id="item-search" oninput="debouncedFilterItems()" class="w-full h-11 rounded-xl px-4 input-premium text-xs font-bold text-slate-800" placeholder="ابحث باسم أو كود الصنف...">
                     </div>
-                    <button onclick="startBarcodeScanner()" class="w-11 h-11 rounded-xl btn-slim-primary flex flex-shrink-0 items-center justify-center text-lg shadow-sm">
+                    <button id="btn-voice-search" onclick="startVoiceSearch()" class="w-11 h-11 rounded-xl bg-slate-100 text-slate-600 border border-slate-200 flex flex-shrink-0 items-center justify-center text-sm shadow-sm hover:text-[var(--primary)] hover:bg-indigo-50 hover:border-indigo-200 transition-all">
+                        <i class="fa-solid fa-microphone"></i>
+                    </button>
+                    <button onclick="startBarcodeScanner()" class="w-11 h-11 rounded-xl bg-[var(--primary)] text-white flex flex-shrink-0 items-center justify-center text-sm shadow-sm hover:bg-[var(--primary-hover)] transition-colors">
                         <i class="fa-solid fa-barcode"></i>
                     </button>
                 </div>
@@ -479,21 +603,34 @@
         </div>
     </div>
 
-    <!-- 📥 FIXED FLOATING BOTTOM FOOTER -->
-    <div id="floating-footer" class="hidden fixed bottom-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-t border-slate-200 p-4 shadow-lg flex items-center justify-between max-w-md mx-auto rounded-t-2xl">
+    <!-- 📥 FIXED BOTTOM FOOTER -->
+    <div id="floating-footer" class="hidden fixed bottom-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-t border-[var(--border-color)] p-4 shadow-[0_-10px_15px_-3px_rgba(0,0,0,0.1)] flex items-center justify-between max-w-md mx-auto pb-safe">
         <div class="flex items-center gap-4 text-right">
             <div class="space-y-0.5">
-                <div class="text-[8px] font-black text-slate-400 uppercase tracking-wider" id="lbl-total-items">العدد</div>
-                <div class="text-base font-black text-slate-800 leading-none premium-num" id="footer-count">0</div>
+                <div class="text-[9px] font-bold text-slate-400 uppercase tracking-wider" id="lbl-total-items">العدد</div>
+                <div class="text-[16px] font-black text-slate-800 leading-none premium-num" id="footer-count">0</div>
             </div>
-            <div class="h-6 w-px bg-slate-200"></div>
+            <div class="h-8 w-px bg-slate-200"></div>
             <div class="space-y-0.5">
-                <div class="text-[8px] font-black text-slate-400 uppercase tracking-wider" id="lbl-total-cost">التكلفة الإجمالية</div>
-                <div class="text-base font-black text-emerald-600 leading-none premium-num" id="footer-cost">0.00</div>
+                <div class="text-[9px] font-bold text-slate-400 uppercase tracking-wider" id="lbl-total-cost">التكلفة</div>
+                <div class="text-[16px] font-black text-[var(--success)] leading-none premium-num" id="footer-cost">0.00</div>
             </div>
         </div>
+        <script>
+            // Hide floating footer when cart is empty
+            const observer = new MutationObserver(() => {
+                const emptyState = document.getElementById('cart-empty-state');
+                const footer = document.getElementById('floating-footer');
+                if (emptyState && !emptyState.classList.contains('hidden')) {
+                    footer.classList.add('hidden');
+                } else {
+                    footer.classList.remove('hidden');
+                }
+            });
+            observer.observe(document.getElementById('cart-items-container'), { childList: true, subtree: true });
+        </script>
         
-        <button onclick="postTransaction()" id="btn-post" class="h-11 px-5 btn-slim-primary rounded-xl text-xs font-black flex items-center gap-1.5">
+        <button onclick="postTransaction()" id="btn-post" class="btn-action h-10 px-4 text-xs font-bold flex items-center gap-1.5" style="background: linear-gradient(135deg, #10b981, #059669) !important; box-shadow: 0 4px 14px -4px rgba(16, 185, 129, 0.4) !important;">
             <i class="fa-solid fa-check text-[10px]"></i>
             <span id="btn-post-text">ترحيل الحركة</span>
         </button>
@@ -532,9 +669,15 @@
         </div>
 
         <div class="w-full max-w-xs space-y-2.5 relative z-10">
-            <button onclick="printReceiptPDF()" id="btn-success-print-wrapper" class="w-full h-12 btn-slim-primary rounded-xl font-bold text-xs flex items-center justify-center gap-2">
+            <button onclick="printReceiptPDF()" id="btn-success-print" class="w-full h-12 btn-action rounded-xl font-bold text-xs flex items-center justify-center gap-2">
                 <i class="fa-solid fa-print"></i>
-                <span id="btn-success-print">طباعة إيصال PDF المعتمد</span>
+                <span id="btn-success-print-text">طباعة إيصال PDF المعتمد</span>
+            </button>
+            
+            <!-- Admin only: Full report with previous entries -->
+            <button onclick="printFullReport()" id="btn-admin-prev-report" class="w-full h-12 btn-action rounded-xl font-bold text-xs flex items-center justify-center gap-2 hidden" style="background: #475569 !important;">
+                <i class="fa-solid fa-file-pdf"></i>
+                <span id="btn-admin-prev-report-text">تقارير سابقة (Admin)</span>
             </button>
 
             <button onclick="resetAppAfterSuccess()" class="w-full h-11 glass-card text-slate-700 rounded-xl font-bold text-xs transition-all flex items-center justify-center gap-1.5 shadow-sm hover:bg-white/50 active:scale-95">
@@ -559,10 +702,12 @@
     </div>
 
     <!-- Core Scripts Load -->
-    <script src="core/state.js"></script>
-    <script src="core/i18n.js"></script>
-    <script src="core/auth.js"></script>
-    <script src="core/api.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="core/state.js" defer></script>
+    <script src="core/i18n.js" defer></script>
+    <script src="core/auth.js" defer></script>
+    <script src="core/api.js" defer></script>
 
     <!-- jsPDF + html2canvas: loaded ON DEMAND only when PDF button clicked (saves ~600KB on initial load) -->
     <!-- These are injected dynamically by loadPdfLibsIfNeeded() -->
@@ -578,8 +723,12 @@
                 subtitle: "اختر العملية المطلوبة للبدء بالإدخال الفوري من الهاتف",
                 btn_waste_title: "تسجيل كمية هالك",
                 btn_waste_desc: "تسجيل تالف، منتهي صلاحية، أو عجز بالخط الساخن",
-                btn_transfer_title: "حركة تحويل بين الفروع",
-                btn_transfer_desc: "تحويل بضائع أو خامات بين المواقع والفروع",
+                btn_transfer_out_title: "تحويل صادر (Transfer Out)",
+                btn_transfer_out_desc: "إرسال بضائع أو خامات من موقعك إلى موقع آخر",
+                btn_transfer_in_title: "تحويل وارد (Transfer In)",
+                btn_transfer_in_desc: "استقبال بضائع أو خامات قادمة من موقع آخر",
+                btn_receive_title: "استلام بضاعة",
+                btn_receive_desc: "تسجيل استلام بضائع من الموردين أو المطبخ المركزي",
                 low_stock_title: "تنبيهات نواقص المخزن",
                 low_stock_empty: "لا يوجد نواقص مخزون حالياً",
                 btn_back: "رجوع للرئيسية",
@@ -588,8 +737,9 @@
                 lbl_notes: "ملاحظات / سبب إضافي",
                 notes_placeholder: "ملاحظات توضيحية اختياري...",
                 lbl_reason: "السبب",
-                lbl_to: "الفرع المحوّل إليه (إلى)",
-                lbl_from: "الموقع المحوّل منه (من)",
+                lbl_to: "الجهة المستلمة (إلى)",
+                lbl_from: "الجهة المرسلة (من)",
+                lbl_vendor: "المورد / الجهة المرسلة (من)",
                 catalog_title: "كتالوج اختيار الأصناف",
                 catalog_items_count: "{count} صنف متوفر",
                 search_placeholder: "ابحث باسم الصنف أو الكود...",
@@ -623,8 +773,12 @@
                 subtitle: "Choose the action to begin instant entry from your phone",
                 btn_waste_title: "Record Waste/Scrap",
                 btn_waste_desc: "Log expired, damaged, or stolen stock immediately",
-                btn_transfer_title: "Record Branch Transfer",
-                btn_transfer_desc: "Transfer raw materials or products between locations",
+                btn_transfer_out_title: "Transfer Out",
+                btn_transfer_out_desc: "Send goods or materials from your location to another",
+                btn_transfer_in_title: "Transfer In",
+                btn_transfer_in_desc: "Receive goods or materials arriving from another location",
+                btn_receive_title: "Receive Goods",
+                btn_receive_desc: "Record received goods from suppliers or central kitchen",
                 low_stock_title: "Low Stock Alerts",
                 low_stock_empty: "No low stock alerts at this moment",
                 btn_back: "Back to Home",
@@ -635,6 +789,7 @@
                 lbl_reason: "Reason",
                 lbl_to: "To Location (To)",
                 lbl_from: "From Location (From)",
+                lbl_vendor: "Vendor / Supplier (From)",
                 catalog_title: "Choose Items Catalog",
                 catalog_items_count: "{count} items available",
                 search_placeholder: "Search by item name or code...",
@@ -665,11 +820,10 @@
         };
 
         // --- Application State ---
-        let currentMode = "Waste"; // "Waste" or "Transfer Out"
         let selectedCategory = "";
         let mobileCart = []; // Array of selected items
-        let itemsCache = []; // Copy of items for search
-        let uploadedImageBase64 = ""; // Base64 of waste photo
+        let currentMode = 'Waste'; // Default
+        let uploadedImagesBase64 = []; // Base64 array of waste photos
         
         // --- 📳 Haptic Feedback Utility ---
         function hapticFeedback(type = 'light') {
@@ -681,6 +835,96 @@
                 case 'success': navigator.vibrate([30, 50, 30]); break;
                 case 'error': navigator.vibrate([50, 50, 50, 50]); break;
             }
+        }
+
+        // --- 🔄 Debounce Utility for Search ---
+        function debounce(func, wait) {
+            let timeout;
+            return function(...args) {
+                clearTimeout(timeout);
+                timeout = setTimeout(() => func.apply(this, args), wait);
+            };
+        }
+        const debouncedFilterItems = debounce(filterItems, 200);
+
+        // --- 📸 Image Upload Handler ---
+        function handleImageUpload(event) {
+            const files = event.target.files;
+            if (!files || files.length === 0) return;
+            
+            Array.from(files).forEach((file) => {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const img = new Image();
+                    img.onload = () => {
+                        const canvas = document.createElement('canvas');
+                        const MAX_WIDTH = 800;
+                        const MAX_HEIGHT = 800;
+                        let width = img.width;
+                        let height = img.height;
+
+                        if (width > height) {
+                            if (width > MAX_WIDTH) { height *= MAX_WIDTH / width; width = MAX_WIDTH; }
+                        } else {
+                            if (height > MAX_HEIGHT) { width *= MAX_HEIGHT / height; height = MAX_HEIGHT; }
+                        }
+                        
+                        canvas.width = width;
+                        canvas.height = height;
+                        const ctx = canvas.getContext('2d');
+                        ctx.drawImage(img, 0, 0, width, height);
+                        
+                        const base64Str = canvas.toDataURL('image/jpeg', 0.7); // Compress 70%
+                        uploadedImagesBase64.push(base64Str);
+                        
+                        renderUploadPreviews();
+                        if (typeof saveDraft === 'function') saveDraft();
+                    };
+                    img.src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            });
+            
+            // Clear input value so selecting the same file again triggers onchange
+            event.target.value = '';
+            if (typeof hapticFeedback === 'function') hapticFeedback('success');
+        }
+
+        function renderUploadPreviews() {
+            const previewContainer = document.getElementById('upload-preview-container');
+            const placeholder = document.getElementById('upload-placeholder');
+            
+            previewContainer.innerHTML = '';
+            
+            if (uploadedImagesBase64.length === 0) {
+                previewContainer.classList.add('hidden');
+                previewContainer.classList.remove('flex');
+                placeholder.classList.remove('hidden');
+                return;
+            }
+            
+            placeholder.classList.add('hidden');
+            previewContainer.classList.remove('hidden');
+            previewContainer.classList.add('flex');
+            
+            uploadedImagesBase64.forEach((b64, idx) => {
+                const imgDiv = document.createElement('div');
+                imgDiv.className = 'relative inline-block m-1';
+                imgDiv.innerHTML = `
+                    <img src="${b64}" class="w-16 h-16 object-cover rounded-lg border border-slate-200 shadow-sm">
+                    <button onclick="event.stopPropagation(); removeUploadedImage(${idx});" class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full w-5 h-5 flex items-center justify-center text-[10px] shadow-md border-2 border-white hover:bg-red-600 transition-colors">
+                        <i class="fa-solid fa-xmark"></i>
+                    </button>
+                `;
+                previewContainer.appendChild(imgDiv);
+            });
+        }
+
+        function removeUploadedImage(idx) {
+            uploadedImagesBase64.splice(idx, 1);
+            if (typeof hapticFeedback === 'function') hapticFeedback('light');
+            renderUploadPreviews();
+            if (typeof saveDraft === 'function') saveDraft();
         }
 
         // --- 🎙️ Voice Search Utility ---
@@ -773,6 +1017,34 @@
             }
         }
 
+        // ✅ Shims for functions expected by core/auth.js but not in mobile.html
+        const Utils = {
+            loading(show, msg, progress) {
+                if (show) {
+                    Swal.fire({ title: msg || 'جاري التحميل...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+                } else {
+                    Swal.close();
+                }
+            },
+            loadingProgress(action) {
+                if (action === 'close' || action === false) Swal.close();
+            },
+            toast(msg) {
+                Swal.fire({ toast: true, position: 'top', icon: 'success', title: msg, showConfirmButton: false, timer: 2000, timerProgressBar: true });
+            }
+        };
+
+        const Sidebar = {
+            render() { /* No sidebar in mobile */ }
+        };
+
+        const Router = {
+            navigate(view) {
+                // In mobile, after login just show the dashboard
+                renderDashboard();
+            }
+        };
+
         // Shimming dynamic functions expected by core files
         const App = {
             async syncData(manual = false, navigate = false) {
@@ -782,6 +1054,7 @@
                     if (response && response.status === 'success') {
                         STATE.db = response.db;
                         itemsCache = STATE.db.Items || [];
+                        localStorage.setItem('ezem_db_cache_mobile', JSON.stringify(STATE.db));
                         return true;
                     }
                     throw new Error(response.message || "Unknown response");
@@ -805,7 +1078,7 @@
                 // Check auth
                 if (!STATE.user) {
                     $('#loader').fadeOut(300, () => {
-                        $('#login-container').removeClass('hidden');
+                        $('#login-container').css('display', 'flex');
                         Auth.init();
                     });
                 } else {
@@ -860,18 +1133,33 @@
 
         });
 
-        // Initialize mobile app once logged in
         async function initMobileApp() {
-            $('#login-container').addClass('hidden');
+            $('#login-container').hide();
             $('#loader').show();
             
             try {
-                await App.syncData();
-                renderUserInfo();
-                renderDashboard();
-                $('#loader').fadeOut(400, () => {
-                    $('#app').removeClass('hidden');
-                });
+                // Cache-First approach for instant loading
+                const cachedDb = localStorage.getItem('ezem_db_cache_mobile');
+                if (cachedDb) {
+                    STATE.db = JSON.parse(cachedDb);
+                    itemsCache = STATE.db.Items || [];
+                    renderUserInfo();
+                    renderDashboard();
+                    $('#loader').fadeOut(200, () => {
+                        $('#app').removeClass('hidden');
+                    });
+                    
+                    // Sync silently in background
+                    App.syncData().catch(e => console.log("Background sync failed", e));
+                } else {
+                    // Force sync if no cache
+                    await App.syncData();
+                    renderUserInfo();
+                    renderDashboard();
+                    $('#loader').fadeOut(400, () => {
+                        $('#app').removeClass('hidden');
+                    });
+                }
             } catch (e) {
                 console.error(e);
                 Swal.fire("فشل الاتصال", "تعذر الاتصال بقاعدة البيانات اللوجستية.", "error")
@@ -887,6 +1175,297 @@
             if (!STATE.user) return;
             $('#user-name-label').text(STATE.user.name);
             $('#user-role-label').text(STATE.lang === 'ar' ? (STATE.user.role === 'Admin' ? 'المدير العام' : STATE.user.role) : STATE.user.role);
+            showAdminControls();
+        }
+
+        function showAdminControls() {
+            if (STATE.user && (STATE.user.role === 'Admin' || STATE.user.role === 'Group Super Admin')) {
+                $('#btn-admin-prev-report').removeClass('hidden');
+            } else {
+                $('#btn-admin-prev-report').addClass('hidden');
+            }
+        }
+
+        function printFullReport() {
+            const isAr = STATE.lang === 'ar';
+            
+            // Get unique types from Movements in DB
+            const mvmts = STATE.db.Movements || [];
+            const rawTypes = [...new Set(mvmts.map(m => m[1]).filter(Boolean))];
+            
+            let typeOptions = `<option value="All">${isAr ? 'الكل' : 'All'}</option>`;
+            rawTypes.forEach(t => {
+                let label = t;
+                if (isAr) {
+                    if (t === 'Waste') label = 'هالك';
+                    else if (t === 'Receiving') label = 'استلام';
+                    else if (t === 'Transfer') label = 'تحويل';
+                }
+                typeOptions += `<option value="${t}">${label}</option>`;
+            });
+
+            Swal.fire({
+                title: isAr ? 'تصفية التقارير السابقة' : 'Filter Previous Reports',
+                html: `
+                    <div class="space-y-4 text-right" dir="${isAr ? 'rtl' : 'ltr'}" style="font-family: inherit; font-size: 13px;">
+                        <div style="margin-bottom: 12px;">
+                            <label class="block text-xs font-bold text-slate-500 mb-1" style="margin-bottom:4px; display:block;">${isAr ? 'نوع الحركة' : 'Movement Type'}</label>
+                            <select id="filter-type" class="w-full h-10 px-3 border border-slate-200 rounded-xl font-bold text-xs bg-slate-50 text-slate-700" style="width:100%; box-sizing:border-box;">
+                                ${typeOptions}
+                            </select>
+                        </div>
+                        <div class="grid grid-cols-2 gap-3" style="display:flex; gap:10px;">
+                            <div style="flex:1;">
+                                <label class="block text-xs font-bold text-slate-500 mb-1" style="margin-bottom:4px; display:block;">${isAr ? 'من تاريخ' : 'From Date'}</label>
+                                <input type="date" id="filter-from" class="w-full h-10 px-3 border border-slate-200 rounded-xl font-bold text-xs bg-slate-50 text-slate-700" style="width:100%; box-sizing:border-box;">
+                            </div>
+                            <div style="flex:1;">
+                                <label class="block text-xs font-bold text-slate-500 mb-1" style="margin-bottom:4px; display:block;">${isAr ? 'إلى تاريخ' : 'To Date'}</label>
+                                <input type="date" id="filter-to" class="w-full h-10 px-3 border border-slate-200 rounded-xl font-bold text-xs bg-slate-50 text-slate-700" style="width:100%; box-sizing:border-box;">
+                            </div>
+                        </div>
+                    </div>
+                `,
+                showCancelButton: true,
+                confirmButtonText: isAr ? 'عرض وتنزيل التقرير' : 'View & Download Report',
+                cancelButtonText: isAr ? 'إلغاء' : 'Cancel',
+                confirmButtonColor: '#4f46e5',
+                customClass: {
+                    popup: 'rounded-2xl',
+                    confirmButton: 'rounded-xl text-xs font-bold px-4 py-2.5',
+                    cancelButton: 'rounded-xl text-xs font-bold px-4 py-2.5'
+                },
+                preConfirm: () => {
+                    return {
+                        type: $('#filter-type').val(),
+                        from: $('#filter-from').val(),
+                        to: $('#filter-to').val()
+                    };
+                }
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    generateAdminPDFReport(result.value);
+                }
+            });
+        }
+
+        function generateAdminPDFReport(filters) {
+            const isAr = STATE.lang === 'ar';
+            const allMvmts = STATE.db.Movements || [];
+            
+            // Filter the records client-side
+            let filtered = allMvmts.filter(m => {
+                const mDateStr = m[0] ? m[0].toString().split('T')[0] : ''; // Normalize date format
+                const mType = m[1];
+                
+                // 1. Filter by Type
+                if (filters.type && filters.type !== 'All') {
+                    if (mType !== filters.type) return false;
+                }
+                
+                // 2. Filter by Date Range
+                if (filters.from) {
+                    if (mDateStr < filters.from) return false;
+                }
+                if (filters.to) {
+                    if (mDateStr > filters.to) return false;
+                }
+                return true;
+            });
+
+            if (filtered.length === 0) {
+                Swal.fire({
+                    icon: 'info',
+                    title: isAr ? 'لا توجد بيانات' : 'No Data Found',
+                    text: isAr ? 'لا توجد أي حركات مطابقة للتصفية المحددة.' : 'No movements found matching the selected filters.',
+                    confirmButtonText: isAr ? 'حسناً' : 'OK'
+                });
+                return;
+            }
+
+            // Sort by Date descending
+            filtered.sort((a, b) => (b[0] || '').toString().localeCompare((a[0] || '').toString()));
+
+            const userName = STATE.user ? STATE.user.name : '-';
+            const now = new Date();
+            const printDate = now.toLocaleDateString(isAr ? 'ar-EG' : 'en-US', { year:'numeric', month:'2-digit', day:'2-digit' });
+            const printTime = now.toLocaleTimeString(isAr ? 'ar-EG' : 'en-US', { hour:'2-digit', minute:'2-digit' });
+
+            // Type labels
+            const typeLabels = { 
+                'Waste': { ar: 'هالك', en: 'Waste' }, 
+                'Receiving': { ar: 'استلام', en: 'Receiving' }, 
+                'Transfer': { ar: 'تحويل', en: 'Transfer' } 
+            };
+
+            let totalQty = 0;
+            let totalCost = 0;
+
+            const tableRowsHtml = filtered.map((m, idx) => {
+                const date = m[0] ? m[0].toString().split('T')[0] : '-';
+                const typeRaw = m[1] || '-';
+                const typeLabel = typeLabels[typeRaw] ? (isAr ? typeLabels[typeRaw].ar : typeLabels[typeRaw].en) : typeRaw;
+                const code = m[2] || '-';
+                const name = m[3] || '-';
+                const qty = parseFloat(m[4]) || 0;
+                const cost = parseFloat(m[5]) || 0;
+                const total = parseFloat(m[6]) || 0;
+                const from = m[9] || '-';
+                const to = m[10] || '-';
+                const user = m[11] || '-';
+                const ref = m[13] || '-';
+                const notes = m[14] || '-';
+                const reason = m[15] || '-';
+
+                totalQty += qty;
+                totalCost += total;
+
+                // Color badge for type
+                const typeColors = { 'Waste': '#ef4444', 'Receiving': '#22c55e', 'Transfer': '#3b82f6', 'Adjustment': '#f97316' };
+                const typeColor = typeColors[typeRaw] || '#6366f1';
+                const typeBadge = `<span style="background:${typeColor}; color:#fff; padding:2px 8px; border-radius:4px; font-weight:900; font-size:8px; text-transform:uppercase;">${typeLabel}</span>`;
+
+                const bgColor = idx % 2 === 0 ? '#ffffff' : '#f8fafc';
+
+                return `
+                    <tr style="background:${bgColor};">
+                        <td style="padding:6px 8px; text-align:center; color:#94a3b8; font-weight:700;">${idx + 1}</td>
+                        <td style="padding:6px 8px; text-align:center; font-weight:700;">${date}</td>
+                        <td style="padding:6px 8px; text-align:center;">${typeBadge}</td>
+                        <td style="padding:6px 8px; font-family:monospace; color:#6366f1; font-weight:700;">${code}</td>
+                        <td style="padding:6px 8px; font-weight:900; text-align:${isAr ? 'right' : 'left'};">${name}</td>
+                        <td style="padding:6px 8px; text-align:center; font-weight:800;">${qty}</td>
+                        <td style="padding:6px 8px; text-align:center; font-weight:700;">EGP ${cost.toFixed(2)}</td>
+                        <td style="padding:6px 8px; text-align:center; font-weight:800;">EGP ${total.toFixed(2)}</td>
+                        <td style="padding:6px 8px; text-align:center; font-weight:700;">${from}</td>
+                        <td style="padding:6px 8px; text-align:center; font-weight:700;">${to}</td>
+                        <td style="padding:6px 8px; text-align:center; font-weight:700;">${reason}</td>
+                        <td style="padding:6px 8px; text-align:center; font-family:monospace; font-weight:700;">${ref}</td>
+                        <td style="padding:6px 8px; font-weight:600; max-width:120px; word-wrap:break-word; text-align:${isAr ? 'right' : 'left'};">${notes}</td>
+                    </tr>
+                `;
+            }).join('');
+
+            const filterDesc = `${isAr ? 'نوع الحركة:' : 'Type:'} ${filters.type === 'All' ? (isAr ? 'الكل' : 'All') : filters.type} | ${isAr ? 'من تاريخ:' : 'From:'} ${filters.from || '-'} ${isAr ? 'إلى تاريخ:' : 'To:'} ${filters.to || '-'}`;
+
+            const reportHtml = `
+                <html>
+                <head>
+                    <title>EZEM PRO - ${isAr ? 'تقرير الحركات المجمع' : 'DETAILED MOVEMENTS REPORT'}</title>
+                    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+                    <style>
+                        @page { size: A4 landscape; margin: 8mm; }
+                        * { box-sizing: border-box; margin: 0; padding: 0; }
+                        body { font-family: ${isAr ? "'Cairo', sans-serif" : "'Inter', sans-serif"}; background: #fff; color: #0f172a; }
+                        .report-container { width: 100%; padding: 10px; }
+                        .header-bar { display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; padding-bottom:12px; border-bottom:3px solid #0f172a; }
+                        .header-left { display:flex; align-items:center; gap:12px; }
+                        .header-left .logo-box { width:40px; height:40px; background:#4f46e5; border-radius:8px; display:flex; align-items:center; justify-content:center; color:#fff; font-weight:900; font-size:14px; }
+                        .header-left .brand h1 { font-size:18px; font-weight:900; color:#0f172a; margin:0; line-height:1.1; }
+                        .header-left .brand small { font-size:8px; font-weight:700; color:#94a3b8; text-transform:uppercase; letter-spacing:2px; }
+                        .header-center { text-align:center; }
+                        .header-center h2 { font-size:16px; font-weight:900; text-transform:uppercase; letter-spacing:1px; }
+                        .header-center .date-range { display:inline-block; background:#f1f5f9; padding:3px 12px; border-radius:6px; font-size:9px; font-weight:800; color:#64748b; margin-top:4px; }
+                        .header-right { text-align:${isAr ? 'left' : 'right'}; font-size:9px; font-weight:700; color:#64748b; line-height:1.6; }
+                        table { width:100%; border-collapse:collapse; font-size:8px; margin-top:8px; }
+                        thead tr { background:#0f172a; color:#fff; }
+                        th { padding:8px 6px; font-weight:900; font-size:8px; text-transform:uppercase; letter-spacing:0.5px; text-align:center; white-space:nowrap; border: 1px solid #cbd5e1; }
+                        td { border-bottom:1px solid #f1f5f9; vertical-align:middle; padding: 6px 8px; border: 1px solid #cbd5e1; }
+                        tfoot td { background:#f8fafc; font-weight:900; padding:8px; border-top:2px solid #0f172a; }
+                        .footer { margin-top:16px; padding-top:8px; border-top:1px dashed #cbd5e1; display:flex; justify-content:space-between; font-size:8px; color:#94a3b8; font-weight:700; }
+                    </style>
+                </head>
+                <body onload="setTimeout(() => { window.print(); }, 500)">
+                    <div class="report-container" dir="${isAr ? 'rtl' : 'ltr'}">
+                        <div class="header-bar">
+                            <div class="header-left">
+                                <div class="logo-box">EZ</div>
+                                <div class="brand">
+                                    <h1>EZEM PRO</h1>
+                                    <small>ENTERPRISE RESOURCE PLANNING</small>
+                                </div>
+                            </div>
+                            <div class="header-center">
+                                <h2>${isAr ? 'تقرير الحركات المجمع' : 'DETAILED MOVEMENTS REPORT'}</h2>
+                                <div class="date-range">${filterDesc}</div>
+                            </div>
+                            <div class="header-right">
+                                <div>${printDate}, ${printTime}</div>
+                                <div>${isAr ? 'بواسطة' : 'REPORTED BY'}</div>
+                                <div style="font-weight:900; color:#0f172a;">${userName}</div>
+                            </div>
+                        </div>
+
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>${isAr ? 'التاريخ' : 'DATE'}</th>
+                                    <th>${isAr ? 'نوع الحركة' : 'TYPE'}</th>
+                                    <th>${isAr ? 'الكود' : 'CODE'}</th>
+                                    <th>${isAr ? 'اسم الصنف' : 'ITEMNAME'}</th>
+                                    <th>${isAr ? 'الكمية' : 'QTY'}</th>
+                                    <th>${isAr ? 'تكلفة الوحدة' : 'UNIT COST'}</th>
+                                    <th>${isAr ? 'التكلفة الإجمالية' : 'TOTAL COST'}</th>
+                                    <th>${isAr ? 'من' : 'FROM'}</th>
+                                    <th>${isAr ? 'إلى' : 'TO'}</th>
+                                    <th>${isAr ? 'السبب' : 'REASON'}</th>
+                                    <th>${isAr ? 'رقم السند' : 'REF#'}</th>
+                                    <th>${isAr ? 'ملاحظات' : 'NOTES'}</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${tableRowsHtml}
+                            </tbody>
+                            <tfoot>
+                                <tr>
+                                    <td colspan="5" style="text-align:${isAr ? 'right' : 'left'}; font-weight:900;">${isAr ? 'الإجمالي' : 'TOTAL'}</td>
+                                    <td style="text-align:center; font-weight:900;">${totalQty.toFixed(3)}</td>
+                                    <td></td>
+                                    <td style="text-align:center; font-weight:900; color:#10b981;">EGP ${totalCost.toFixed(2)}</td>
+                                    <td colspan="5"></td>
+                                </tr>
+                            </tfoot>
+                        </table>
+
+                        <div class="footer">
+                            <div>EZEM ERP v4.5 | Powered by Branch's Solutions | ${new Date().toLocaleString()}</div>
+                            <div>Page 1 of 1</div>
+                        </div>
+                    </div>
+                </body>
+                </html>
+            `;
+
+            // Print using a hidden iframe to prevent window.open / popup blockers and file:// protocol origin issues
+            let iframe = document.getElementById('print-iframe');
+            if (!iframe) {
+                iframe = document.createElement('iframe');
+                iframe.id = 'print-iframe';
+                iframe.style.position = 'fixed';
+                iframe.style.right = '0';
+                iframe.style.bottom = '0';
+                iframe.style.width = '0';
+                iframe.style.height = '0';
+                iframe.style.border = '0';
+                iframe.style.zIndex = '-9999';
+                document.body.appendChild(iframe);
+            }
+            
+            const doc = iframe.contentWindow.document || iframe.contentDocument;
+            doc.open();
+            doc.write(reportHtml);
+            doc.close();
+
+            // Print when iframe loads
+            setTimeout(() => {
+                try {
+                    iframe.contentWindow.focus();
+                    iframe.contentWindow.print();
+                } catch (e) {
+                    console.error("Iframe print error:", e);
+                }
+            }, 800);
         }
 
         function renderDashboard() {
@@ -918,16 +1497,57 @@
             const isAr = STATE.lang === 'ar';
             const dict = translationOverrides[STATE.lang];
             
-            $('#entry-badge').text(type === 'Waste' ? (isAr ? 'هالك' : 'Waste') : (isAr ? 'تحويل صادر' : 'Transfer Out'));
+            let badgeText = '';
+            let typeLabel = '';
+            
+            if (type === 'Waste') {
+                badgeText = isAr ? 'هالك' : 'Waste';
+                typeLabel = isAr ? 'تسجيل كمية هالك' : 'Waste Entry';
+            } else if (type === 'Receiving') {
+                badgeText = isAr ? 'استلام' : 'Receiving';
+                typeLabel = isAr ? 'استلام بضاعة' : 'Receiving Entry';
+            } else if (type === 'TransferOut') {
+                badgeText = isAr ? 'تحويل صادر' : 'Transfer Out';
+                typeLabel = isAr ? 'تحويل صادر (Transfer Out)' : 'Transfer Out';
+            } else if (type === 'TransferIn') {
+                badgeText = isAr ? 'تحويل وارد' : 'Transfer In';
+                typeLabel = isAr ? 'تحويل وارد (Transfer In)' : 'Transfer In';
+            } else {
+                badgeText = isAr ? 'تحويل' : 'Transfer';
+                typeLabel = isAr ? 'تحويل بين الفروع' : 'Transfer';
+            }
+            
+            $('#entry-badge').text(badgeText);
             $('#txDate').val(new Date().toISOString().split("T")[0]);
             $('#txNotes').val('');
+            $('#txRef').val('');
+            
+            // Set transaction type select
+            $('#txType').html(`<option value="${type}" selected>${typeLabel}</option>`);
 
-            // Render Dynamic Form Header
-            const dynamicContainer = $('#form-group-dynamic');
-            dynamicContainer.empty();
+            $('#form-group-waste-photo').addClass('hidden');
+            $('#form-group-from').removeClass('hidden');
+            $('#form-group-to').removeClass('hidden');
+
+            const locations = STATE.db.Locations || [];
+            let locOptions = `<option value="">${isAr ? 'اختر...' : 'Select...'}</option>`;
+            locations.forEach(l => {
+                locOptions += `<option value="${l[1]}">${l[1]}</option>`;
+            });
 
             if (type === 'Waste') {
-                $('#form-group-transfer-from').addClass('hidden');
+                // From (Location)
+                $('#lbl-from').text(isAr ? 'من موقع (FROM)' : 'From Location (FROM)');
+                $('#txFrom').html(locOptions);
+
+                // To (Location / Account)
+                $('#lbl-to').text(isAr ? 'إلى موقع / حساب (TO)' : 'To Location / Account (TO)');
+                let wasteToOptions = `<option value="Waste Account" selected>${isAr ? 'حساب الهالك' : 'Waste Account'}</option>` + locOptions.replace('<option value="">اختر...</option>', '').replace('<option value="">Select...</option>', '');
+                $('#to-container').html(`
+                    <select id="txTo" class="w-full h-11 rounded-xl px-4 input-premium text-xs font-bold text-slate-800">
+                        ${wasteToOptions}
+                    </select>
+                `);
                 
                 // Reason list
                 let options = `<option value="">${isAr ? 'اختر السبب...' : 'Select Reason...'}</option>`;
@@ -935,43 +1555,63 @@
                     options += `<option value="${k}">${v}</option>`;
                 });
                 
-
-                dynamicContainer.html(`
-                    <label class="text-[9px] font-black text-slate-500 block">${dict.lbl_reason}</label>
-                    <select id="txReason" class="w-full h-11 rounded-xl px-3 input-premium text-xs font-bold">
+                $('#reason-container').html(`
+                    <select id="txReason" class="w-full h-11 rounded-xl px-4 input-premium text-xs font-bold text-slate-800">
                         ${options}
                     </select>
-                    <!-- Photo Upload -->
-                    <div class="mt-2 flex items-center">
-                        <label class="text-[9px] font-black text-slate-500 block mr-2">${dict.lbl_notes}</label>
-                        <input type="file" accept="image/*" id="txImageInput" class="hidden" />
-                        <label for="txImageInput" class="cursor-pointer flex items-center gap-1 bg-indigo-50 border border-indigo-100 rounded-xl px-2 py-1 text-xs text-indigo-600">
-                            <i class="fa-solid fa-camera"></i> <span>اختر صورة</span>
-                        </label>
-                    </div>
-                    <div id="upload-placeholder" class="text-center text-slate-400 text-xs mt-2">${dict.notes_placeholder}</div>
-                    <div id="upload-preview-container" class="hidden mt-2"><img id="upload-preview" class="max-w-full h-auto rounded-md" src="" alt="Preview"/></div>
                 `);
-            } else {
-                // Transfers Out: Render From (Location) & To (Location)
-                $('#form-group-transfer-from').removeClass('hidden');
-
-                // Locations
-                const locations = STATE.db.Locations || [];
-                let locOptions = `<option value="">${isAr ? 'اختر الفرع...' : 'Select Location...'}</option>`;
-                locations.forEach(l => {
-                    locOptions += `<option value="${l[1]}">${l[1]}</option>`;
-                });
-
-                // Populate txFrom select
+                $('#form-group-waste-photo').removeClass('hidden');
+                
+            } else if (type === 'Receiving') {
+                // From (Branch/Vendor)
+                $('#lbl-from').text(isAr ? 'المورد / محول من (FROM)' : 'Vendor / Branch (FROM)');
                 $('#txFrom').html(locOptions);
 
-                // Render txTo select inside dynamic container
-                dynamicContainer.html(`
-                    <label class="text-[9px] font-black text-slate-500 block">${dict.lbl_to}</label>
-                    <select id="txTo" class="w-full h-11 rounded-xl px-3 input-premium text-xs font-bold">
+                // To (Location)
+                $('#lbl-to').text(isAr ? 'المستودع المستلم (TO)' : 'Receiving Store (TO)');
+                $('#to-container').html(`
+                    <select id="txTo" class="w-full h-11 rounded-xl px-4 input-premium text-xs font-bold text-slate-800">
+                        ${locOptions.replace('اختر...', isAr ? 'اختر المستودع...' : 'Select Store...')}
+                    </select>
+                `);
+
+                // Reason — Manual Input يدوي
+                $('#reason-container').html(`
+                    <input type="text" id="txReason" class="w-full h-11 rounded-xl px-4 input-premium text-xs font-bold text-slate-800" placeholder="${isAr ? 'أدخل سبب الاستلام...' : 'Enter reason...'}">
+                `);
+
+            } else if (type === 'TransferOut' || type === 'Transfer') {
+                // Transfer OUT: From = my location, To = destination
+                $('#lbl-from').text(isAr ? 'الموقع المحول منه (FROM)' : 'From Location (FROM)');
+                $('#txFrom').html(locOptions);
+
+                $('#lbl-to').text(isAr ? 'الموقع المحول إليه (TO)' : 'To Location (TO)');
+                $('#to-container').html(`
+                    <select id="txTo" class="w-full h-11 rounded-xl px-4 input-premium text-xs font-bold text-slate-800">
                         ${locOptions}
                     </select>
+                `);
+
+                // Reason — Manual Input يدوي
+                $('#reason-container').html(`
+                    <input type="text" id="txReason" class="w-full h-11 rounded-xl px-4 input-premium text-xs font-bold text-slate-800" placeholder="${isAr ? 'أدخل سبب التحويل الصادر...' : 'Enter reason for transfer out...'}">
+                `);
+
+            } else if (type === 'TransferIn') {
+                // Transfer IN: From = source location, To = my receiving location
+                $('#lbl-from').text(isAr ? 'الموقع المرسل منه (FROM)' : 'Sending Location (FROM)');
+                $('#txFrom').html(locOptions);
+
+                $('#lbl-to').text(isAr ? 'الموقع المستلم (TO)' : 'Receiving Location (TO)');
+                $('#to-container').html(`
+                    <select id="txTo" class="w-full h-11 rounded-xl px-4 input-premium text-xs font-bold text-slate-800">
+                        ${locOptions}
+                    </select>
+                `);
+
+                // Reason — Manual Input يدوي
+                $('#reason-container').html(`
+                    <input type="text" id="txReason" class="w-full h-11 rounded-xl px-4 input-premium text-xs font-bold text-slate-800" placeholder="${isAr ? 'أدخل سبب التحويل الوارد...' : 'Enter reason for transfer in...'}">
                 `);
             }
 
@@ -1052,23 +1692,23 @@
 
             filtered.slice(0, 15).forEach(item => {
                 const cartItem = mobileCart.find(c => c.code === item[2]);
-                const badgeHtml = cartItem ? `<span class="bg-indigo-600 text-white text-[9px] font-black px-1.5 py-0.5 rounded-full premium-num">${cartItem.qty}</span>` : '';
+                const badgeHtml = cartItem ? `<span class="bg-indigo-600 text-white text-[9px] font-black px-1.5 py-0.5 rounded-full premium-num">${parseFloat(cartItem.qty.toFixed(2))}</span>` : '';
 
                 const itemRow = $(`
-                    <div class="flex items-center justify-between py-2 active:bg-slate-50 transition-all">
-                        <button onclick="addItemToCart('${item[2]}', '${item[3].replace(/'/g, "\\'")}', ${item[5]})" class="w-9 h-9 rounded-xl bg-indigo-50 border border-indigo-100 text-indigo-600 flex items-center justify-center text-sm active:bg-indigo-600 active:text-white transition-all touch-target">
+                    <div class="flex items-center justify-between py-2.5 border-b border-[var(--border-color)] last:border-0 hover:bg-slate-50 transition-colors">
+                        <button onclick="addItemToCart('${item[2]}', '${item[3].replace(/'/g, "\\'")}', ${item[5]})" class="w-8 h-8 rounded-md bg-[var(--primary)] bg-opacity-10 text-[var(--primary)] flex items-center justify-center text-xs hover:bg-[var(--primary)] hover:text-white transition-all shadow-sm">
                             <i class="fa-solid fa-plus text-[10px]"></i>
                         </button>
                         
-                        <div class="text-right flex-1 pr-3 pr-2">
-                            <div class="text-xs font-black text-slate-800 flex items-center justify-end gap-1.5">
+                        <div class="text-right flex-1 pr-3">
+                            <div class="text-[13px] font-bold text-[var(--text-primary)] flex items-center justify-end gap-1.5 leading-tight">
                                 ${badgeHtml}
                                 <span>${item[3]}</span>
                             </div>
-                            <div class="text-[8px] font-black text-slate-400 flex items-center justify-end gap-1.5 mt-0.5 uppercase tracking-wide">
+                            <div class="text-[10px] font-medium text-[var(--text-secondary)] flex items-center justify-end gap-1.5 mt-0.5 uppercase tracking-wider">
                                 <span>${item[1]}</span>
-                                <span class="w-0.5 h-0.5 bg-slate-300 rounded-full"></span>
-                                <span class="font-mono">#${item[2]}</span>
+                                <span class="w-1 h-1 bg-slate-300 rounded-full"></span>
+                                <span class="font-mono text-slate-400">#${item[2]}</span>
                             </div>
                         </div>
                     </div>
@@ -1105,7 +1745,7 @@
             const item = mobileCart.find(c => c.code === code);
             if (!item) return;
 
-            item.qty += amount;
+            item.qty = parseFloat((item.qty + amount).toFixed(3));
             if (item.qty <= 0) {
                 mobileCart = mobileCart.filter(c => c.code !== code);
             }
@@ -1124,6 +1764,7 @@
         }
 
         function updateCartUI() {
+            if (typeof saveDraft === 'function') saveDraft();
             const container = $('#cart-items-container');
             
             if (mobileCart.length === 0) {
@@ -1181,7 +1822,7 @@
                 container.append(itemCard);
             });
 
-            $('#footer-count').text(totalItems);
+            $('#footer-count').text(totalItems.toLocaleString(undefined, {maximumFractionDigits: 2}));
             $('#footer-cost').text(totalCost.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}));
         }
 
@@ -1192,7 +1833,7 @@
             if (parsed <= 0) {
                 mobileCart = mobileCart.filter(c => c.code !== code);
             } else {
-                item.qty = parsed;
+                item.qty = parseFloat(parsed.toFixed(3));
             }
             updateCartUI();
             renderCatalogItems();
@@ -1216,29 +1857,46 @@
             let toVal = "";
 
             if (currentMode === 'Waste') {
-                reasonVal = $('#txReason').val();
-                toVal = "Waste Account";
-                
-                if (!reasonVal) {
-                    Swal.fire({ title: STATE.lang === 'ar' ? 'ترويسة ناقصة' : 'Missing Fields', text: dict.err_empty_header, icon: 'warning', confirmButtonText: STATE.lang === 'ar' ? 'حسناً' : 'OK' });
-                    return;
-                }
-            } else {
-                // Transfer Mode
                 fromVal = $('#txFrom').val();
                 toVal = $('#txTo').val();
-                reasonVal = "Mobile Branch Transfer";
-
-                if (!fromVal || !toVal) {
+                reasonVal = $('#txReason').val();
+                
+                if (!fromVal || !toVal || !reasonVal) {
                     Swal.fire({ title: STATE.lang === 'ar' ? 'ترويسة ناقصة' : 'Missing Fields', text: dict.err_empty_header, icon: 'warning', confirmButtonText: STATE.lang === 'ar' ? 'حسناً' : 'OK' });
                     return;
                 }
 
                 if (fromVal === toVal) {
-                    Swal.fire({ title: STATE.lang === 'ar' ? 'خطأ منطقي' : 'Logic Error', text: STATE.lang === 'ar' ? 'لا يمكن التحويل لنفس الفرع!' : 'Cannot transfer to same branch!', icon: 'warning', confirmButtonText: STATE.lang === 'ar' ? 'حسناً' : 'OK' });
+                    Swal.fire({ title: STATE.lang === 'ar' ? 'خطأ منطقي' : 'Logic Error', text: STATE.lang === 'ar' ? 'لا يمكن اختيار نفس الموقع للمصدر والوجهة!' : 'Cannot select same location for from and to!', icon: 'warning', confirmButtonText: STATE.lang === 'ar' ? 'حسناً' : 'OK' });
+                    return;
+                }
+            } else if (currentMode === 'Receiving') {
+                fromVal = $('#txFrom').val() || "Vendor/Kitchen";
+                toVal = $('#txTo').val();
+                reasonVal = $('#txReason').val();
+                
+                if (!toVal || !reasonVal) {
+                    Swal.fire({ title: STATE.lang === 'ar' ? 'ترويسة ناقصة' : 'Missing Fields', text: dict.err_empty_header, icon: 'warning', confirmButtonText: STATE.lang === 'ar' ? 'حسناً' : 'OK' });
+                    return;
+                }
+            } else if (currentMode === 'TransferOut' || currentMode === 'TransferIn' || currentMode === 'Transfer') {
+                fromVal = $('#txFrom').val();
+                toVal = $('#txTo').val();
+                reasonVal = $('#txReason').val();
+
+                if (!fromVal || !toVal || !reasonVal) {
+                    Swal.fire({ title: STATE.lang === 'ar' ? 'ترويسة ناقصة' : 'Missing Fields', text: dict.err_empty_header, icon: 'warning', confirmButtonText: STATE.lang === 'ar' ? 'حسناً' : 'OK' });
+                    return;
+                }
+
+                if (fromVal === toVal) {
+                    Swal.fire({ title: STATE.lang === 'ar' ? 'خطأ منطقي' : 'Logic Error', text: STATE.lang === 'ar' ? 'لا يمكن التحويل لنفس الموقع!' : 'Cannot transfer to same location!', icon: 'warning', confirmButtonText: STATE.lang === 'ar' ? 'حسناً' : 'OK' });
                     return;
                 }
             }
+
+            // REF# من المدخل اليدوي فقط
+            const refVal = ($('#txRef').val() || '').trim();
 
             // Assemble Payload for API.call
             const data = {
@@ -1248,11 +1906,12 @@
                     from: fromVal,
                     to: toVal,
                     supp: "-",
-                    ref: "MOBILE-TXN-" + Date.now().toString().slice(-4),
-                    notes: notesVal || "Mobile entry logging",
+                    ref: refVal,
+                    notes: notesVal,
                     reason: reasonVal
                 },
-                items: mobileCart
+                items: mobileCart,
+                images: uploadedImagesBase64.map((b64, idx) => ({ data: b64, name: `IMG_${Date.now()}_${idx}.jpg` }))
             };
 
             // 📶 OFFLINE MODE CHECK
@@ -1274,17 +1933,72 @@
                 return;
             }
 
-            // Loading status
-            Utils.loadingProgress(true);
+            // 🚀 Animated Progress Bar (0 → 100)
+            let progressVal = 0;
+            Swal.fire({
+                title: STATE.lang === 'ar' ? 'جاري الإرسال...' : 'Posting...',
+                html: `<div style="margin-top:10px">
+                    <div style="background:#e2e8f0;border-radius:999px;height:18px;overflow:hidden;position:relative">
+                        <div id="swal-progress-bar" style="background:linear-gradient(90deg,#6366f1,#8b5cf6);height:100%;width:0%;border-radius:999px;transition:width 0.15s ease"></div>
+                    </div>
+                    <div id="swal-progress-text" style="text-align:center;font-weight:800;font-size:14px;color:#6366f1;margin-top:8px">0%</div>
+                </div>`,
+                allowOutsideClick: false,
+                showConfirmButton: false,
+                didOpen: () => {
+                    // Simulate progress from 0 to 85 smoothly
+                    const interval = setInterval(() => {
+                        if (progressVal < 85) {
+                            progressVal += Math.random() * 8 + 2;
+                            progressVal = Math.min(progressVal, 85);
+                            const bar = document.getElementById('swal-progress-bar');
+                            const txt = document.getElementById('swal-progress-text');
+                            if (bar) bar.style.width = Math.round(progressVal) + '%';
+                            if (txt) txt.textContent = Math.round(progressVal) + '%';
+                        } else {
+                            clearInterval(interval);
+                        }
+                    }, 120);
+                    // Store interval ID for cleanup
+                    Swal.getPopup().__progressInterval = interval;
+                }
+            });
+
+            // Store data for PDF before cart is cleared
+            window._lastPostedData = JSON.parse(JSON.stringify(data));
+            window._lastPostedCart = JSON.parse(JSON.stringify(mobileCart));
+            window._lastPostedImages = JSON.parse(JSON.stringify(uploadedImagesBase64));
             
             try {
                 const response = await API.call("SAVE_MOVEMENT", data);
-                Utils.loadingProgress(false);
+
+                // Complete progress to 100%
+                const bar = document.getElementById('swal-progress-bar');
+                const txt = document.getElementById('swal-progress-text');
+                if (bar) bar.style.width = '100%';
+                if (txt) txt.textContent = '100%';
+                if (Swal.getPopup()?.__progressInterval) clearInterval(Swal.getPopup().__progressInterval);
+
+                await new Promise(r => setTimeout(r, 400)); // Let user see 100%
+                Swal.close();
 
                 if (response.status === 'success') {
                     // Show success screen
                     $('#success-dt').text(dateVal);
-                    $('#success-type').text(currentMode === 'Waste' ? (STATE.lang === 'ar' ? 'هالك' : 'Waste') : (STATE.lang === 'ar' ? 'تحويل صادر' : 'Transfer Out'));
+                    
+                    let typeName = currentMode;
+                    if (STATE.lang === 'ar') {
+                        if (currentMode === 'Waste')        typeName = 'هالك';
+                        else if (currentMode === 'Receiving')   typeName = 'استلام';
+                        else if (currentMode === 'TransferOut') typeName = 'تحويل صادر';
+                        else if (currentMode === 'TransferIn')  typeName = 'تحويل وارد';
+                        else typeName = 'تحويل';
+                    } else {
+                        if (currentMode === 'TransferOut') typeName = 'Transfer Out';
+                        else if (currentMode === 'TransferIn') typeName = 'Transfer In';
+                    }
+                    $('#success-type').text(typeName);
+                    
                     $('#success-desc').text(dict.success_desc);
                     $('#success-count').text(mobileCart.length);
                     
@@ -1298,10 +2012,10 @@
                     throw new Error(response.message || "Post error");
                 }
             } catch (e) {
-                Utils.loadingProgress('close');
+                if (Swal.getPopup()?.__progressInterval) clearInterval(Swal.getPopup().__progressInterval);
+                Swal.close();
                 hapticFeedback('error');
                 Swal.fire({
-
                     title: STATE.lang === 'ar' ? 'فشل الترحيل' : 'Post Failed',
                     text: STATE.lang === 'ar' ? 'حدث خطأ أثناء التواصل مع السيرفر: ' + e.message : 'Error communicating with DB: ' + e.message,
                     icon: 'error',
@@ -1313,6 +2027,13 @@
         function resetAppAfterSuccess() {
             $('#success-screen').fadeOut(200, () => {
                 $('#success-screen').addClass('hidden');
+                
+                // Clear Image Upload Previews
+                uploadedImagesBase64 = [];
+                $('#upload-preview-container').html('').addClass('hidden').removeClass('flex');
+                $('#upload-placeholder').removeClass('hidden');
+                $('#txImageInput').val('');
+                
                 goBackToDashboard();
             });
         }
@@ -1324,12 +2045,6 @@
 
             console.log(`Syncing ${offlineTx.length} offline transactions...`);
             
-            // Show toast
-            Swal.fire({
-                toast: true, position: 'top-end', showConfirmButton: false, timer: 3000,
-                icon: 'info', title: STATE.lang === 'ar' ? 'جاري مزامنة الحركات...' : 'Syncing...'
-            });
-
             const failedTx = [];
             for (let data of offlineTx) {
                 try {
@@ -1380,123 +2095,214 @@
             $(function() { updateDarkModeIcon(true); });
         }
 
-// --- Image Upload Handlers ---
-function handlePhotoSelection(event) {
-    const file = event.target.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = function(e) {
-        const img = new Image();
-        img.onload = function() {
-            const maxWidth = 500;
-            const scale = Math.min(1, maxWidth / img.width);
-            const canvas = document.createElement('canvas');
-            canvas.width = img.width * scale;
-            canvas.height = img.height * scale;
-            const ctx = canvas.getContext('2d');
-            ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-            uploadedImageBase64 = canvas.toDataURL('image/jpeg', 0.85);
-            $('#upload-preview').attr('src', uploadedImageBase64);
-            $('#upload-preview-container').removeClass('hidden');
-            $('#upload-placeholder').addClass('hidden');
-        };
-        img.src = e.target.result;
-    };
-    reader.readAsDataURL(file);
-}
 
-function removeUploadedPhoto(event) {
-    event.stopPropagation();
-    uploadedImageBase64 = '';
-    $('#upload-preview').attr('src', '');
-    $('#upload-preview-container').addClass('hidden');
-    $('#upload-placeholder').removeClass('hidden');
-    $('#txImageInput').val('');
-}
-
-$(document).on('change', '#txImageInput', handlePhotoSelection);
-
-// --- PDF Print Function ---
-async function loadPdfLibsIfNeeded() {
-    if (window.jspdf && window.html2canvas) return true;
-    
-    return new Promise((resolve) => {
-        const script1 = document.createElement('script');
-        script1.src = 'https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js';
-        
-        const script2 = document.createElement('script');
-        script2.src = 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js';
-        
-        let loaded = 0;
-        const checkDone = () => {
-            loaded++;
-            if(loaded === 2) resolve(true);
-        };
-        
-        script1.onload = checkDone;
-        script2.onload = checkDone;
-        
-        document.head.appendChild(script1);
-        document.head.appendChild(script2);
-    });
-}
 
 async function printReceiptPDF() {
-    // Show a small loader state on button
     const btn = $('#btn-success-print');
     const originalHtml = btn.html();
     btn.html('<i class="fa-solid fa-spinner fa-spin"></i> <span>جاري التجهيز...</span>').prop('disabled', true);
 
-    await loadPdfLibsIfNeeded();
-    
-    const dict = translationOverrides[STATE.lang];
-    const receiptHTML = `
-        <div style="font-family: 'Cairo', sans-serif; max-width: 380px; margin:auto; padding:10px; background:#fff;">
-            <h2 style="text-align:center; font-size:1.2rem; margin-bottom:0.5rem; color:#1e293b;">${dict.success_title}</h2>
-            <p style="text-align:center; font-size:0.9rem; color:#64748b; margin-bottom:1rem;">${dict.success_desc}</p>
-            <table style="width:100%; border-collapse:collapse; margin-bottom:1rem; font-size:0.9rem; color:#334155;">
-                <tr><td style="padding:4px; font-weight:bold;">${dict.success_lbl_date}:</td><td style="padding:4px; text-align:left;">${$('#success-dt').text()}</td></tr>
-                <tr><td style="padding:4px; font-weight:bold;">${dict.success_lbl_type}:</td><td style="padding:4px; text-align:left;">${$('#success-type').text()}</td></tr>
-                <tr><td style="padding:4px; font-weight:bold;">${dict.success_lbl_count}:</td><td style="padding:4px; text-align:left;">${$('#success-count').text()}</td></tr>
-                <tr><td style="padding:4px; font-weight:bold;">${dict.success_lbl_cost}:</td><td style="padding:4px; text-align:left; color:#059669;">${$('#success-cost').text()}</td></tr>
-            </table>
-            ${uploadedImageBase64 ? `<div style="text-align:center; margin-bottom:1rem;"><img src="${uploadedImageBase64}" style="max-width:100%; height:auto; border:1px solid #e2e8f0; border-radius:8px;" alt="Waste Photo"/></div>` : ''}
-            <p style="font-size:0.7rem; color:#94a3b8; text-align:center; margin-top:10px; border-top:1px dashed #e2e8f0; padding-top:10px;">
-                ${new Date().toLocaleString(STATE.lang === 'ar' ? 'ar-EG' : 'en-US')}
-            </p>
-        </div>`;
-    
-    // Insert HTML into hidden container for rendering
-    $('#print-receipt-area').html(receiptHTML).show();
-    
     try {
-        // Use html2canvas to capture the container and generate PDF
-        const canvas = await window.html2canvas(document.getElementById('print-receipt-area'), {
-            scale: 2, // High quality
-            useCORS: true,
-            backgroundColor: '#ffffff'
-        });
+        const isAr = STATE.lang === 'ar';
+        const postData = window._lastPostedData || {};
+        const postItems = window._lastPostedCart || [];
+        const postImages = window._lastPostedImages || [];
+        const hdr = postData.headers || {};
+        const userName = STATE.user ? STATE.user.name : '-';
+        const now = new Date();
+        const printDate = now.toLocaleDateString(isAr ? 'ar-EG' : 'en-US', { year:'numeric', month:'2-digit', day:'2-digit' });
+        const printTime = now.toLocaleTimeString(isAr ? 'ar-EG' : 'en-US', { hour:'2-digit', minute:'2-digit' });
         
-        $('#print-receipt-area').hide(); // Hide again
+        const typeLabels = { 'Waste': { ar: 'تقرير هالك', en: 'Waste Report' }, 'Receiving': { ar: 'تقرير استلام', en: 'Receiving Report' }, 'Transfer': { ar: 'تقرير تحويل', en: 'Transfer Report' }, 'TransferOut': { ar: 'تقرير تحويل صادر', en: 'Transfer Out Report' }, 'TransferIn': { ar: 'تقرير تحويل وارد', en: 'Transfer In Report' }, 'Adjustment': { ar: 'تقرير تعديل', en: 'Adjustment Report' }, 'Purchasing': { ar: 'تقرير شراء', en: 'Purchasing Report' } };
+        const typeLabel = typeLabels[hdr.type] ? (isAr ? typeLabels[hdr.type].ar : typeLabels[hdr.type].en) : (isAr ? 'تقرير حركة تفصيلي' : 'Detailed Movement Report');
+        let totalCost = 0;
+        let totalQty = 0;
 
-        const imgData = canvas.toDataURL('image/jpeg', 0.9);
-        // jsPDF handles pt unit
-        const pdf = new window.jspdf.jsPDF({
-            orientation: 'p', 
-            unit: 'pt', 
-            format: [canvas.width, canvas.height]
-        });
+        const tableRowsHtml = postItems.map((item, idx) => {
+            const cost = parseFloat(item.cost) || 0;
+            const qty = parseFloat(item.qty) || 0;
+            const lineTotal = cost * qty;
+            totalCost += lineTotal;
+            totalQty += qty;
+            const bgColor = idx % 2 === 0 ? '#ffffff' : '#f8fafc';
+
+            // تنسيق التاريخ dd-mm-yy
+            let fmtDate = hdr.date || '-';
+            if (hdr.date && hdr.date.includes('-') && hdr.date.length >= 8) {
+                const parts = hdr.date.split('-');
+                if (parts.length === 3) {
+                    const yy = parts[0].slice(-2);
+                    fmtDate = `${parts[2]}-${parts[1]}-${yy}`;
+                }
+            }
+
+            return `
+                <tr style="background:${bgColor};">
+                    <td style="padding:6px 8px; text-align:center; color:#94a3b8; font-weight:700;">${idx + 1}</td>
+                    <td style="padding:6px 8px; text-align:center; font-weight:700; font-family:monospace;">${fmtDate}</td>
+                    <td style="padding:6px 8px; text-align:center;">${typeLabel}</td>
+                    <td style="padding:6px 8px; font-family:monospace; color:#6366f1; font-weight:700;">${item.code || '-'}</td>
+                    <td style="padding:6px 8px; font-weight:900;">${item.name || '-'}</td>
+                    <td style="padding:6px 8px; text-align:center; font-weight:800;">${qty}</td>
+                    <td style="padding:6px 8px; text-align:center; font-weight:700;">EGP ${cost.toFixed(2)}</td>
+                    <td style="padding:6px 8px; text-align:center; font-weight:800;">EGP ${lineTotal.toFixed(2)}</td>
+                    <td style="padding:6px 8px; text-align:center; font-weight:700;">${hdr.from || '-'}</td>
+                    <td style="padding:6px 8px; text-align:center; font-weight:700;">${hdr.to || '-'}</td>
+                    <td style="padding:6px 8px; text-align:center; font-weight:700;">${hdr.reason || '-'}</td>
+                    <td style="padding:6px 8px; text-align:center; font-family:monospace; font-weight:700;">${hdr.ref || '-'}</td>
+                    <td style="padding:6px 8px; font-weight:600; max-width:120px; word-wrap:break-word;">${hdr.notes || '-'}</td>
+                </tr>
+            `;
+        }).join('');
+
+        // Images section
+        let imagesSection = '';
+        if (postImages && postImages.length > 0) {
+            imagesSection = `
+                <div style="page-break-before:auto; margin-top:20px; border:1px solid #e2e8f0; border-radius:8px; padding:16px;">
+                    <h3 style="font-size:12px; font-weight:900; color:#0f172a; margin:0 0 12px 0; padding-bottom:8px; border-bottom:2px solid #e2e8f0;">
+                        <span style="margin-right:6px;">📷</span> ${isAr ? 'المرفقات والصور' : 'Attachments & Photos'}
+                    </h3>
+                    <div style="display:flex; flex-wrap:wrap; gap:12px; justify-content:center;">
+                        ${postImages.map((b64, i) => `
+                            <div style="text-align:center;">
+                                <img src="${b64}" style="max-width:200px; max-height:180px; object-fit:contain; border:1px solid #cbd5e1; border-radius:6px;" />
+                                <div style="font-size:8px; font-weight:700; color:#94a3b8; margin-top:4px;">Photo ${i+1}</div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        const reportTitle = `${typeLabel}`;
+        const reportHtml = `
+            <html>
+            <head>
+                <title>EZEM PRO - ${reportTitle}</title>
+                <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&family=Inter:wght@400;700;900&display=swap" rel="stylesheet">
+                <style>
+                    @page { size: A4 landscape; margin: 8mm; }
+                    * { box-sizing: border-box; margin: 0; padding: 0; }
+                    body { font-family: ${isAr ? "'Cairo', sans-serif" : "'Inter', sans-serif"}; background: #fff; color: #0f172a; }
+                    .report-container { width: 100%; padding: 10px; }
+                    .header-bar { display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; padding-bottom:12px; border-bottom:3px solid #0f172a; }
+                    .header-left { display:flex; align-items:center; gap:12px; }
+                    .header-left .logo-box { width:40px; height:40px; background:#4f46e5; border-radius:8px; display:flex; align-items:center; justify-content:center; color:#fff; font-weight:900; font-size:14px; }
+                    .header-left .brand { }
+                    .header-left .brand h1 { font-size:18px; font-weight:900; color:#0f172a; margin:0; line-height:1.1; }
+                    .header-left .brand small { font-size:8px; font-weight:700; color:#94a3b8; text-transform:uppercase; letter-spacing:2px; }
+                    .header-center { text-align:center; }
+                    .header-center h2 { font-size:16px; font-weight:900; text-transform:uppercase; letter-spacing:1px; }
+                    .header-center .date-range { display:inline-block; background:#f1f5f9; padding:3px 12px; border-radius:6px; font-size:9px; font-weight:800; color:#64748b; margin-top:4px; }
+                    .header-right { text-align:${isAr ? 'left' : 'right'}; font-size:9px; font-weight:700; color:#64748b; line-height:1.6; }
+                    table { width:100%; border-collapse:collapse; font-size:8px; margin-top:8px; }
+                    thead tr { background:#0f172a; color:#fff; }
+                    th { padding:8px 6px; font-weight:900; font-size:8px; text-transform:uppercase; letter-spacing:0.5px; text-align:center; white-space:nowrap; }
+                    td { border-bottom:1px solid #f1f5f9; vertical-align:middle; padding: 6px 8px; border: 1px solid #cbd5e1; }
+                    th { border: 1px solid #cbd5e1; }
+                    tfoot td { background:#f8fafc; font-weight:900; padding:8px; border-top:2px solid #0f172a; }
+                    .footer { margin-top:16px; padding-top:8px; border-top:1px dashed #cbd5e1; display:flex; justify-content:space-between; font-size:8px; color:#94a3b8; font-weight:700; }
+                </style>
+            </head>
+            <body onload="setTimeout(() => { window.print(); }, 500)">
+                <div class="report-container" dir="${isAr ? 'rtl' : 'ltr'}">
+                    <div class="header-bar">
+                        <div class="header-left">
+                            <div class="logo-box">EZ</div>
+                            <div class="brand">
+                                <h1>EZEM PRO</h1>
+                                <small>ENTERPRISE RESOURCE PLANNING</small>
+                            </div>
+                        </div>
+                        <div class="header-center">
+                            <h2>${reportTitle}</h2>
+                            <div class="date-range">${(() => { if (hdr.date && hdr.date.includes('-')) { const p = hdr.date.split('-'); if (p.length === 3) return `${p[2]}-${p[1]}-${p[0].slice(-2)}`; } return hdr.date || printDate; })()}</div>
+                        </div>
+                        <div class="header-right">
+                            <div>${printDate}, ${printTime}</div>
+                            <div>${isAr ? 'بواسطة' : 'REPORTED BY'}</div>
+                            <div style="font-weight:900; color:#0f172a;">${userName}</div>
+                        </div>
+                    </div>
+
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>#</th>
+                                <th>${isAr ? 'التاريخ' : 'DATE'}</th>
+                                <th>${isAr ? 'نوع الحركة' : 'TRANSACTION TYPE'}</th>
+                                <th>${isAr ? 'الكود' : 'CODE'}</th>
+                                <th>${isAr ? 'اسم الصنف' : 'ITEMNAME'}</th>
+                                <th>${isAr ? 'الكمية' : 'QUANTITY'}</th>
+                                <th>${isAr ? 'تكلفة الوحدة' : 'UNIT COST'}</th>
+                                <th>${isAr ? 'التكلفة الإجمالية' : 'TOTAL COST'}</th>
+                                <th>${isAr ? 'من' : 'FROMLOCATION'}</th>
+                                <th>${isAr ? 'إلى' : 'TOLOCATION'}</th>
+                                <th>${isAr ? 'السبب' : 'REASON'}</th>
+                                <th>${isAr ? 'رقم السند' : 'REF#'}</th>
+                                <th>${isAr ? 'ملاحظات' : 'NOTES'}</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${tableRowsHtml}
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td colspan="5" style="text-align:${isAr ? 'right' : 'left'}; font-weight:900;">${isAr ? 'الإجمالي' : 'TOTAL'}</td>
+                                <td style="text-align:center; font-weight:900;">${totalQty}</td>
+                                <td></td>
+                                <td style="text-align:center; font-weight:900; color:#10b981;">EGP ${totalCost.toFixed(2)}</td>
+                                <td colspan="5"></td>
+                            </tr>
+                        </tfoot>
+                    </table>
+
+                    ${imagesSection}
+
+                    <div class="footer">
+                        <div>EZEM ERP v4.5 | Powered by Branch's Solutions | ${new Date().toLocaleString()}</div>
+                        <div>Page 1 of 1</div>
+                    </div>
+                </div>
+            </body>
+            </html>
+        `;
+
+        // Print using a hidden iframe to prevent window.open / popup blockers and file:// protocol origin issues
+        let iframe = document.getElementById('print-iframe');
+        if (!iframe) {
+            iframe = document.createElement('iframe');
+            iframe.id = 'print-iframe';
+            iframe.style.position = 'fixed';
+            iframe.style.right = '0';
+            iframe.style.bottom = '0';
+            iframe.style.width = '0';
+            iframe.style.height = '0';
+            iframe.style.border = '0';
+            iframe.style.zIndex = '-9999';
+            document.body.appendChild(iframe);
+        }
         
-        pdf.addImage(imgData, 'JPEG', 0, 0, canvas.width, canvas.height);
-        pdf.save(`receipt-${Date.now()}.pdf`);
-        
+        const doc = iframe.contentWindow.document || iframe.contentDocument;
+        doc.open();
+        doc.write(reportHtml);
+        doc.close();
+
+        // Print when iframe loads
+        setTimeout(() => {
+            try {
+                iframe.contentWindow.focus();
+                iframe.contentWindow.print();
+            } catch (e) {
+                console.error("Iframe print error:", e);
+            }
+        }, 800);
+
     } catch (err) {
-        console.error('PDF generation error:', err);
-        $('#print-receipt-area').hide();
-        // Fallback to simple print if conversion fails
-        window.print();
+        console.error('Print generation error:', err);
+        Swal.fire(STATE.lang === 'ar' ? 'خطأ' : 'Error', (STATE.lang === 'ar' ? 'فشل الطباعة: ' : 'Print failed: ') + err.message, 'error');
     } finally {
-        // Restore button state
         btn.html(originalHtml).prop('disabled', false);
     }
 }
@@ -1518,6 +2324,149 @@ async function printReceiptPDF() {
             }
         }
 
+        // --- 💾 Auto-Save Draft ---
+        function saveDraft() {
+            if ($('#screen-entry').is(':hidden')) return; // Only save when entry screen is active
+            const draft = {
+                cart: mobileCart,
+                mode: currentMode,
+                headers: {
+                    date: $('#txDate').val(),
+                    from: $('#txFrom').val(),
+                    to: $('#txTo').val(),
+                    reason: $('#txReason').val(),
+                    ref: $('#txRef').val(),
+                    notes: $('#txNotes').val()
+                }
+            };
+            localStorage.setItem('ezem_draft', JSON.stringify(draft));
+        }
+
+        function restoreDraft() {
+            const draftRaw = localStorage.getItem('ezem_draft');
+            if(draftRaw) {
+                try {
+                    const draft = JSON.parse(draftRaw);
+                    if(draft.cart && draft.cart.length > 0) {
+                        mobileCart = draft.cart;
+                        currentMode = draft.mode || 'Waste';
+                        
+                        // Wait slightly for UI to be ready, then switch to entry screen
+                        setTimeout(() => {
+                            if ($('#screen-dashboard').is(':visible')) {
+                                startMovement(currentMode);
+                            }
+                            
+                            updateCartUI();
+                            renderCatalogItems();
+                            
+                            // Restore headers
+                            if(draft.headers) {
+                                if(draft.headers.date) $('#txDate').val(draft.headers.date);
+                                if(draft.headers.ref) $('#txRef').val(draft.headers.ref);
+                                if(draft.headers.notes) $('#txNotes').val(draft.headers.notes);
+                                // For select elements, need to wait for rendering
+                                setTimeout(() => {
+                                    if(draft.headers.from) $('#txFrom').val(draft.headers.from);
+                                    if(draft.headers.to) $('#txTo').val(draft.headers.to);
+                                    if(draft.headers.reason) $('#txReason').val(draft.headers.reason);
+                                }, 500);
+                            }
+                            
+                            Swal.fire({
+                                toast: true, position: 'bottom', showConfirmButton: false, timer: 3000, 
+                                title: STATE.lang === 'ar' ? 'تم استعادة المسودة' : 'Draft restored', icon: 'info'
+                            });
+                        }, 500);
+                    }
+                } catch(e) {}
+            }
+        }
+
+        // --- ✨ Ripple Effect ---
+        $(document).on('mousedown touchstart', '.btn-action', function(e) {
+            const btn = $(this);
+            if(btn.css('position') === 'static') btn.css('position', 'relative');
+            btn.css('overflow', 'hidden');
+            const ripple = $('<span class="ripple"></span>');
+            
+            const offset = btn.offset();
+            let x, y;
+            if(e.type === 'touchstart') {
+                x = e.originalEvent.touches[0].pageX - offset.left;
+                y = e.originalEvent.touches[0].pageY - offset.top;
+            } else {
+                x = e.pageX - offset.left;
+                y = e.pageY - offset.top;
+            }
+            const size = Math.max(btn.outerWidth(), btn.outerHeight());
+            ripple.css({ width: size, height: size, left: x - size/2, top: y - size/2 });
+            btn.append(ripple);
+            setTimeout(() => ripple.remove(), 600);
+        });
+
+        // --- 🤏 Swipe to Delete ---
+        let touchStartX = 0;
+        let touchCurrentX = 0;
+        $(document).on('touchstart', '.swipeable-card', function(e) {
+            touchStartX = e.originalEvent.touches[0].clientX;
+            $(this).css('transition', 'none');
+        });
+        $(document).on('touchmove', '.swipeable-card', function(e) {
+            touchCurrentX = e.originalEvent.touches[0].clientX;
+            let diff = touchCurrentX - touchStartX;
+            if(diff < 0) { // swipe left
+                $(this).css('transform', `translateX(${Math.max(diff, -80)}px)`);
+            }
+        });
+        $(document).on('touchend', '.swipeable-card', function(e) {
+            $(this).css('transition', 'transform 0.2s ease');
+            let diff = touchCurrentX - touchStartX;
+            if(diff < -40) {
+                $(this).css('transform', 'translateX(-80px)');
+            } else {
+                $(this).css('transform', 'translateX(0)');
+            }
+        });
+
+        // --- 👇 Pull to Refresh ---
+        let pStart = {y: 0};
+        let pCurrent = {y: 0};
+        $(document).on('touchstart', '#screen-dashboard', function(e) {
+            if($(window).scrollTop() === 0) {
+                pStart.y = e.originalEvent.touches[0].clientY;
+            } else {
+                pStart.y = -1; // disable
+            }
+        });
+        $(document).on('touchmove', '#screen-dashboard', function(e) {
+            if(pStart.y > -1) {
+                pCurrent.y = e.originalEvent.touches[0].clientY;
+                let diff = pCurrent.y - pStart.y;
+                if(diff > 0 && diff < 150) {
+                    $('#screen-dashboard').css('transform', `translateY(${diff/3}px)`);
+                }
+            }
+        });
+        $(document).on('touchend', '#screen-dashboard', function(e) {
+            if(pStart.y > -1) {
+                let diff = pCurrent.y - pStart.y;
+                $('#screen-dashboard').css({ 'transition': 'transform 0.3s ease', 'transform': 'translateY(0)' });
+                setTimeout(() => $('#screen-dashboard').css('transition', ''), 300);
+                if(diff > 100) {
+                    if (typeof hapticFeedback === 'function') hapticFeedback('medium');
+                    Swal.fire({title: STATE.lang === 'ar' ? 'جاري التحديث...' : 'Refreshing...', showConfirmButton: false, timer: 1000});
+                    setTimeout(() => location.reload(), 1000); // Simple reload to refresh data
+                }
+            }
+        });
+
+        // Initialize draft restore and listeners
+        $(document).ready(function() {
+            setTimeout(restoreDraft, 1000); // wait for initial load
+            $('#txDate, #txFrom, #txTo, #txReason, #txRef, #txNotes').on('change input', saveDraft);
+        });
+
         function applyLanguageUI() {
             const lang = STATE.lang || 'ar';
             document.documentElement.lang = lang;
@@ -1531,8 +2480,12 @@ async function printReceiptPDF() {
             $('#dash-subtitle').text(dict.subtitle);
             $('#btn-waste-title').text(dict.btn_waste_title);
             $('#btn-waste-desc').text(dict.btn_waste_desc);
-            $('#btn-transfer-title').text(dict.btn_transfer_title);
-            $('#btn-transfer-desc').text(dict.btn_transfer_desc);
+            $('#btn-transfer-out-title').text(dict.btn_transfer_out_title);
+            $('#btn-transfer-out-desc').text(dict.btn_transfer_out_desc);
+            $('#btn-transfer-in-title').text(dict.btn_transfer_in_title);
+            $('#btn-transfer-in-desc').text(dict.btn_transfer_in_desc);
+            $('#btn-receive-title').text(dict.btn_receive_title);
+            $('#btn-receive-desc').text(dict.btn_receive_desc);
             $('#low-stock-title').text(dict.low_stock_title);
             
             $('#btn-back').html(`<i class="fa-solid ${lang === 'ar' ? 'fa-arrow-right' : 'fa-arrow-left'}"></i> <span>${dict.btn_back}</span>`);
