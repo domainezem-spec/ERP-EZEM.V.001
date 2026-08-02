@@ -26,6 +26,7 @@
 
     <!-- ERP-EZEM Local Main Styles -->
     <link rel="stylesheet" href="styles/main.css" />
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
 
     <style>
         :root {
@@ -135,18 +136,69 @@
     box-shadow: 0 4px 12px -4px rgba(91,108,255,0.4) !important;
     transition: all 0.2s ease !important;
 }
-.btn-action:hover {
-    background: var(--primary-hover) !important;
-    box-shadow: 0 6px 14px -4px rgba(91,108,255,0.5) !important;
-}
-.btn-action:active {
-    transform: scale(0.97) !important;
-    box-shadow: 0 2px 8px -4px rgba(91,108,255,0.3) !important;
-}
         }
+
+        /* Movoments style action button */
+        .btn-action {
+            background: var(--primary) !important;
+            color: #ffffff !important;
+            border: none !important;
+            border-radius: 12px !important;
+            padding: 0.5rem 1rem !important;
+            font-weight: 600 !important;
+            font-size: 0.875rem !important;
+            box-shadow: 0 4px 12px -4px rgba(91,108,255,0.4) !important;
+            transition: all 0.2s ease !important;
+        }
+        .btn-action:hover {
+            background: var(--primary-hover) !important;
+            box-shadow: 0 6px 14px -4px rgba(91,108,255,0.5) !important;
+        }
+        .btn-action:active {
+            transform: scale(0.97) !important;
+            box-shadow: 0 2px 8px -4px rgba(91,108,255,0.3) !important;
+        }
+        
         .btn-slim-primary:active {
             transform: scale(0.97) !important;
             box-shadow: 0 4px 10px -4px rgba(91, 108, 255, 0.4) !important;
+        }
+        
+        /* Select2 Custom Styles */
+        .select2-container--default .select2-selection--single {
+            height: 44px !important;
+            border-radius: 10px !important;
+            border: 1px solid #f1f5f9 !important;
+            background: #ffffff !important;
+            display: flex;
+            align-items: center;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.02) !important;
+        }
+        .select2-container--default .select2-selection--single .select2-selection__rendered {
+            font-size: 13px !important;
+            font-weight: 700 !important;
+            color: #1e293b !important;
+            line-height: normal !important;
+            padding-left: 0.75rem !important;
+            padding-right: 0.75rem !important;
+        }
+        .select2-container--default .select2-selection--single .select2-selection__arrow {
+            height: 42px !important;
+        }
+        html.dark .select2-container--default .select2-selection--single {
+            background: rgba(15, 23, 42, 0.8) !important;
+            border-color: rgba(99, 102, 241, 0.3) !important;
+        }
+        html.dark .select2-container--default .select2-selection--single .select2-selection__rendered {
+            color: #e2e8f0 !important;
+        }
+        .select2-dropdown {
+            border: 1px solid var(--border-color) !important;
+            border-radius: 10px !important;
+            box-shadow: var(--shadow-soft) !important;
+            font-family: 'Cairo', sans-serif !important;
+            font-size: 13px !important;
+            font-weight: 700 !important;
         }
 
         /* Premium Action Card Hover & Active states */
@@ -337,6 +389,11 @@
                 <span>دخول إلى المنظومة</span>
                 <i class="fa-solid fa-arrow-left text-[9px] opacity-80"></i>
             </button>
+            
+            <a href="https://inventory-v03-nw9v.vercel.app/" class="w-full h-12 rounded-xl font-bold text-xs flex items-center justify-center gap-2 mt-2 transition-all" style="background: #1e293b; color: white; border: none; box-shadow: 0 4px 12px -4px rgba(30, 41, 59, 0.4); text-decoration: none;">
+                <span>نظام الجرد (Inventory System)</span>
+                <i class="fa-solid fa-boxes-stacked text-[11px] opacity-80"></i>
+            </a>
         </div>
 
         <div class="mt-12 text-center text-[10px] font-black text-slate-400 uppercase tracking-widest">
@@ -392,62 +449,42 @@
             </div>
 
             <!-- Dashboard Action Cards -->
-            <div class="grid grid-cols-1 gap-2">
+            <div class="grid grid-cols-2 gap-3">
                 
                 <!-- 📦 RECEIVING CARD -->
-                <button onclick="startMovement('Receiving')" data-action="receive" class="btn-action w-full text-right p-3 flex items-center justify-between group">
-                    <div class="flex items-center gap-3">
-                        <div class="w-8 h-8 rounded-lg bg-green-50 text-green-600 flex items-center justify-center text-sm border border-green-100">
-                            <i class="fa-solid fa-boxes-packing"></i>
-                        </div>
-                        <div>
-                            <h2 class="text-[12px] font-bold text-[var(--text-primary)]" id="btn-receive-title">استلام بضاعة</h2>
-                            <p class="text-[9px] text-[var(--text-secondary)] leading-tight mt-0.5" id="btn-receive-desc">تسجيل استلام بضائع من الموردين أو المطبخ المركزي</p>
-                        </div>
+                <button onclick="startMovement('Receiving')" data-action="receive" class="btn-action w-full p-4 flex flex-col items-center justify-center text-center group aspect-square rounded-2xl">
+                    <div class="w-12 h-12 rounded-2xl bg-white/20 flex items-center justify-center text-2xl mb-2 shadow-sm">
+                        <i class="fa-solid fa-boxes-packing text-white"></i>
                     </div>
-                    <i class="fa-solid fa-chevron-left text-slate-300 text-[10px]"></i>
+                    <h2 class="text-[13px] font-black text-white leading-tight" id="btn-receive-title">استلام بضاعة</h2>
+                    <p class="text-[9px] text-white/75 leading-tight mt-1.5" id="btn-receive-desc">تسجيل استلام بضائع</p>
                 </button>
 
                 <!-- 🔄 TRANSFER OUT CARD -->
-                <button onclick="startMovement('TransferOut')" data-action="transfer-out" class="btn-action w-full text-right p-3 flex items-center justify-between group">
-                    <div class="flex items-center gap-3">
-                        <div class="w-8 h-8 rounded-lg bg-indigo-50 text-[var(--primary)] flex items-center justify-center text-sm border border-indigo-100">
-                            <i class="fa-solid fa-arrow-right-from-bracket"></i>
-                        </div>
-                        <div>
-                            <h2 class="text-[12px] font-bold text-[var(--text-primary)]" id="btn-transfer-out-title">تحويل صادر (Transfer Out)</h2>
-                            <p class="text-[9px] text-[var(--text-secondary)] leading-tight mt-0.5" id="btn-transfer-out-desc">إرسال بضائع أو خامات من موقعك إلى موقع آخر</p>
-                        </div>
+                <button onclick="startMovement('TransferOut')" data-action="transfer-out" class="btn-action w-full p-4 flex flex-col items-center justify-center text-center group aspect-square rounded-2xl">
+                    <div class="w-12 h-12 rounded-2xl bg-white/20 flex items-center justify-center text-2xl mb-2 shadow-sm">
+                        <i class="fa-solid fa-arrow-right-from-bracket text-white"></i>
                     </div>
-                    <i class="fa-solid fa-chevron-left text-slate-300 text-[10px]"></i>
+                    <h2 class="text-[13px] font-black text-white leading-tight" id="btn-transfer-out-title">تحويل صادر</h2>
+                    <p class="text-[9px] text-white/75 leading-tight mt-1.5" id="btn-transfer-out-desc">إرسال بضائع لموقع آخر</p>
                 </button>
 
                 <!-- 📥 TRANSFER IN CARD -->
-                <button onclick="startMovement('TransferIn')" data-action="transfer-in" class="btn-action w-full text-right p-3 flex items-center justify-between group" style="background: linear-gradient(135deg,#f0fdf4,#dcfce7) !important; border:1px solid #bbf7d0 !important;">
-                    <div class="flex items-center gap-3">
-                        <div class="w-8 h-8 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center text-sm border border-emerald-100">
-                            <i class="fa-solid fa-arrow-right-to-bracket"></i>
-                        </div>
-                        <div>
-                            <h2 class="text-[12px] font-bold text-[var(--text-primary)]" id="btn-transfer-in-title">تحويل وارد (Transfer In)</h2>
-                            <p class="text-[9px] text-[var(--text-secondary)] leading-tight mt-0.5" id="btn-transfer-in-desc">استقبال بضائع أو خامات قادمة من موقع آخر</p>
-                        </div>
+                <button onclick="startMovement('TransferIn')" data-action="transfer-in" class="btn-action w-full p-4 flex flex-col items-center justify-center text-center group aspect-square rounded-2xl" style="background: linear-gradient(135deg,#10B981,#059669) !important; border: none !important;">
+                    <div class="w-12 h-12 rounded-2xl bg-white/20 flex items-center justify-center text-2xl mb-2 shadow-sm">
+                        <i class="fa-solid fa-arrow-right-to-bracket text-white"></i>
                     </div>
-                    <i class="fa-solid fa-chevron-left text-slate-300 text-[10px]"></i>
+                    <h2 class="text-[13px] font-black text-white leading-tight" id="btn-transfer-in-title">تحويل وارد</h2>
+                    <p class="text-[9px] text-white/75 leading-tight mt-1.5" id="btn-transfer-in-desc">استقبال بضائع من موقع</p>
                 </button>
 
                 <!-- 🗑️ WASTE CARD -->
-                <button onclick="startMovement('Waste')" data-action="waste" class="btn-action w-full text-right p-3 flex items-center justify-between group">
-                    <div class="flex items-center gap-3">
-                        <div class="w-8 h-8 rounded-lg bg-red-50 text-[var(--danger)] flex items-center justify-center text-sm border border-red-100">
-                            <i class="fa-solid fa-trash-can"></i>
-                        </div>
-                        <div>
-                            <h2 class="text-[12px] font-bold text-[var(--text-primary)]" id="btn-waste-title">تسجيل كمية هالك</h2>
-                            <p class="text-[9px] text-[var(--text-secondary)] leading-tight mt-0.5" id="btn-waste-desc">تسجيل تالف، منتهي صلاحية، أو عجز بالخط الساخن</p>
-                        </div>
+                <button onclick="startMovement('Waste')" data-action="waste" class="btn-action w-full p-4 flex flex-col items-center justify-center text-center group aspect-square rounded-2xl" style="background: linear-gradient(135deg,#EF4444,#DC2626) !important; border: none !important;">
+                    <div class="w-12 h-12 rounded-2xl bg-white/20 flex items-center justify-center text-2xl mb-2 shadow-sm">
+                        <i class="fa-solid fa-trash-can text-white"></i>
                     </div>
-                    <i class="fa-solid fa-chevron-left text-slate-300 text-[10px]"></i>
+                    <h2 class="text-[13px] font-black text-white leading-tight" id="btn-waste-title">تسجيل هالك</h2>
+                    <p class="text-[9px] text-white/75 leading-tight mt-1.5" id="btn-waste-desc">تالف أو منتهي صلاحية</p>
                 </button>
             </div>
 
@@ -489,14 +526,14 @@
                 
                 <div class="grid grid-cols-2 gap-4">
                     <div class="space-y-1.5">
-                        <label class="text-[9px] font-black text-slate-400 uppercase tracking-wider block" id="lbl-date">التاريخ DATE</label>
+                        <label class="text-[9px] font-black text-slate-400 uppercase tracking-wider block" id="lbl-date">التاريخ DATE <span class="text-red-500 text-xs">*</span></label>
                         <div class="relative">
                             <input type="date" id="txDate" class="w-full h-11 rounded-xl px-4 input-premium text-xs font-bold text-slate-800">
                         </div>
                     </div>
                     
                     <div class="space-y-1.5">
-                        <label class="text-[9px] font-black text-slate-400 uppercase tracking-wider block" id="lbl-trx-type">نوع الحركة TRX TYPE</label>
+                        <label class="text-[9px] font-black text-slate-400 uppercase tracking-wider block" id="lbl-trx-type">نوع الحركة TRX TYPE <span class="text-red-500 text-xs">*</span></label>
                         <select id="txType" class="w-full h-11 rounded-xl px-4 input-premium text-xs font-bold text-slate-800 pointer-events-none bg-slate-50" disabled>
                             <!-- Filled dynamically -->
                         </select>
@@ -505,14 +542,14 @@
 
                 <div class="grid grid-cols-2 gap-4">
                     <div class="space-y-1.5" id="form-group-from">
-                        <label class="text-[9px] font-black text-slate-400 uppercase tracking-wider block" id="lbl-from">من FROM</label>
+                        <label class="text-[9px] font-black text-slate-400 uppercase tracking-wider block" id="lbl-from">من FROM <span class="text-red-500 text-xs">*</span></label>
                         <select id="txFrom" class="w-full h-11 rounded-xl px-4 input-premium text-xs font-bold text-slate-800">
                             <!-- Filled dynamically -->
                         </select>
                     </div>
 
                     <div class="space-y-1.5" id="form-group-to">
-                        <label class="text-[9px] font-black text-slate-400 uppercase tracking-wider block" id="lbl-to">إلى TO</label>
+                        <label class="text-[9px] font-black text-slate-400 uppercase tracking-wider block" id="lbl-to">إلى TO <span class="text-red-500 text-xs">*</span></label>
                         <div id="to-container">
                             <select id="txTo" class="w-full h-11 rounded-xl px-4 input-premium text-xs font-bold text-slate-800">
                                 <!-- Filled dynamically -->
@@ -522,35 +559,57 @@
                 </div>
 
                 <div class="space-y-1.5" id="form-group-reason">
-                    <label class="text-[9px] font-black text-slate-400 uppercase tracking-wider block" id="lbl-reason">السبب REASON</label>
+                    <label class="text-[9px] font-black text-slate-400 uppercase tracking-wider block" id="lbl-reason">السبب REASON <span class="text-red-500 text-xs">*</span></label>
                     <div id="reason-container">
                         <input type="text" id="txReason" class="w-full h-11 rounded-xl px-4 input-premium text-xs font-bold text-slate-800" placeholder="---">
                     </div>
                 </div>
 
                 <div class="space-y-1.5">
-                    <label class="text-[9px] font-black text-slate-400 uppercase tracking-wider block" id="lbl-ref">رقم المرجع REF #</label>
+                    <label class="text-[9px] font-black text-slate-400 uppercase tracking-wider block flex items-center justify-between" id="lbl-ref">
+                        <span>رقم المرجع REF #</span>
+                        <span class="font-normal text-slate-300">(اختياري)</span>
+                    </label>
                     <input type="text" id="txRef" class="w-full h-11 rounded-xl px-4 input-premium text-xs font-bold text-slate-800" placeholder="Invoice #">
                 </div>
 
                 <div class="space-y-1.5">
-                    <label class="text-[9px] font-black text-slate-400 uppercase tracking-wider block" id="lbl-notes">ملاحظات NOTES</label>
-                    <textarea id="txNotes" class="w-full rounded-xl p-3 input-premium text-xs font-bold text-slate-800 resize-none min-h-[60px]"></textarea>
+                    <label class="text-[9px] font-black text-slate-400 uppercase tracking-wider block flex items-center justify-between" id="lbl-notes">
+                        <span>ملاحظات / سبب إضافي</span>
+                        <span class="font-normal text-slate-300">(اختياري)</span>
+                    </label>
+                    <textarea id="txNotes" class="w-full rounded-xl p-3 input-premium text-xs font-bold text-slate-800 resize-none min-h-[60px]" placeholder="ملاحظات توضيحية اختيارية..."></textarea>
                 </div>
 
                 <!-- 📷 Waste Photo Upload Card (Only visible when currentMode === 'Waste') -->
                 <div class="space-y-1 pt-1" id="form-group-waste-photo">
-                    <label class="text-[9px] font-black text-slate-500 block" id="lbl-photo">صورة إثبات الهالك</label>
-                    <div onclick="document.getElementById('txImageInput').click();" class="glass-card rounded-2xl p-4 text-center border-2 border-dashed border-slate-200 hover:border-indigo-500 transition-all cursor-pointer relative" id="photo-upload-card" style="margin-bottom: 0 !important; background: #ffffff !important;">
-                        <input type="file" accept="image/*" id="txImageInput" class="hidden" multiple onchange="handleImageUpload(event)">
+                    <label class="text-[9px] font-black text-slate-500 block flex items-center justify-between" id="lbl-photo">
+                        <span>صورة إثبات الهالك</span>
+                        <span class="font-normal text-slate-400">(اختياري)</span>
+                    </label>
+                    <div class="glass-card rounded-2xl p-4 text-center border-2 border-dashed border-slate-200" style="margin-bottom: 0 !important; background: #ffffff !important;">
+                        <input type="file" accept="image/*" id="txImageInputMulti" class="hidden" multiple onchange="handleImageUpload(event)">
+                        <input type="file" accept="image/*" capture="environment" id="txImageInputCamera" class="hidden" onchange="handleImageUpload(event)">
                         
-                        <div id="upload-placeholder" class="space-y-1 py-1.5 pointer-events-none">
-                            <i class="fa-solid fa-camera text-slate-400 text-lg"></i>
-                            <div class="text-xs font-black text-slate-700" id="lbl-photo-box-title">إرفاق صورة الهالك</div>
-                            <div class="text-[9px] text-slate-400 font-bold" id="lbl-photo-box-desc">اضغط لاختيار أكثر من صورة أو التقاط بالكاميرا</div>
+                        <div id="upload-placeholder" class="space-y-3 py-1.5">
+                            <div class="flex items-center justify-center gap-6">
+                                <button onclick="document.getElementById('txImageInputCamera').click();" type="button" class="flex flex-col items-center justify-center gap-2 text-slate-500 hover:text-indigo-600 active:scale-95 transition-all focus:outline-none">
+                                    <div class="w-12 h-12 rounded-full bg-slate-50 flex items-center justify-center shadow-sm border border-slate-200">
+                                        <i class="fa-solid fa-camera text-xl"></i>
+                                    </div>
+                                    <span class="text-[9px] font-black uppercase">التقاط صورة</span>
+                                </button>
+                                <div class="w-px h-8 bg-slate-200"></div>
+                                <button onclick="document.getElementById('txImageInputMulti').click();" type="button" class="flex flex-col items-center justify-center gap-2 text-slate-500 hover:text-indigo-600 active:scale-95 transition-all focus:outline-none">
+                                    <div class="w-12 h-12 rounded-full bg-slate-50 flex items-center justify-center shadow-sm border border-slate-200">
+                                        <i class="fa-solid fa-images text-xl"></i>
+                                    </div>
+                                    <span class="text-[9px] font-black uppercase">اختيار صور</span>
+                                </button>
+                            </div>
                         </div>
                         
-                        <div id="upload-preview-container" class="hidden flex-wrap gap-2 justify-center mx-auto mt-2" onclick="event.stopPropagation()">
+                        <div id="upload-preview-container" class="hidden flex-wrap gap-2 justify-center mx-auto mt-4 pt-4 border-t border-slate-100">
                             <!-- Images injected here -->
                         </div>
                     </div>
@@ -572,8 +631,8 @@
                     <button id="btn-voice-search" onclick="startVoiceSearch()" class="w-11 h-11 rounded-xl bg-slate-100 text-slate-600 border border-slate-200 flex flex-shrink-0 items-center justify-center text-sm shadow-sm hover:text-[var(--primary)] hover:bg-indigo-50 hover:border-indigo-200 transition-all">
                         <i class="fa-solid fa-microphone"></i>
                     </button>
-                    <button onclick="startBarcodeScanner()" class="w-11 h-11 rounded-xl bg-[var(--primary)] text-white flex flex-shrink-0 items-center justify-center text-sm shadow-sm hover:bg-[var(--primary-hover)] transition-colors">
-                        <i class="fa-solid fa-barcode"></i>
+                    <button onclick="startBarcodeScanner()" class="w-11 h-11 rounded-xl bg-indigo-600 text-white flex flex-shrink-0 items-center justify-center text-sm shadow-sm hover:bg-indigo-700 transition-colors">
+                        <i class="fa-solid fa-barcode text-lg"></i>
                     </button>
                 </div>
 
@@ -607,12 +666,12 @@
     <div id="floating-footer" class="hidden fixed bottom-0 left-0 right-0 z-50 bg-white/95 backdrop-blur-md border-t border-[var(--border-color)] p-4 shadow-[0_-10px_15px_-3px_rgba(0,0,0,0.1)] flex items-center justify-between max-w-md mx-auto pb-safe">
         <div class="flex items-center gap-4 text-right">
             <div class="space-y-0.5">
-                <div class="text-[9px] font-bold text-slate-400 uppercase tracking-wider" id="lbl-total-items">العدد</div>
+                <div class="text-[9px] font-bold text-slate-400 uppercase tracking-wider" id="lbl-total-items">عدد الأصناف</div>
                 <div class="text-[16px] font-black text-slate-800 leading-none premium-num" id="footer-count">0</div>
             </div>
             <div class="h-8 w-px bg-slate-200"></div>
             <div class="space-y-0.5">
-                <div class="text-[9px] font-bold text-slate-400 uppercase tracking-wider" id="lbl-total-cost">التكلفة</div>
+                <div class="text-[9px] font-bold text-slate-400 uppercase tracking-wider" id="lbl-total-cost">التكلفة الإجمالية</div>
                 <div class="text-[16px] font-black text-[var(--success)] leading-none premium-num" id="footer-cost">0.00</div>
             </div>
         </div>
@@ -704,6 +763,7 @@
     <!-- Core Scripts Load -->
     <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script src="core/state.js" defer></script>
     <script src="core/i18n.js" defer></script>
     <script src="core/auth.js" defer></script>
@@ -892,18 +952,15 @@
 
         function renderUploadPreviews() {
             const previewContainer = document.getElementById('upload-preview-container');
-            const placeholder = document.getElementById('upload-placeholder');
             
             previewContainer.innerHTML = '';
             
             if (uploadedImagesBase64.length === 0) {
                 previewContainer.classList.add('hidden');
                 previewContainer.classList.remove('flex');
-                placeholder.classList.remove('hidden');
                 return;
             }
             
-            placeholder.classList.add('hidden');
             previewContainer.classList.remove('hidden');
             previewContainer.classList.add('flex');
             
@@ -1147,6 +1204,7 @@
                     renderDashboard();
                     $('#loader').fadeOut(200, () => {
                         $('#app').removeClass('hidden');
+                        setTimeout(checkAndApplyDraft, 300);
                     });
                     
                     // Sync silently in background
@@ -1158,6 +1216,7 @@
                     renderDashboard();
                     $('#loader').fadeOut(400, () => {
                         $('#app').removeClass('hidden');
+                        setTimeout(checkAndApplyDraft, 300);
                     });
                 }
             } catch (e) {
@@ -1537,11 +1596,11 @@
 
             if (type === 'Waste') {
                 // From (Location)
-                $('#lbl-from').text(isAr ? 'من موقع (FROM)' : 'From Location (FROM)');
+                $('#lbl-from').html((isAr ? 'من موقع (FROM)' : 'From Location (FROM)') + ' <span class="text-red-500 text-xs">*</span>');
                 $('#txFrom').html(locOptions);
 
                 // To (Location / Account)
-                $('#lbl-to').text(isAr ? 'إلى موقع / حساب (TO)' : 'To Location / Account (TO)');
+                $('#lbl-to').html((isAr ? 'إلى موقع / حساب (TO)' : 'To Location / Account (TO)') + ' <span class="text-red-500 text-xs">*</span>');
                 let wasteToOptions = `<option value="Waste Account" selected>${isAr ? 'حساب الهالك' : 'Waste Account'}</option>` + locOptions.replace('<option value="">اختر...</option>', '').replace('<option value="">Select...</option>', '');
                 $('#to-container').html(`
                     <select id="txTo" class="w-full h-11 rounded-xl px-4 input-premium text-xs font-bold text-slate-800">
@@ -1564,11 +1623,11 @@
                 
             } else if (type === 'Receiving') {
                 // From (Branch/Vendor)
-                $('#lbl-from').text(isAr ? 'المورد / محول من (FROM)' : 'Vendor / Branch (FROM)');
+                $('#lbl-from').html((isAr ? 'المورد / محول من (FROM)' : 'Vendor / Branch (FROM)') + ' <span class="text-red-500 text-xs">*</span>');
                 $('#txFrom').html(locOptions);
 
                 // To (Location)
-                $('#lbl-to').text(isAr ? 'المستودع المستلم (TO)' : 'Receiving Store (TO)');
+                $('#lbl-to').html((isAr ? 'المستودع المستلم (TO)' : 'Receiving Store (TO)') + ' <span class="text-red-500 text-xs">*</span>');
                 $('#to-container').html(`
                     <select id="txTo" class="w-full h-11 rounded-xl px-4 input-premium text-xs font-bold text-slate-800">
                         ${locOptions.replace('اختر...', isAr ? 'اختر المستودع...' : 'Select Store...')}
@@ -1582,10 +1641,10 @@
 
             } else if (type === 'TransferOut' || type === 'Transfer') {
                 // Transfer OUT: From = my location, To = destination
-                $('#lbl-from').text(isAr ? 'الموقع المحول منه (FROM)' : 'From Location (FROM)');
+                $('#lbl-from').html((isAr ? 'الموقع المحول منه (FROM)' : 'From Location (FROM)') + ' <span class="text-red-500 text-xs">*</span>');
                 $('#txFrom').html(locOptions);
 
-                $('#lbl-to').text(isAr ? 'الموقع المحول إليه (TO)' : 'To Location (TO)');
+                $('#lbl-to').html((isAr ? 'الموقع المحول إليه (TO)' : 'To Location (TO)') + ' <span class="text-red-500 text-xs">*</span>');
                 $('#to-container').html(`
                     <select id="txTo" class="w-full h-11 rounded-xl px-4 input-premium text-xs font-bold text-slate-800">
                         ${locOptions}
@@ -1599,10 +1658,10 @@
 
             } else if (type === 'TransferIn') {
                 // Transfer IN: From = source location, To = my receiving location
-                $('#lbl-from').text(isAr ? 'الموقع المرسل منه (FROM)' : 'Sending Location (FROM)');
+                $('#lbl-from').html((isAr ? 'الموقع المرسل منه (FROM)' : 'Sending Location (FROM)') + ' <span class="text-red-500 text-xs">*</span>');
                 $('#txFrom').html(locOptions);
 
-                $('#lbl-to').text(isAr ? 'الموقع المستلم (TO)' : 'Receiving Location (TO)');
+                $('#lbl-to').html((isAr ? 'الموقع المستلم (TO)' : 'Receiving Location (TO)') + ' <span class="text-red-500 text-xs">*</span>');
                 $('#to-container').html(`
                     <select id="txTo" class="w-full h-11 rounded-xl px-4 input-premium text-xs font-bold text-slate-800">
                         ${locOptions}
@@ -1619,6 +1678,14 @@
             renderCatalogCategoryChips();
             renderCatalogItems();
             updateCartUI();
+            
+            // Initialize Select2 if available
+            if ($.fn.select2) {
+                $('#txFrom, #txTo').select2({
+                    dir: STATE.lang === 'ar' ? 'rtl' : 'ltr',
+                    width: '100%'
+                });
+            }
 
             // Toggle screens
             $('#screen-dashboard').fadeOut(200, () => {
@@ -1720,25 +1787,79 @@
         // --- Cart Operations ---
 
         function addItemToCart(code, name, cost) {
-            const existing = mobileCart.find(c => c.code === code);
-            
-            if (existing) {
-                existing.qty++;
-            } else {
-                mobileCart.push({
-                    code: code,
-                    name: name,
-                    qty: 1,
-                    cost: parseFloat(cost) || 0,
-                    batch: "MOBILE",
-                    expiry: ""
-                });
-            }
-
-            hapticFeedback('light');
-            
-            updateCartUI();
-            renderCatalogItems();
+            Swal.fire({
+                title: STATE.lang === 'ar' ? 'إدخال الكمية' : 'Enter Quantity',
+                html: `
+                    <div class="text-sm font-bold text-slate-500 mb-6 px-2 leading-tight">${name} <br> <span class="text-[10px] font-mono text-slate-400 mt-1 inline-block">#${code}</span></div>
+                    <div class="flex items-center justify-center gap-3 my-2" dir="ltr">
+                        <button id="btn-qty-minus" class="w-14 h-14 rounded-2xl bg-slate-100 text-slate-600 flex items-center justify-center text-2xl font-bold hover:bg-slate-200 active:scale-95 transition-all focus:outline-none border border-slate-200 shadow-sm"><i class="fa-solid fa-minus"></i></button>
+                        <input type="number" id="swal-input-qty" inputmode="decimal" class="w-28 h-14 text-center font-black text-2xl bg-white border-2 border-slate-200 rounded-2xl focus:border-indigo-500 focus:outline-none premium-num shadow-inner" value="1" min="0.1" step="any">
+                        <button id="btn-qty-plus" class="w-14 h-14 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center text-2xl font-bold hover:bg-indigo-100 active:scale-95 transition-all focus:outline-none border border-indigo-200 shadow-sm"><i class="fa-solid fa-plus"></i></button>
+                    </div>
+                `,
+                showCancelButton: true,
+                confirmButtonText: STATE.lang === 'ar' ? 'إدراج' : 'Insert',
+                cancelButtonText: STATE.lang === 'ar' ? 'إلغاء' : 'Cancel',
+                confirmButtonColor: '#4f46e5',
+                customClass: { popup: 'rounded-3xl' },
+                didOpen: () => {
+                    const input = document.getElementById('swal-input-qty');
+                    const btnPlus = document.getElementById('btn-qty-plus');
+                    const btnMinus = document.getElementById('btn-qty-minus');
+                    
+                    input.select();
+                    
+                    input.addEventListener('keyup', (e) => {
+                        if (e.key === 'Enter' || e.keyCode === 13) {
+                            Swal.clickConfirm();
+                        }
+                    });
+                    
+                    btnPlus.onclick = () => {
+                        let val = parseFloat(input.value || 0);
+                        input.value = (val + 1).toFixed(3).replace(/\.?0+$/, '');
+                        if (typeof hapticFeedback === 'function') hapticFeedback('light');
+                    };
+                    btnMinus.onclick = () => {
+                        let val = parseFloat(input.value || 0);
+                        if (val > 1) {
+                            input.value = (val - 1).toFixed(3).replace(/\.?0+$/, '');
+                        } else if (val > 0) {
+                            input.value = '0';
+                        }
+                        if (typeof hapticFeedback === 'function') hapticFeedback('light');
+                    };
+                },
+                preConfirm: () => {
+                    const val = document.getElementById('swal-input-qty').value;
+                    if (!val || parseFloat(val) <= 0) {
+                        Swal.showValidationMessage(STATE.lang === 'ar' ? 'يرجى إدخال كمية صحيحة أكبر من الصفر' : 'Please enter a valid quantity');
+                        return false;
+                    }
+                    return val;
+                }
+            }).then((result) => {
+                if (result.isConfirmed && result.value > 0) {
+                    const qty = parseFloat(result.value);
+                    const existing = mobileCart.find(c => c.code === code);
+                    
+                    if (existing) {
+                        existing.qty += qty;
+                    } else {
+                        mobileCart.push({
+                            code: code,
+                            name: name,
+                            qty: qty,
+                            cost: parseFloat(cost) || 0,
+                            batch: "MOBILE",
+                            expiry: ""
+                        });
+                    }
+                    if (typeof hapticFeedback === 'function') hapticFeedback('medium');
+                    updateCartUI();
+                    renderCatalogItems();
+                }
+            });
         }
 
         function adjustQty(code, amount) {
@@ -1782,11 +1903,9 @@
 
             container.empty();
 
-            let totalItems = 0;
             let totalCost = 0;
 
             mobileCart.forEach(item => {
-                totalItems += item.qty;
                 const costLine = item.qty * item.cost;
                 totalCost += costLine;
 
@@ -1822,7 +1941,7 @@
                 container.append(itemCard);
             });
 
-            $('#footer-count').text(totalItems.toLocaleString(undefined, {maximumFractionDigits: 2}));
+            $('#footer-count').text(mobileCart.length.toString());
             $('#footer-cost').text(totalCost.toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}));
         }
 
@@ -2188,7 +2307,8 @@ async function printReceiptPDF() {
                     .report-container { width: 100%; padding: 10px; }
                     .header-bar { display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; padding-bottom:12px; border-bottom:3px solid #0f172a; }
                     .header-left { display:flex; align-items:center; gap:12px; }
-                    .header-left .logo-box { width:40px; height:40px; background:#4f46e5; border-radius:8px; display:flex; align-items:center; justify-content:center; color:#fff; font-weight:900; font-size:14px; }
+                    .header-left .logo-box { width:60px; display:flex; align-items:center; justify-content:center; }
+                    .header-left .logo-box img { max-width:100%; max-height:45px; object-fit:contain; }
                     .header-left .brand { }
                     .header-left .brand h1 { font-size:18px; font-weight:900; color:#0f172a; margin:0; line-height:1.1; }
                     .header-left .brand small { font-size:8px; font-weight:700; color:#94a3b8; text-transform:uppercase; letter-spacing:2px; }
@@ -2209,7 +2329,9 @@ async function printReceiptPDF() {
                 <div class="report-container" dir="${isAr ? 'rtl' : 'ltr'}">
                     <div class="header-bar">
                         <div class="header-left">
-                            <div class="logo-box">EZ</div>
+                            <div class="logo-box">
+                                <img src="https://www.lycheeegypt.com/wp-content/themes/storefront-child/assets/img/logo.png" alt="Lychee" />
+                            </div>
                             <div class="brand">
                                 <h1>EZEM PRO</h1>
                                 <small>ENTERPRISE RESOURCE PLANNING</small>
@@ -2342,42 +2464,40 @@ async function printReceiptPDF() {
             localStorage.setItem('ezem_draft', JSON.stringify(draft));
         }
 
-        function restoreDraft() {
+        function checkAndApplyDraft() {
             const draftRaw = localStorage.getItem('ezem_draft');
             if(draftRaw) {
                 try {
                     const draft = JSON.parse(draftRaw);
-                    if(draft.cart && draft.cart.length > 0) {
-                        mobileCart = draft.cart;
+                    const hasCart = draft.cart && draft.cart.length > 0;
+                    const hasHeaders = draft.headers && Object.values(draft.headers).some(v => v);
+                    
+                    if(hasCart || hasHeaders) {
+                        mobileCart = draft.cart || [];
                         currentMode = draft.mode || 'Waste';
                         
-                        // Wait slightly for UI to be ready, then switch to entry screen
-                        setTimeout(() => {
-                            if ($('#screen-dashboard').is(':visible')) {
-                                startMovement(currentMode);
-                            }
+                        startMovement(currentMode); // Switch screen and build dynamic DOM
+                        
+                        // Restore headers
+                        if(draft.headers) {
+                            if(draft.headers.date) $('#txDate').val(draft.headers.date);
+                            if(draft.headers.ref) $('#txRef').val(draft.headers.ref);
+                            if(draft.headers.notes) $('#txNotes').val(draft.headers.notes);
                             
-                            updateCartUI();
-                            renderCatalogItems();
-                            
-                            // Restore headers
-                            if(draft.headers) {
-                                if(draft.headers.date) $('#txDate').val(draft.headers.date);
-                                if(draft.headers.ref) $('#txRef').val(draft.headers.ref);
-                                if(draft.headers.notes) $('#txNotes').val(draft.headers.notes);
-                                // For select elements, need to wait for rendering
-                                setTimeout(() => {
-                                    if(draft.headers.from) $('#txFrom').val(draft.headers.from);
-                                    if(draft.headers.to) $('#txTo').val(draft.headers.to);
-                                    if(draft.headers.reason) $('#txReason').val(draft.headers.reason);
-                                }, 500);
-                            }
-                            
+                            // For select elements, wait slightly for HTML to render
+                            setTimeout(() => {
+                                if(draft.headers.from) $('#txFrom').val(draft.headers.from).trigger('change');
+                                if(draft.headers.to) $('#txTo').val(draft.headers.to).trigger('change');
+                                if(draft.headers.reason) $('#txReason').val(draft.headers.reason).trigger('change');
+                            }, 500);
+                        }
+                        
+                        if (hasCart) {
                             Swal.fire({
                                 toast: true, position: 'bottom', showConfirmButton: false, timer: 3000, 
                                 title: STATE.lang === 'ar' ? 'تم استعادة المسودة' : 'Draft restored', icon: 'info'
                             });
-                        }, 500);
+                        }
                     }
                 } catch(e) {}
             }
@@ -2461,9 +2581,8 @@ async function printReceiptPDF() {
             }
         });
 
-        // Initialize draft restore and listeners
+        // Initialize listeners
         $(document).ready(function() {
-            setTimeout(restoreDraft, 1000); // wait for initial load
             $('#txDate, #txFrom, #txTo, #txReason, #txRef, #txNotes').on('change input', saveDraft);
         });
 
